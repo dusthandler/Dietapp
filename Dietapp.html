@@ -131,11 +131,27 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 30px;
+            /* Añade esto para el scroll personalizado */
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Columna izquierda (contenido principal) */
+        .container > div:first-child {
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            padding-right: 15px;
+        }
+
+        .container > div:first-child::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
         }
 
         @media (min-width: 768px) {
             .container {
                 grid-template-columns: 2fr 1fr;
+                height: calc(100vh - 40px); /* Ajusta según tu header */
             }
         }
 
@@ -524,7 +540,16 @@
 
         .totals-section {
             position: sticky;
-            top: 20px;
+            top: 0;
+            height: calc(100vh - 40px); /* Ajusta según tu header */
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-right: 15px;
+        }
+
+        .totals-section::-webkit-scrollbar {
+            display: none;
         }
 
         .shopping-list {
@@ -539,14 +564,14 @@
             margin-top: 0;
         }
 
-        .shopping-list-content {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
         .shopping-list-item {
             padding: 8px 0;
             border-bottom: 1px solid var(--border);
+            margin: 4px 0;
+        }
+
+        .shopping-list-item:hover {
+            background-color: rgba(0,0,0,0.05);
         }
 
         .shopping-list-tabs {
@@ -1623,9 +1648,17 @@
                 
                 listContent.innerHTML = sortedFoods.map(food => `
                     <div class="shopping-list-item">
-                        ${foodDB[food].emoji} ${food} - ${foodQuantities[food].toFixed(0)}g
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${foodDB[food].emoji} ${food}
+                            </div>
+                            <div style="font-weight: bold;">${foodQuantities[food].toFixed(0)}g</div>
+                        </div>
                     </div>
                 `).join('');
+                if (sortedFoods.length === 0) {
+                    listContent.innerHTML = '<div style="color: #999; text-align: center; padding: 10px;">No hay productos en la lista</div>';
+                }
             };
 
             const showShoppingList = (type) => {
@@ -2173,6 +2206,23 @@
                 calculateSelectedTotals
             };
         })();
+
+         // Código mejorado para el scroll sincronizado
+        document.addEventListener('DOMContentLoaded', () => {
+            const leftColumn = document.querySelector('.container > div:first-child');
+            const rightColumn = document.querySelector('.totals-section');
+            
+            if (!leftColumn || !rightColumn) return;
+
+            leftColumn.addEventListener('scroll', () => {
+                // Margen de 5px para considerar que llegó al final
+                const reachedBottom = leftColumn.scrollHeight - leftColumn.scrollTop <= leftColumn.clientHeight + 5;
+                
+                if (reachedBottom && rightColumn.scrollTop < rightColumn.scrollHeight - rightColumn.clientHeight) {
+                    rightColumn.scrollTop += 15; // Velocidad de scroll
+                }
+            });
+        });
 
         // Inicializar la aplicación cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', App.init);
