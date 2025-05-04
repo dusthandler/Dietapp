@@ -41,6 +41,90 @@
             transition: background 0.3s, color 0.3s;
         }
 
+        /* Estilos para las cantidades */
+        .quantity-input {
+            width: 60px !important;
+            padding: 4px 6px !important;
+            text-align: center;
+            margin-right: 5px;
+        }
+
+        /* Contenedor de acciones de alimentos */
+        .food-actions {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 150px;
+            justify-content: flex-end;
+        }
+
+        /* Estilos para los badges de macros */
+        .macro-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .macro-badge.calories { background: rgba(255, 107, 107, 0.2); }
+        .macro-badge.protein { background: rgba(77, 171, 247, 0.2); }
+        .macro-badge.carbs { background: rgba(254, 202, 87, 0.2); }
+        .macro-badge.fats { background: rgba(120, 224, 143, 0.2); }
+        .macro-badge.cost { 
+            background: rgba(159, 90, 253, 0.2);
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Contenedor de macros */
+        .food-macros-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        /* Estilo para los ítems de comida */
+        .food-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .food-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .food-name {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Ajustes para los botones de eliminar */
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--danger);
+            font-size: 1.1em;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -138,27 +222,77 @@
         }
 
         .quick-amount {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
             gap: 5px;
             margin-top: 8px;
         }
 
         .quick-amount-btn {
-            padding: 2px 5px;
-            font-size: 0.8em;
-            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
             border: none;
-            border-radius: 3px;
             cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+            flex: 1;
         }
 
         .quick-amount-btn.add {
-            background: var(--success);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
         }
 
         .quick-amount-btn.remove {
-            background: var(--danger);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .quick-amount-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.7;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .food-macros-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+
+        .macros-cost-container {
+            display: flex;
+            gap: 5px;
+        }
+
+        .quick-amount-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-left: 5px;
+        }
+
+        .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            flex: 1;
+        }
+
+        .cost-badge {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(159, 90, 253, 0.2);
+            border-radius: 12px;
+            margin-left: 5px;
+            padding: 0 10px;
+            min-width: 70px;
+        }
+
+        .cost-badge span {
+            font-size: 0.7em;
+            opacity: 0.8;
         }
 
         .nutrition-badge {
@@ -200,38 +334,41 @@
         }
 
         .modal-content {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 10px;
+            background: transparent;
+            padding: 0;
+            display: flex;
+            gap: 20px;
             width: 90%;
-            max-width: 800px;
+            max-width: 900px; /* Aumenté el ancho máximo para mejor visualización */
             max-height: 80vh;
             overflow-y: auto;
+            border: none;
+            box-shadow: none;
         }
 
-        .modal-columns-container {
+        /* .modal-columns-container {
             display: flex;
             gap: 20px;
             height: 70vh;
-        }
+        } */
 
         .modal-column {
             background: var(--surface);
             border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 1;
+            overflow: auto;
         }
 
         .selection-column {
             flex: 3;
-            border: 2px solid var(--secondary);
+            border: 1px solid var(--secondary);
         }
 
         .selected-column {
             flex: 2;
             border: 2px solid var(--primary);
-            background: rgba(0,0,0,0.03);
         }
 
         .category-grid {
@@ -271,12 +408,19 @@
         }
 
         .food-item-modal:hover {
+            transform: translateY(-3px);
             background: rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .food-item-modal.selected {
             border-color: var(--success);
             background: rgba(76, 175, 80, 0.1);
+        }
+
+        .food-item-modal.selected:hover {
+            transform: translateY(-3px);
+            background: rgba(76, 175, 80, 0.15);
         }
 
         .modal-selected-item {
@@ -285,12 +429,6 @@
             background: var(--surface);
             border-radius: 8px;
             border: 1px solid var(--border);
-            transition: all 0.2s;
-        }
-
-        .modal-selected-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .food-macros {
@@ -443,17 +581,6 @@
             <div class="meal-grid" id="meals">
                 <!-- Las comidas se generarán dinámicamente -->
             </div>
-
-            <div class="shopping-list">
-                <h3>🛒 Lista de Compra</h3>
-                <div class="shopping-list-tabs">
-                    <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
-                    <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
-                </div>
-                <div class="shopping-list-content" id="shopping-list-content">
-                    <!-- Contenido generado dinámicamente -->
-                </div>
-            </div>
         </div>
 
         <div>
@@ -482,6 +609,18 @@
                     <div class="nutrition-badge">🥑 Grasas: <span id="total-fat">0</span>g</div>
                     <div class="nutrition-badge">💵 Costo: $<span id="total-cost">0</span></div>
                 </div>
+
+                <div class="shopping-list">
+                    <h3>🛒 Lista de Compra</h3>
+                    <div class="shopping-list-tabs">
+                        <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
+                        <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
+                    </div>
+                    <div class="shopping-list-content" id="shopping-list-content">
+                        <!-- Contenido generado dinámicamente -->
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1256,6 +1395,15 @@
                 'Platos preparados': '🍲'
             };
 
+            const calculateSelectedTotals = (foods) => {
+                return foods.reduce((acc, food) => ({
+                    calories: acc.calories + (food.calories * food.quantity/100),
+                    protein: acc.protein + (food.protein * food.quantity/100),
+                    carbs: acc.carbs + (food.carbs * food.quantity/100),
+                    fats: acc.fats + (food.fats * food.quantity/100)
+                }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+            };
+
             // Estado inicial
             let state = {
                 currentMeal: null,
@@ -1385,15 +1533,15 @@
                 const mealContent = document.getElementById(`${meal}-content`);
                 if (!mealContent) return;
                 
-                // Calcular macros por comida
                 const mealTotals = state.selectedFoods[meal].reduce((acc, food) => ({
                     calories: acc.calories + (food.calories * food.quantity/100),
                     protein: acc.protein + (food.protein * food.quantity/100),
                     carbs: acc.carbs + (food.carbs * food.quantity/100),
-                    fats: acc.fats + (food.fats * food.quantity/100)
-                }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+                    fats: acc.fats + (food.fats * food.quantity/100),
+                    cost: acc.cost + (food.price * food.quantity/100)
+                }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
 
-                // Actualizar macros en el título
+                // Actualizar macros en el título (añadiendo coste)
                 const mealCard = mealContent.closest('.meal-card');
                 let macroContainer = mealCard.querySelector('.meal-macros');
                 if (!macroContainer) {
@@ -1406,27 +1554,44 @@
                     <div class="macro-pill">💪${mealTotals.protein.toFixed(1)}g</div>
                     <div class="macro-pill">🍞${mealTotals.carbs.toFixed(1)}g</div>
                     <div class="macro-pill">🥑${mealTotals.fats.toFixed(1)}g</div>
+                    <div class="macro-pill">💵 $${mealTotals.cost.toFixed(2)}</div>
                 `;
 
                 mealContent.innerHTML = state.selectedFoods[meal].map(food => `
                     <div class="food-item">
-                        <span>${foodDB[food.name].emoji} ${food.name}</span>
-                        <div class="food-actions">
-                            <div class="quantity-actions">
-                                <input type="number" value="${food.quantity}" 
-                                    onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
-                                    min="0" step="1">
-                                <span>g</span>
+                        <div class="food-info">
+                            <button class="delete-btn" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
+                            <div style="font-size: 1.2em">${foodDB[food.name].emoji}</div>
+                            <div>
+                                <div><strong>${food.name}</strong></div>
+                                <div class="quantity-actions" style="margin-top: 5px;">
+                                    <input type="number" value="${food.quantity}" 
+                                        class="quantity-input"
+                                        onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
+                                        min="0" step="1">
+                                    <span>g</span>
+                                </div>
                             </div>
-                            <button class="btn btn-danger" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
                         </div>
-                        <div class="quick-amount">
-                            <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50g</button>
-                            <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 100})">+100g</button>
-                            <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 150})">+150g</button>
-                            <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50g</button>
-                            <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 100)})">-100g</button>
-                            <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 150)})">-150g</button>
+                        
+                        <div class="food-macros-actions">
+                            <div class="macros-cost-container">
+                                <div class="macros-grid">
+                                    <div class="macro-badge calories">🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal</div>
+                                    <div class="macro-badge protein">💪 ${(food.protein * food.quantity/100).toFixed(1)}g</div>
+                                    <div class="macro-badge carbs">🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g</div>
+                                    <div class="macro-badge fats">🥑 ${(food.fats * food.quantity/100).toFixed(1)}g</div>
+                                </div>
+                                <div class="cost-badge">
+                                    <div>💵</div>
+                                    <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="quick-amount-vertical">
+                                <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50 g</button>
+                                <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50 g</button>
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -1479,58 +1644,91 @@
                 const modal = document.getElementById('foodModal');
                 const content = document.getElementById('modalContent');
                 
+                // Calcular totales de los seleccionados
+                const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+                
                 content.innerHTML = `
-                    <div class="modal-columns-container">
-                        <!-- Columna de selección -->
-                        <div class="modal-column selection-column">
-                            <h2>Selecciona una categoría</h2>
-                            <div class="category-grid">
-                                ${Object.entries(categories).map(([name, emoji]) => `
-                                    <div class="category-card" onclick="App.showFoods('${name}')" 
-                                         style="background: ${getCategoryColor(name)}">
-                                        <div style="font-size: 2em">${emoji}</div>
-                                        ${name}
-                                    </div>
-                                `).join('')}
-                            </div>
+                    <!-- Columna de selección -->
+                    <div class="modal-column selection-column">
+                        <h2>Selecciona una categoría</h2>
+                        <div class="category-grid">
+                            ${Object.entries(categories).map(([name, emoji]) => `
+                                <div class="category-card" onclick="App.showFoods('${name}')" 
+                                    style="background: ${getCategoryColor(name)}">
+                                    <div style="font-size: 2em">${emoji}</div>
+                                    ${name}
+                                </div>
+                            `).join('')}
                         </div>
+                    </div>
+                    
+                    <!-- Columna de seleccionados -->
+                    <div class="modal-column selected-column">
+                        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
                         
-                        <!-- Columna de seleccionados -->
-                        <div class="modal-column selected-column">
-                            <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-                            <div id="modal-selected-list" style="max-height: 75%; overflow-y: auto; margin-top: 15px;">
-                                ${state.selectedFoodsInModal.map(food => `
-                                    <div class="modal-selected-item" data-food="${food.name}">
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div style="flex-grow: 1;">
-                                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
-                                                    ${food.emoji} ${food.name}
+                        <!-- Añadir sección de totales -->
+                        ${state.selectedFoodsInModal.length > 0 ? `
+                            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
+                                    <div>🔥 Calorías: ${selectedTotals.calories.toFixed(1)}</div>
+                                    <div>💪 Proteína: ${selectedTotals.protein.toFixed(1)}g</div>
+                                    <div>🍞 Carbos: ${selectedTotals.carbs.toFixed(1)}g</div>
+                                    <div>🥑 Grasas: ${selectedTotals.fats.toFixed(1)}g</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div id="modal-selected-list" style="max-height: 60%; overflow-y: auto;">
+                            ${state.selectedFoodsInModal.map(food => `
+                                <div class="modal-selected-item" data-food="${food.name}">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="flex-grow: 1;">
+                                            <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                                                ${food.emoji} ${food.name}
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                                                <input type="number" 
+                                                    value="${food.quantity}"
+                                                    class="quantity-input"
+                                                    onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                                    min="0">
+                                                <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                            </div>
+                                            <div class="macros-cost-container" style="margin-top: 8px;">
+                                                <div class="macros-grid">
+                                                    <div class="macro-badge calories">
+                                                        🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal
+                                                    </div>
+                                                    <div class="macro-badge protein">
+                                                        💪 ${(food.protein * food.quantity/100).toFixed(1)}g
+                                                    </div>
+                                                    <div class="macro-badge carbs">
+                                                        🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g
+                                                    </div>
+                                                    <div class="macro-badge fats">
+                                                        🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
+                                                    </div>
                                                 </div>
-                                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                                                    <input type="number" 
-                                                        value="${food.quantity}"
-                                                        style="width: 80px; padding: 6px; border: 1px solid var(--border);"
-                                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                                        min="0">
-                                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                                <div class="cost-badge">
+                                                    <div>💵</div>
+                                                    <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
+                                                    <span>coste</span>
                                                 </div>
                                             </div>
-                                            <button onclick="App.toggleFoodSelection('${food.name}')" 
-                                                style="background: none; border: none; cursor: pointer; color: var(--danger); 
-                                                       margin-left: 10px; font-size: 1.2em;">
-                                                ✖
-                                            </button>
                                         </div>
+                                        <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}')">
+                                            ✖
+                                        </button>
                                     </div>
-                                `).join('')}
-                            </div>
-                            ${state.selectedFoodsInModal.length > 0 ? `
-                                <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
-                                    style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
-                                    ➕ Añadir a ${state.currentMeal}
-                                </button>
-                            ` : ''}
+                                </div>
+                            `).join('')}
                         </div>
+                        ${state.selectedFoodsInModal.length > 0 ? `
+                            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                                ➕ Añadir a ${state.currentMeal}
+                            </button>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -1543,69 +1741,90 @@
                     .filter(([_, data]) => data.category === category)
                     .map(([name, data]) => ({ name, ...data }));
 
+                // Calcular totales de los seleccionados
+                const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+                
                 content.innerHTML = `
-                    <div class="modal-columns-container">
-                        <!-- Columna de alimentos -->
-                        <div class="modal-column selection-column">
-                            <button class="btn" onclick="App.showFoodModal()" 
-                                style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
-                                ← Volver a categorías
-                            </button>
-                            <h2>${category}</h2>
-                            <div class="food-grid">
-                                ${foodsInCategory.map(food => `
-                                    <div class="food-item-modal 
-                                        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
-                                        onclick="App.toggleFoodSelection('${food.name}')">
-                                        <div style="font-size: 1.5em">${food.emoji}</div>
-                                        <div><strong>${food.name}</strong></div>
-                                        <div class="food-macros">
-                                            <div>🔥 ${food.calories}kcal/100g</div>
-                                            <div>💪 ${food.protein}g</div>
-                                            <div>🍞 ${food.carbs}g</div>
-                                            <div>🥑 ${food.fats}g</div>
-                                        </div>
+                    <!-- Columna de alimentos -->
+                    <div class="modal-column selection-column">
+                        <button class="btn" onclick="App.showFoodModal()" 
+                            style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+                            ← Volver a categorías
+                        </button>
+                        <h2>${category}</h2>
+                        <div class="food-grid">
+                            ${foodsInCategory.map(food => `
+                                <div class="food-item-modal 
+                                    ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+                                    onclick="App.toggleFoodSelection('${food.name}')">
+                                    <div style="font-size: 1.5em">${food.emoji}</div>
+                                    <div><strong>${food.name}</strong></div>
+                                    <div class="food-macros">
+                                        <div>🔥 ${food.calories}kcal/100g</div>
+                                        <div>💪 ${food.protein}g</div>
+                                        <div>🍞 ${food.carbs}g</div>
+                                        <div>🥑 ${food.fats}g</div>
                                     </div>
-                                `).join('')}
-                            </div>
+                                </div>
+                            `).join('')}
                         </div>
+                    </div>
+                    
+                    <!-- Columna de seleccionados -->
+                    <div class="modal-column selected-column">
+                        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
                         
-                        <!-- Columna de seleccionados -->
-                        <div class="modal-column selected-column">
-                            <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-                            <div id="modal-selected-list" style="max-height: 75%; overflow-y: auto; margin-top: 15px;">
-                                ${state.selectedFoodsInModal.map(food => `
-                                    <div class="modal-selected-item" data-food="${food.name}">
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div style="flex-grow: 1;">
-                                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
-                                                    ${food.emoji} ${food.name}
-                                                </div>
-                                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                                                    <input type="number" 
-                                                        value="${food.quantity}"
-                                                        style="width: 80px; padding: 6px; border: 1px solid var(--border);"
-                                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                                        min="0">
-                                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
-                                                </div>
-                                            </div>
-                                            <button onclick="App.toggleFoodSelection('${food.name}')" 
-                                                style="background: none; border: none; cursor: pointer; color: var(--danger); 
-                                                       margin-left: 10px; font-size: 1.2em;">
-                                                ✖
-                                            </button>
-                                        </div>
-                                    </div>
-                                `).join('')}
+                        <!-- Añadir sección de totales -->
+                        ${state.selectedFoodsInModal.length > 0 ? `
+                            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
+                                    <div>🔥 Calorías: ${selectedTotals.calories.toFixed(1)}</div>
+                                    <div>💪 Proteína: ${selectedTotals.protein.toFixed(1)}g</div>
+                                    <div>🍞 Carbos: ${selectedTotals.carbs.toFixed(1)}g</div>
+                                    <div>🥑 Grasas: ${selectedTotals.fats.toFixed(1)}g</div>
+                                </div>
                             </div>
-                            ${state.selectedFoodsInModal.length > 0 ? `
-                                <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
-                                    style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
-                                    ➕ Añadir a ${state.currentMeal}
-                                </button>
-                            ` : ''}
+                        ` : ''}
+                        
+                        <div id="modal-selected-list" style="max-height: 60%; overflow-y: auto;">
+                            ${state.selectedFoodsInModal.map(food => `
+                                <div class="modal-selected-item" data-food="${food.name}">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="flex-grow: 1;">
+                                            <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                                                ${food.emoji} ${food.name}
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                                                <input type="number" 
+                                                    value="${food.quantity}"
+                                                    style="width: 80px; padding: 6px; border: 1px solid var(--border);"
+                                                    onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                                    min="0">
+                                                <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                            </div>
+                                            <!-- Mostrar macros por cantidad -->
+                                            <div style="font-size: 0.8em; color: var(--text); margin-top: 5px;">
+                                                🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal | 
+                                                💪 ${(food.protein * food.quantity/100).toFixed(1)}g | 
+                                                🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g | 
+                                                🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
+                                            </div>
+                                        </div>
+                                        <button onclick="App.toggleFoodSelection('${food.name}')" 
+                                            style="background: none; border: none; cursor: pointer; color: var(--danger); 
+                                                margin-left: 10px; font-size: 1.2em;">
+                                            ✖
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
+                        ${state.selectedFoodsInModal.length > 0 ? `
+                            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                                ➕ Añadir a ${state.currentMeal}
+                            </button>
+                        ` : ''}
                     </div>
                 `;
             };
@@ -1643,6 +1862,13 @@
                 
                 if (foodItem) {
                     foodItem.quantity = quantity;
+                    // Volver a renderizar la vista actual para actualizar los totales
+                    const currentCategory = foodDB[foodName].category;
+                    if (currentCategory) {
+                        showFoods(currentCategory);
+                    } else {
+                        showFoodModal();
+                    }
                 }
             };
 
@@ -1943,7 +2169,8 @@
                 nextDiet,
                 showShoppingList,
                 exportPDF,
-                updateModalQuantity
+                updateModalQuantity,
+                calculateSelectedTotals
             };
         })();
 
