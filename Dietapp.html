@@ -204,9 +204,34 @@
             padding: 20px;
             border-radius: 10px;
             width: 90%;
-            max-width: 600px;
+            max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
+        }
+
+        .modal-columns-container {
+            display: flex;
+            gap: 20px;
+            height: 70vh;
+        }
+
+        .modal-column {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .selection-column {
+            flex: 3;
+            border: 2px solid var(--secondary);
+        }
+
+        .selected-column {
+            flex: 2;
+            border: 2px solid var(--primary);
+            background: rgba(0,0,0,0.03);
         }
 
         .category-grid {
@@ -250,8 +275,22 @@
         }
 
         .food-item-modal.selected {
-            border-color: var(--secondary);
-            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .modal-selected-item {
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .modal-selected-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .food-macros {
@@ -1376,7 +1415,7 @@
                             <div class="quantity-actions">
                                 <input type="number" value="${food.quantity}" 
                                     onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
-                                    min="0" step="1"> <!-- Eliminado el max="1000" -->
+                                    min="0" step="1">
                                 <span>g</span>
                             </div>
                             <button class="btn btn-danger" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
@@ -1437,20 +1476,61 @@
 
             // Modales
             const showFoodModal = () => {
-                state.selectedFoodsInModal = [];
                 const modal = document.getElementById('foodModal');
                 const content = document.getElementById('modalContent');
                 
                 content.innerHTML = `
-                    <h2>Selecciona una categoría</h2>
-                    <div class="category-grid">
-                        ${Object.entries(categories).map(([name, emoji]) => `
-                            <div class="category-card" onclick="App.showFoods('${name}')" 
-                                 style="background: ${getCategoryColor(name)}">
-                                <div style="font-size: 2em">${emoji}</div>
-                                ${name}
+                    <div class="modal-columns-container">
+                        <!-- Columna de selección -->
+                        <div class="modal-column selection-column">
+                            <h2>Selecciona una categoría</h2>
+                            <div class="category-grid">
+                                ${Object.entries(categories).map(([name, emoji]) => `
+                                    <div class="category-card" onclick="App.showFoods('${name}')" 
+                                         style="background: ${getCategoryColor(name)}">
+                                        <div style="font-size: 2em">${emoji}</div>
+                                        ${name}
+                                    </div>
+                                `).join('')}
                             </div>
-                        `).join('')}
+                        </div>
+                        
+                        <!-- Columna de seleccionados -->
+                        <div class="modal-column selected-column">
+                            <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                            <div id="modal-selected-list" style="max-height: 75%; overflow-y: auto; margin-top: 15px;">
+                                ${state.selectedFoodsInModal.map(food => `
+                                    <div class="modal-selected-item" data-food="${food.name}">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div style="flex-grow: 1;">
+                                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                                                    ${food.emoji} ${food.name}
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                                                    <input type="number" 
+                                                        value="${food.quantity}"
+                                                        style="width: 80px; padding: 6px; border: 1px solid var(--border);"
+                                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                                        min="0">
+                                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                                </div>
+                                            </div>
+                                            <button onclick="App.toggleFoodSelection('${food.name}')" 
+                                                style="background: none; border: none; cursor: pointer; color: var(--danger); 
+                                                       margin-left: 10px; font-size: 1.2em;">
+                                                ✖
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${state.selectedFoodsInModal.length > 0 ? `
+                                <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                                    style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                                    ➕ Añadir a ${state.currentMeal}
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
                 
@@ -1462,28 +1542,71 @@
                 const foodsInCategory = Object.entries(foodDB)
                     .filter(([_, data]) => data.category === category)
                     .map(([name, data]) => ({ name, ...data }));
-                
+
                 content.innerHTML = `
-                    <button class="btn" onclick="App.showFoodModal()" style="margin-bottom: 15px;">← Volver</button>
-                    <h2>${category}</h2>
-                    <div class="food-grid">
-                        ${foodsInCategory.map(food => `
-                            <div class="food-item-modal ${state.selectedFoodsInModal.includes(food.name) ? 'selected' : ''}" 
-                                 onclick="App.toggleFoodSelection('${food.name}')">
-                                <div style="font-size: 1.5em">${food.emoji}</div>
-                                <div><strong>${food.name}</strong></div>
-                                <div class="food-macros">
-                                    <div>🔥 ${food.calories}kcal</div>
-                                    <div>💪 ${food.protein}g</div>
-                                    <div>🍞 ${food.carbs}g</div>
-                                    <div>🥑 ${food.fats}g</div>
-                                </div>
+                    <div class="modal-columns-container">
+                        <!-- Columna de alimentos -->
+                        <div class="modal-column selection-column">
+                            <button class="btn" onclick="App.showFoodModal()" 
+                                style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+                                ← Volver a categorías
+                            </button>
+                            <h2>${category}</h2>
+                            <div class="food-grid">
+                                ${foodsInCategory.map(food => `
+                                    <div class="food-item-modal 
+                                        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+                                        onclick="App.toggleFoodSelection('${food.name}')">
+                                        <div style="font-size: 1.5em">${food.emoji}</div>
+                                        <div><strong>${food.name}</strong></div>
+                                        <div class="food-macros">
+                                            <div>🔥 ${food.calories}kcal/100g</div>
+                                            <div>💪 ${food.protein}g</div>
+                                            <div>🍞 ${food.carbs}g</div>
+                                            <div>🥑 ${food.fats}g</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
                             </div>
-                        `).join('')}
+                        </div>
+                        
+                        <!-- Columna de seleccionados -->
+                        <div class="modal-column selected-column">
+                            <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                            <div id="modal-selected-list" style="max-height: 75%; overflow-y: auto; margin-top: 15px;">
+                                ${state.selectedFoodsInModal.map(food => `
+                                    <div class="modal-selected-item" data-food="${food.name}">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div style="flex-grow: 1;">
+                                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                                                    ${food.emoji} ${food.name}
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                                                    <input type="number" 
+                                                        value="${food.quantity}"
+                                                        style="width: 80px; padding: 6px; border: 1px solid var(--border);"
+                                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                                        min="0">
+                                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                                </div>
+                                            </div>
+                                            <button onclick="App.toggleFoodSelection('${food.name}')" 
+                                                style="background: none; border: none; cursor: pointer; color: var(--danger); 
+                                                       margin-left: 10px; font-size: 1.2em;">
+                                                ✖
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${state.selectedFoodsInModal.length > 0 ? `
+                                <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                                    style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                                    ➕ Añadir a ${state.currentMeal}
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="App.addSelectedFoods()" style="width: 100%; margin-top: 15px;">
-                        ➕ Añadir seleccionados (${state.selectedFoodsInModal.length})
-                    </button>
                 `;
             };
 
@@ -1493,24 +1616,48 @@
 
             // Funcionalidad de alimentos
             const toggleFoodSelection = (foodName) => {
-                const index = state.selectedFoodsInModal.indexOf(foodName);
-                if (index === -1) {
-                    state.selectedFoodsInModal.push(foodName);
+                const existingIndex = state.selectedFoodsInModal.findIndex(f => f.name === foodName);
+                
+                if (existingIndex > -1) {
+                    state.selectedFoodsInModal.splice(existingIndex, 1);
                 } else {
-                    state.selectedFoodsInModal.splice(index, 1);
+                    state.selectedFoodsInModal.push({
+                        name: foodName,
+                        quantity: 100,
+                        ...foodDB[foodName]
+                    });
                 }
-                // Volver a renderizar para mostrar los seleccionados
-                showFoods(foodDB[foodName].category);
+                
+                // Mantener la vista actual
+                const currentCategory = foodDB[foodName].category;
+                if (currentCategory) {
+                    showFoods(currentCategory);
+                } else {
+                    showFoodModal();
+                }
+            };
+
+            const updateModalQuantity = (foodName, value) => {
+                const quantity = Math.max(0, parseInt(value) || 0);
+                const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
+                
+                if (foodItem) {
+                    foodItem.quantity = quantity;
+                }
             };
 
             const addSelectedFoods = () => {
-                state.selectedFoodsInModal.forEach(foodName => {
-                    const existing = state.selectedFoods[state.currentMeal].find(f => f.name === foodName);
-                    if (!existing) {
+                state.selectedFoodsInModal.forEach(modalFood => {
+                    const existingIndex = state.selectedFoods[state.currentMeal]
+                        .findIndex(f => f.name === modalFood.name);
+                    
+                    if (existingIndex > -1) {
+                        state.selectedFoods[state.currentMeal][existingIndex].quantity += modalFood.quantity;
+                    } else {
                         state.selectedFoods[state.currentMeal].push({
-                            name: foodName,
-                            quantity: 100,
-                            ...foodDB[foodName]
+                            name: modalFood.name,
+                            quantity: modalFood.quantity,
+                            ...foodDB[modalFood.name]
                         });
                     }
                 });
@@ -1518,13 +1665,13 @@
                 state.selectedFoodsInModal = [];
                 closeFoodModal();
                 saveState();
-                renderMealContent(state.currentMeal);
+                renderMeals();
                 updateTotals();
                 generateShoppingList();
             };
 
             const updateQuantity = (meal, food, value) => {
-                const quantity = Math.max(0, Number(value) || 0); // Eliminado el Math.min(1000)
+                const quantity = Math.max(0, Number(value) || 0);
                 const item = state.selectedFoods[meal].find(i => i.name === food);
                 if (item) {
                     item.quantity = quantity;
@@ -1795,7 +1942,8 @@
                 prevDiet,
                 nextDiet,
                 showShoppingList,
-                exportPDF
+                exportPDF,
+                updateModalQuantity
             };
         })();
 
