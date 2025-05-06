@@ -584,9 +584,10 @@
 
         .progress-bar {
             width: 100%;
-            height: 10px;
+            height: 25px;
+            border-radius: 12px;
+            position: relative; /* Para posicionamiento absoluto */
             background: rgba(0,0,0,0.1);
-            border-radius: 5px;
             overflow: hidden;
             margin: 5px 0;
         }
@@ -594,6 +595,10 @@
         .progress-fill {
             height: 100%;
             transition: width 0.3s ease;
+            z-index: 1; /* Detrás del texto */
+            position: relative;
+            width: 100%; /* Ahora el ancho lo controla el padre */
+            justify-content: flex-start; /* Alinear el contenido a la izquierda */
         }
 
         .progress-fill.protein { background: rgba(77, 171, 247, 0.4); }
@@ -639,40 +644,31 @@
             margin: 5px 0;
         }
 
-        .macro-numbers {
-            font-size: 0.9em;
-            display: block;
-        }
-
         .calories-cost-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 107, 107, 0.1);
             border-radius: 10px;
-            padding: 12px 20px;
+            padding: 0;
             margin: 0 0 15px 0 !important;
         }
 
         .macro-bars-container {
+            padding: 0;
+            box-shadow: none;
+
+        }
+
+        /* Añadir este nuevo estilo */
+        #macro-results {
             background: var(--surface);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            width: 100%;
-
-        }
-
-        /* Añadir este nuevo estilo */
-        #macro-results {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
             gap: 15px;
-            margin-top: 15px; /* Espacio después del botón Calcular */
+            margin-top: 15px;
         }
 
         .cost-mini {
@@ -691,24 +687,30 @@
 
         .macro-bar {
             width: 100%;
-            background: var(--surface);
-            padding: 15px;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 5px 0 !important;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .progress-bar {
             width: 100%;
-            height: 15px;
+            height: 30px; /* Altura aumentada */
             background: rgba(0,0,0,0.1);
-            border-radius: 10px;
+            border-radius: 12px; /* Borde más redondeado */
             overflow: hidden;
             margin: 10px 0;
+            position: relative; /* Para posicionar el texto */
         }
 
         .progress-fill {
             height: 100%;
             transition: width 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            position: relative;
         }
 
         .progress-fill.calories { background: #ff6b6b; }
@@ -723,17 +725,30 @@
         }
 
         .macro-label {
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            position: static;
+            left: 10px;
+            top: 50%;
+            transform: none;
+            color: white;
+            z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 0.9em;
         }
-
+    
         .macro-numbers {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
             justify-content: space-between;
+            padding: 0 10px;
+            color: white;
             font-size: 0.9em;
-            color: var(--text);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            margin-left: 10px;
+            z-index: 2; /* Encima de la barra de progreso */
+            pointer-events: none; /* Permitir interacción con la barra */
         }
 
     </style>
@@ -821,49 +836,40 @@
                     <!-- Sección Calorías y Costo -->
                     <div class="calories-cost-container">
                         <div class="nutrition-badge">
-                            <span class="macro-label-icon">🔥</span>
-                            <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
+                          <span>🔥</span>
+                          <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
                         </div>
                         <div class="cost-mini">
-                            <span class="macro-label-icon">💵</span> $<span id="total-cost">0</span>
+                          <span>💵</span> $<span id="total-cost">0</span>
                         </div>
-                    </div>
-
+                      </div>
+                
                     <!-- Contenedor de Barras de Macros -->
                     <div class="macro-bars-container">
                         <!-- Proteínas -->
-                        <div class="macro-bar">
-                            <div class="macro-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill protein" id="protein-progress">
                                 <span class="macro-label">💪 Proteínas</span>
-                                <div class="progress-bar">
-                                    <div class="progress-fill protein" id="protein-progress"></div>
-                                </div>
                                 <span class="macro-numbers">
                                     <span id="current-protein">0</span>/<span id="target-protein">0</span>g
                                 </span>
                             </div>
                         </div>
-
+                
                         <!-- Carbohidratos -->
-                        <div class="macro-bar">
-                            <div class="macro-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill carbs" id="carbs-progress">
                                 <span class="macro-label">🍞 Carbohidratos</span>
-                                <div class="progress-bar">
-                                    <div class="progress-fill carbs" id="carbs-progress"></div>
-                                </div>
                                 <span class="macro-numbers">
                                     <span id="current-carbs">0</span>/<span id="target-carbs">0</span>g
                                 </span>
                             </div>
                         </div>
-
+                
                         <!-- Grasas -->
-                        <div class="macro-bar">
-                            <div class="macro-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill fats" id="fats-progress">
                                 <span class="macro-label">🥑 Grasas</span>
-                                <div class="progress-bar">
-                                    <div class="progress-fill fats" id="fats-progress"></div>
-                                </div>
                                 <span class="macro-numbers">
                                     <span id="current-fats">0</span>/<span id="target-fats">0</span>g
                                 </span>
