@@ -11,7 +11,7 @@
             --secondary: #3498db;
             --background: #f5f6fa;
             --surface: #ffffff;
-            --text: #2c3e50;
+            --text: #2c33e50;
             --border: #ecf0f1;
             --success: #27ae60;
             --danger: #e74c3c;
@@ -41,7 +41,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* Estilos para las cantidades */
         .quantity-input {
             width: 60px !important;
             padding: 4px 6px !important;
@@ -49,7 +48,6 @@
             margin-right: 5px;
         }
 
-        /* Contenedor de acciones de alimentos */
         .food-actions {
             display: flex;
             align-items: center;
@@ -58,7 +56,6 @@
             justify-content: flex-end;
         }
 
-        /* Estilos para los badges de macros */
         .macro-badge {
             display: inline-flex;
             align-items: center;
@@ -79,7 +76,6 @@
             align-items: center;
         }
 
-        /* Contenedor de macros */
         .food-macros-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -87,7 +83,6 @@
             margin-top: 5px;
         }
 
-        /* Estilo para los ítems de comida */
         .food-item {
             display: grid;
             grid-template-columns: 1fr auto;
@@ -109,7 +104,6 @@
             min-width: 150px;
         }
 
-        /* Ajustes para los botones de eliminar */
         .delete-btn {
             background: none;
             border: none;
@@ -124,34 +118,31 @@
             padding: 0;
         }
 
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr;
             gap: 30px;
-            /* Añade esto para el scroll personalizado */
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Columna izquierda (contenido principal) */
         .container > div:first-child {
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             padding-right: 15px;
         }
 
         .container > div:first-child::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
+            display: none;
         }
 
         @media (min-width: 768px) {
             .container {
                 grid-template-columns: 2fr 1fr;
-                height: calc(100vh - 40px); /* Ajusta según tu header */
+                height: calc(100vh - 40px);
             }
         }
 
@@ -210,28 +201,6 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .food-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-
-        .food-actions {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .quantity-actions {
             display: flex;
             align-items: center;
             gap: 5px;
@@ -306,11 +275,6 @@
             min-width: 70px;
         }
 
-        .cost-badge span {
-            font-size: 0.7em;
-            opacity: 0.8;
-        }
-
         .nutrition-badge {
             display: inline-block;
             padding: 5px 10px;
@@ -355,18 +319,12 @@
             display: flex;
             gap: 20px;
             width: 90%;
-            max-width: 900px; /* Aumenté el ancho máximo para mejor visualización */
+            max-width: 900px;
             max-height: 80vh;
             overflow-y: auto;
             border: none;
             box-shadow: none;
         }
-
-        /* .modal-columns-container {
-            display: flex;
-            gap: 20px;
-            height: 70vh;
-        } */
 
         .modal-column {
             background: var(--surface);
@@ -541,7 +499,7 @@
         .totals-section {
             position: sticky;
             top: 0;
-            height: calc(100vh - 40px); /* Ajusta según tu header */
+            height: calc(100vh - 40px);
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -589,8 +547,198 @@
             border-bottom-color: var(--secondary);
             font-weight: bold;
         }
+
+        .macro-calculator {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .calculator-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .macro-input, .macro-select {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--surface);
+            color: var(--text);
+            width: 100%;
+        }
+
+        .macro-progress {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.protein { background: rgba(77, 171, 247, 0.4); }
+        .progress-fill.carbs { background: rgba(254, 202, 87, 0.4); }
+        .progress-fill.fats { background: rgba(120, 224, 143, 0.4); }
+
+        /* === NUEVOS ESTILOS === */
+        .macro-progress-ring {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .macro-info {
+            top: 50%;
+            left: 50%;
+            text-align: center;
+            z-index: 1; 
+        }
+
+        .macro-percent {
+            font-size: 1.4em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .macro-emoji {
+            font-size: 1.8em;
+            margin: 5px 0;
+        }
+
+        .macro-numbers {
+            font-size: 0.9em;
+            display: block;
+        }
+
+        .calories-cost-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin: 0 0 15px 0 !important;
+        }
+
+        .macro-bars-container {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+
+        }
+
+        /* Añadir este nuevo estilo */
+        #macro-results {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px; /* Espacio después del botón Calcular */
+        }
+
+        .cost-mini {
+            background: rgba(159, 90, 253, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .progress-ring-background {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            opacity: 0.2;
+            stroke: currentColor; /* Heredar color del tema */
+        }
+
+        .macro-bar {
+            width: 100%;
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.calories { background: #ff6b6b; }
+        .progress-fill.protein { background: #4da7f7; }
+        .progress-fill.carbs { background: #feca57; }
+        .progress-fill.fats { background: #78e08f; }
+
+        .macro-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .macro-label {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .macro-numbers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: var(--text);
+        }
+
     </style>
 </head>
+
 <body>
     <button class="theme-toggle" onclick="App.toggleTheme()">🌓</button>
     
@@ -599,10 +747,12 @@
     <div class="container">
         <div>
             <div class="diet-header">
-                <h2 id="current-diet-title">Dieta Actual</h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2 id="current-diet-title">Dieta Actual</h2>
+                    <button onclick="App.editDietName()" style="background: none; border: none; cursor: pointer; color: var(--text);">✏️</button>
+                </div>
                 <button class="btn btn-primary" onclick="App.exportPDF()">📄 Exportar PDF</button>
             </div>
-            
             <div class="meal-grid" id="meals">
                 <!-- Las comidas se generarán dinámicamente -->
             </div>
@@ -611,41 +761,126 @@
         <div>
             <div class="totals-section">
                 <h2>💾 Dietas Guardadas</h2>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 10px 0;">
                     <div class="diet-navigation">
                         <button class="nav-btn" onclick="App.prevDiet()">←</button>
                         <button class="nav-btn" onclick="App.nextDiet()">→</button>
                     </div>
-                    <button class="btn btn-danger" onclick="App.deleteCurrentDiet()">🗑 Eliminar</button>
-                </div>
-                
-                <div style="margin-top: 20px;">
-                    <input type="text" id="diet-name" placeholder="Nombre de la dieta">
-                    <button class="btn btn-success" onclick="App.saveDiet()" style="margin-top: 10px; width: 100%;">
-                        💾 Guardar Dieta
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" onclick="App.createNewDiet()">➕ Nueva</button>
+                        <button class="btn btn-danger" onclick="App.deleteCurrentDiet()">🗑 Eliminar</button>
+                    </div>
                 </div>
 
-                <h2 style="margin-top: 30px;">📊 Totales Diarios</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
-                    <div class="nutrition-badge">🔥 Calorías: <span id="total-cal">0</span></div>
-                    <div class="nutrition-badge">💪 Proteína: <span id="total-pro">0</span>g</div>
-                    <div class="nutrition-badge">🍞 Carbos: <span id="total-carbs">0</span>g</div>
-                    <div class="nutrition-badge">🥑 Grasas: <span id="total-fat">0</span>g</div>
-                    <div class="nutrition-badge">💵 Costo: $<span id="total-cost">0</span></div>
+                <div class="macro-calculator">
+                    <h2>⚖️ Tus Objetivos</h2>
+                    <div class="calculator-form">
+                        <div class="input-group">
+                            <label>Edad:</label>
+                            <input type="number" id="age" min="15" max="100" class="macro-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Peso (kg):</label>
+                            <input type="number" id="weight" class="macro-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Altura (cm):</label>
+                            <input type="number" id="height" class="macro-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Género:</label>
+                            <select id="gender" class="macro-select">
+                                <option value="male">Hombre</option>
+                                <option value="female">Mujer</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Actividad:</label>
+                            <select id="activity" class="macro-select">
+                                <option value="1.2">Sedentario</option>
+                                <option value="1.375">Ligera</option>
+                                <option value="1.55">Moderada</option>
+                                <option value="1.725">Intensa</option>
+                                <option value="1.9">Extrema</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Objetivo:</label>
+                            <select id="goal" class="macro-select">
+                                <option value="maintain">Mantener peso</option>
+                                <option value="lose">Perder peso</option>
+                                <option value="gain">Ganar peso</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="App.calculateMacros()">Calcular</button>
                 </div>
 
+                <!-- Resultados (inicialmente ocultos) -->
+                <div id="macro-results" style="display: none;">
+                    <!-- Sección Calorías y Costo -->
+                    <div class="calories-cost-container">
+                        <div class="nutrition-badge">
+                            <span class="macro-label-icon">🔥</span>
+                            <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
+                        </div>
+                        <div class="cost-mini">
+                            <span class="macro-label-icon">💵</span> $<span id="total-cost">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de Barras de Macros -->
+                    <div class="macro-bars-container">
+                        <!-- Proteínas -->
+                        <div class="macro-bar">
+                            <div class="macro-info">
+                                <span class="macro-label">💪 Proteínas</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill protein" id="protein-progress"></div>
+                                </div>
+                                <span class="macro-numbers">
+                                    <span id="current-protein">0</span>/<span id="target-protein">0</span>g
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Carbohidratos -->
+                        <div class="macro-bar">
+                            <div class="macro-info">
+                                <span class="macro-label">🍞 Carbohidratos</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill carbs" id="carbs-progress"></div>
+                                </div>
+                                <span class="macro-numbers">
+                                    <span id="current-carbs">0</span>/<span id="target-carbs">0</span>g
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Grasas -->
+                        <div class="macro-bar">
+                            <div class="macro-info">
+                                <span class="macro-label">🥑 Grasas</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill fats" id="fats-progress"></div>
+                                </div>
+                                <span class="macro-numbers">
+                                    <span id="current-fats">0</span>/<span id="target-fats">0</span>g
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de compra -->
                 <div class="shopping-list">
                     <h3>🛒 Lista de Compra</h3>
                     <div class="shopping-list-tabs">
                         <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
                         <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
                     </div>
-                    <div class="shopping-list-content" id="shopping-list-content">
-                        <!-- Contenido generado dinámicamente -->
-                    </div>
+                    <div class="shopping-list-content" id="shopping-list-content"></div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -654,6 +889,7 @@
     <div class="food-modal" id="foodModal">
         <div class="modal-content" id="modalContent"></div>
     </div>
+
 
     <script>
         const App = (() => {
@@ -1429,6 +1665,148 @@
                 }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
             };
 
+            const calculateMacros = () => {
+                saveUserData();
+
+                const age = parseInt(state.userData.age);
+                const weight = parseFloat(state.userData.weight);
+                const height = parseFloat(state.userData.height); // Cambiado de value a height
+                const gender = state.userData.gender;             // Cambiado de value a gender
+                const activity = parseFloat(state.userData.activity); // Cambiado de value a activity
+                const goal = state.userData.goal;                 // Cambiado de value a goal
+                if (state.userMacros) {
+                    document.querySelectorAll('.progress-ring-circle').forEach(circle => {
+                        circle.style.strokeDashoffset = 0;
+                    });
+                }
+                if (!age || !weight || !height) {
+                    alert('Por favor completa todos los campos');
+                    return;
+                }
+
+                // Cálculo Mifflin-St Jeor
+                let bmr;
+                if (gender === 'male') {
+                    bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+                } else {
+                    bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+                }
+
+                let tdee = bmr * activity;
+                
+                // Ajustar según objetivo
+                if (goal === 'lose') tdee -= 500;
+                if (goal === 'gain') tdee += 500;
+
+                // Distribución de macros (30% proteína, 40% carbos, 30% grasas)
+                const protein = (tdee * 0.3) / 4;
+                const carbs = (tdee * 0.4) / 4;
+                const fats = (tdee * 0.3) / 9;
+
+                state.userMacros = {
+                    calories: Math.round(tdee),
+                    protein: Math.round(protein),
+                    carbs: Math.round(carbs),
+                    fats: Math.round(fats)
+                };
+
+                showMacroResults();
+                updateTotals(); // Actualizar la comparación
+            };
+
+            const showMacroResults = () => {
+                const results = document.getElementById('macro-results');
+                results.style.display = 'block';
+                
+                // Actualizar display de objetivos
+                document.getElementById('target-calories').textContent = state.userMacros.calories;
+                document.getElementById('target-protein').textContent = state.userMacros.protein;
+                document.getElementById('target-carbs').textContent = state.userMacros.carbs;
+                document.getElementById('target-fats').textContent = state.userMacros.fats;
+                
+                document.getElementById('macro-results').style.display = 'block';
+                state.showMacroResults = true; 
+                updateTotals();
+            };
+
+
+            const createNewDiet = () => {
+                let baseName = 'Nueva Dieta';
+                let counter = 1;
+                while (state.savedDiets[baseName + ' ' + counter]) {
+                    counter++;
+                }
+                const newName = baseName + ' ' + counter;
+                
+                state.savedDiets[newName] = JSON.parse(JSON.stringify({
+                    Desayuno: [],
+                    Almuerzo: [],
+                    Cena: [],
+                    Snacks: []
+                }));
+                
+                state.currentDietIndex = Object.keys(state.savedDiets).length - 1;
+                loadDiet(newName);
+                saveState();
+                renderSavedDiets();
+            };
+
+            const editDietName = () => {
+                const dietNames = Object.keys(state.savedDiets);
+                if (dietNames.length === 0) return;
+                
+                const oldName = dietNames[state.currentDietIndex];
+                const titleElement = document.getElementById('current-diet-title');
+                
+                // Crear input de edición
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = oldName;
+                input.style = `
+                    font-size: inherit;
+                    font-family: inherit;
+                    color: inherit;
+                    background: var(--surface);
+                    border: 2px solid var(--secondary);
+                    border-radius: 5px;
+                    padding: 5px;
+                    width: 200px;
+                `;
+                
+                titleElement.innerHTML = '';
+                titleElement.appendChild(input);
+                input.focus();
+                
+                const finishEditing = () => {
+                    const newName = input.value.trim();
+                    if (!newName || newName === oldName) {
+                        titleElement.textContent = oldName;
+                        return;
+                    }
+                    
+                    if (state.savedDiets[newName]) {
+                        alert('¡Ya existe una dieta con ese nombre!');
+                        titleElement.textContent = oldName;
+                        return;
+                    }
+                    
+                    // Actualizar en el estado
+                    state.savedDiets[newName] = state.savedDiets[oldName];
+                    delete state.savedDiets[oldName];
+                    state.currentDietIndex = Object.keys(state.savedDiets).indexOf(newName);
+                    
+                    titleElement.textContent = newName;
+                    saveState();
+                    renderSavedDiets();
+                };
+                
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') finishEditing();
+                });
+                
+                input.addEventListener('blur', finishEditing);
+            };
+
             // Estado inicial
             let state = {
                 currentMeal: null,
@@ -1437,7 +1815,28 @@
                 currentDietIndex: 0,
                 theme: localStorage.getItem('theme') || 'light',
                 selectedFoodsInModal: [],
-                currentShoppingList: 'weekly'
+                currentShoppingList: 'weekly',
+                userMacros: null,
+                userData: {
+                age: '',
+                weight: '',
+                height: '',
+                gender: 'male',
+                activity: '1.2',
+                goal: 'maintain'
+            }
+            };
+
+            const saveUserData = () => {
+                state.userData = {
+                    age: document.getElementById('age').value,
+                    weight: document.getElementById('weight').value,
+                    height: document.getElementById('height').value,
+                    gender: document.getElementById('gender').value,
+                    activity: document.getElementById('activity').value,
+                    goal: document.getElementById('goal').value
+                };
+                saveState();
             };
 
             // Inicialización
@@ -1449,6 +1848,16 @@
                 renderSavedDiets();
                 updateTotals();
                 generateShoppingList();
+                loadUserData();
+            };
+
+            const loadUserData = () => {
+                document.getElementById('age').value = state.userData.age || '';
+                document.getElementById('weight').value = state.userData.weight || '';
+                document.getElementById('height').value = state.userData.height || '';
+                document.getElementById('gender').value = state.userData.gender;
+                document.getElementById('activity').value = state.userData.activity;
+                document.getElementById('goal').value = state.userData.goal;
             };
 
             // Configuración de eventos
@@ -1471,9 +1880,19 @@
             const saveState = () => {
                 localStorage.setItem('dietState', JSON.stringify({
                     selectedFoods: state.selectedFoods,
-                    savedDiets: state.savedDiets
+                    savedDiets: state.savedDiets,
+                    userData: state.userData,
+                    userMacros: state.userMacros, // <-- Añadir
+                    showMacroResults: state.showMacroResults // <-- Añadir
                 }));
             };
+
+            document.querySelectorAll('.macro-input, .macro-select').forEach(input => {
+                input.addEventListener('change', () => {
+                    saveUserData();
+                    saveState();  // Solo guardar datos, no calcular
+                });
+            });
 
             const loadState = () => {
                 const saved = localStorage.getItem('dietState');
@@ -1481,6 +1900,26 @@
                     const data = JSON.parse(saved);
                     state.selectedFoods = data.selectedFoods || { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
                     state.savedDiets = data.savedDiets || {};
+                    state.userMacros = data.userMacros || null;
+                    state.showMacroResults = data.showMacroResults || false;
+                    
+                    if (state.showMacroResults) {
+                        document.getElementById('macro-results').style.display = 'block';
+                    }
+                    state.userData = data.userData || { // <-- Cargar datos del usuario
+                        age: '',
+                        weight: '',
+                        height: '',
+                        gender: 'male',
+                        activity: '1.2',
+                        goal: 'maintain'
+                    
+                    };
+
+                    if (state.showMacroResults) {
+                        document.getElementById('macro-results').style.display = 'block';
+                    }
+
                     
                     // Convertir objetos guardados a arrays si es necesario (para compatibilidad)
                     Object.keys(state.selectedFoods).forEach(meal => {
@@ -1986,6 +2425,7 @@
                 setTimeout(() => {
                     document.body.removeChild(feedback);
                 }, 2000);
+                
             };
 
             const loadDiet = (name) => {
@@ -2056,11 +2496,36 @@
                     cost: acc.cost + (food.price * food.quantity/100)
                 }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
 
-                document.getElementById('total-cal').textContent = totals.calories.toFixed(1);
-                document.getElementById('total-pro').textContent = totals.protein.toFixed(1);
-                document.getElementById('total-carbs').textContent = totals.carbs.toFixed(1);
-                document.getElementById('total-fat').textContent = totals.fats.toFixed(1);
-                document.getElementById('total-cost').textContent = totals.cost.toFixed(2);
+                // Función para actualizar los porcentajes y gráficos
+                const updateProgress = (current, target, elementId) => {
+                    const progressElement = document.getElementById(elementId);
+                    if (!progressElement) return;
+                    
+                    const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+                    progressElement.style.width = `${percentage}%`;
+                };
+
+                if (state.userMacros) {
+                // Actualizar todos los valores
+                document.getElementById('current-calories').textContent = totals.calories.toFixed(1);
+                document.getElementById('target-calories').textContent = state.userMacros.calories;
+                document.getElementById('current-protein').textContent = totals.protein.toFixed(1);
+                document.getElementById('target-protein').textContent = state.userMacros.protein;
+                document.getElementById('current-carbs').textContent = totals.carbs.toFixed(1);
+                document.getElementById('target-carbs').textContent = state.userMacros.carbs;
+                document.getElementById('current-fats').textContent = totals.fats.toFixed(1);
+                document.getElementById('target-fats').textContent = state.userMacros.fats;
+
+                // Actualizar barras
+                updateProgress(totals.calories, state.userMacros.calories, 'calories-progress');
+                updateProgress(totals.protein, state.userMacros.protein, 'protein-progress');
+                updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
+                updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
+            }
+
+            // Actualizar costo
+            const costValue = totals.cost.toFixed(2);
+            document.getElementById('total-cost').textContent = costValue;
             };
 
             // Exportación
@@ -2203,7 +2668,10 @@
                 showShoppingList,
                 exportPDF,
                 updateModalQuantity,
-                calculateSelectedTotals
+                calculateSelectedTotals,
+                createNewDiet,
+                editDietName,
+                calculateMacros
             };
         })();
 
