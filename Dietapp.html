@@ -511,9 +511,10 @@
         }
 
         .shopping-list {
+            position: relative;
             margin-top: 30px;
             background: var(--surface);
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
@@ -582,28 +583,29 @@
             margin: 10px 0;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 25px;
-            border-radius: 12px;
-            position: relative; /* Para posicionamiento absoluto */
-            background: rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin: 5px 0;
-        }
-
         .progress-fill {
             height: 100%;
             transition: width 0.3s ease;
-            z-index: 1; /* Detrás del texto */
+            display: flex;
+            align-items: center;
             position: relative;
-            width: 100%; /* Ahora el ancho lo controla el padre */
-            justify-content: flex-start; /* Alinear el contenido a la izquierda */
+            /* Añadir estas propiedades */
+            justify-content: flex-start; /* Alinear contenido a la izquierda */
+            padding: 0 15px;
+            overflow: visible; /* Permitir que el texto se salga del contenedor */
+            border-radius: 8px 0 0 8px; /* Esquina redondeada solo a la izquierda */
+            margin-right: -8px; /* Compensar el radio reducido */
+
         }
 
         .progress-fill.protein { background: rgba(77, 171, 247, 0.4); }
         .progress-fill.carbs { background: rgba(254, 202, 87, 0.4); }
         .progress-fill.fats { background: rgba(120, 224, 143, 0.4); }
+
+        .progress-fill[style*="100%"] {
+            border-radius: 8px !important; /* Radio completo */
+            margin-right: 0;
+        }
 
         /* === NUEVOS ESTILOS === */
         .macro-progress-ring {
@@ -651,6 +653,8 @@
             border-radius: 10px;
             padding: 0;
             margin: 0 0 15px 0 !important;
+            gap: 15px;
+            margin-bottom: 0 !important; 
         }
 
         .macro-bars-container {
@@ -667,7 +671,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             margin-top: 15px;
         }
 
@@ -695,12 +699,46 @@
 
         .progress-bar {
             width: 100%;
-            height: 30px; /* Altura aumentada */
+            height: 30px;
+            background: rgba(0,0,0,0.05); /* Fondo base para todas las barras */
+            border-radius: 12px;
+            overflow: visible !important;
+            margin: 5px 0;
+            position: relative;
+            padding-right: 0 !important; /* Eliminar padding que causaba el espacio */
+        }
+
+        .progress-bar::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Colores con transparencia para el fondo de cada barra */
+        .progress-bar.calories { background: rgba(255, 107, 107, 0.15); }
+        .progress-bar.protein { background: rgba(77, 171, 247, 0.15); }
+        .progress-bar.carbs { background: rgba(254, 202, 87, 0.15); }
+        .progress-bar.fats { background: rgba(120, 224, 143, 0.15); }
+
+        /* Parte completada (mismo color pero sólido) */
+        .progress-fill.calories { background: #ff6b6b; }
+        .progress-fill.protein { background: #4da7f7; }
+        .progress-fill.carbs { background: #feca57; }
+        .progress-fill.fats { background: #78e08f; }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            border-radius: 12px;
+            position: relative; /* Para posicionamiento absoluto */
             background: rgba(0,0,0,0.1);
-            border-radius: 12px; /* Borde más redondeado */
             overflow: hidden;
-            margin: 10px 0;
-            position: relative; /* Para posicionar el texto */
+            margin: 5px 0;
         }
 
         .progress-fill {
@@ -725,30 +763,67 @@
         }
 
         .macro-label {
-            position: static;
-            left: 10px;
-            top: 50%;
-            transform: none;
             color: white;
+            position: relative;
             z-index: 2;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             font-size: 0.9em;
+            /* Añadir para prevenir encogimiento */
+            flex-shrink: 0;
+            margin-right: 10px;
         }
     
         .macro-numbers {
             position: absolute;
-            width: 100%;
+            right: 8px; /* Alineación perfecta al borde */
             top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            justify-content: space-between;
-            padding: 0 10px;
+            transform: translateY(-50%) translateX(0px); /* Ajuste milimétrico */
             color: white;
             font-size: 0.9em;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            margin-left: 10px;
-            z-index: 2; /* Encima de la barra de progreso */
-            pointer-events: none; /* Permitir interacción con la barra */
+            display: flex;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3); /* Fondo para contraste */
+            backdrop-filter: blur(2px); /* Efecto vidrio opcional */
+            transition: color 0.3s;
+
+        }
+
+        .progress-bar[data-progress="0"] .macro-label,
+        .progress-bar[data-progress="0"] .macro-numbers {
+            color: var(--primary); /* Color del tema */
+            text-shadow: none;
+        }
+
+        .shopping-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cost-mini-container {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .cost-mini {
+            background: rgba(159, 90, 253, 0.15);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(159, 90, 253, 0.2);
+            backdrop-filter: blur(2px);
+        }
+
+        .shopping-list-tabs {
+            margin-bottom: 12px;
         }
 
     </style>
@@ -834,59 +909,69 @@
                 <!-- Resultados (inicialmente ocultos) -->
                 <div id="macro-results" style="display: none;">
                     <!-- Sección Calorías y Costo -->
-                    <div class="calories-cost-container">
-                        <div class="nutrition-badge">
-                          <span>🔥</span>
-                          <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
+                    
+                        <div class="progress-bar calories" style="flex: 1;">
+                            <div class="progress-fill calories" id="calories-progress">
+                                <span class="macro-label">🔥 Calorías</span>
+                            </div>
+                            <span class="macro-numbers">
+                                <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
+                            </span>
                         </div>
-                        <div class="cost-mini">
-                          <span>💵</span> $<span id="total-cost">0</span>
-                        </div>
-                      </div>
+                    
                 
                     <!-- Contenedor de Barras de Macros -->
                     <div class="macro-bars-container">
                         <!-- Proteínas -->
-                        <div class="progress-bar">
+                        <div class="progress-bar protein">
                             <div class="progress-fill protein" id="protein-progress">
                                 <span class="macro-label">💪 Proteínas</span>
-                                <span class="macro-numbers">
-                                    <span id="current-protein">0</span>/<span id="target-protein">0</span>g
-                                </span>
                             </div>
+                            <span class="macro-numbers">
+                                <span id="current-protein">0</span>/<span id="target-protein">0</span>g
+                            </span>
                         </div>
                 
                         <!-- Carbohidratos -->
-                        <div class="progress-bar">
+                        <div class="progress-bar carbs">
                             <div class="progress-fill carbs" id="carbs-progress">
                                 <span class="macro-label">🍞 Carbohidratos</span>
+                                </div>
                                 <span class="macro-numbers">
                                     <span id="current-carbs">0</span>/<span id="target-carbs">0</span>g
                                 </span>
                             </div>
-                        </div>
                 
                         <!-- Grasas -->
-                        <div class="progress-bar">
+                        <div class="progress-bar fats">
                             <div class="progress-fill fats" id="fats-progress">
                                 <span class="macro-label">🥑 Grasas</span>
-                                <span class="macro-numbers">
-                                    <span id="current-fats">0</span>/<span id="target-fats">0</span>g
-                                </span>
                             </div>
+                            <span class="macro-numbers">
+                                <span id="current-fats">0</span>/<span id="target-fats">0</span>g
+                            </span>
+                        </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Lista de compra -->
-                <div class="shopping-list">
-                    <h3>🛒 Lista de Compra</h3>
-                    <div class="shopping-list-tabs">
-                        <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
-                        <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
+                    <div class="shopping-list">
+                        <h3>🛒 Lista de Compra</h3>
+                            <div class="cost-mini-container">
+                                <div class="cost-mini">
+                                    <span>💵 Total <span id="cost-period-label">semanal</span>:</span> 
+                                    $<span id="total-cost">0</span>
+                                </div>
+                            </div>
+                        <div class="shopping-list-tabs">
+                            <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
+                            <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
+                        </div>
+                        <div class="shopping-list-content" id="shopping-list-content"></div>
                     </div>
-                    <div class="shopping-list-content" id="shopping-list-content"></div>
                 </div>
+                </div>
+            </div>
+
+                
             </div>
         </div>
     </div>
@@ -1855,6 +1940,8 @@
                 updateTotals();
                 generateShoppingList();
                 loadUserData();
+                document.getElementById('cost-period-label').textContent = 
+                    state.currentShoppingList === 'weekly' ? 'semanal' : 'mensual';
             };
 
             const loadUserData = () => {
@@ -2109,6 +2196,11 @@
             const showShoppingList = (type) => {
                 state.currentShoppingList = type;
                 generateShoppingList();
+                updateTotals(); // Actualizar el coste
+                
+                // Actualizar etiqueta semanal/mensual
+                document.getElementById('cost-period-label').textContent = 
+                    type === 'weekly' ? 'semanal' : 'mensual';
                 
                 // Actualizar pestañas activas
                 document.querySelectorAll('.shopping-list-tab').forEach(tab => {
@@ -2499,16 +2591,33 @@
                     protein: acc.protein + (food.protein * food.quantity/100),
                     carbs: acc.carbs + (food.carbs * food.quantity/100),
                     fats: acc.fats + (food.fats * food.quantity/100),
-                    cost: acc.cost + (food.price * food.quantity/100)
+                    cost: acc.cost + (food.price * food.quantity/100) // Esto es el costo DIARIO
                 }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+
+                // Aplicar el multiplicador al costo
+                const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
+                const totalCost = totals.cost * multiplier; // Multiplicar el costo diario
+                document.getElementById('total-cost').textContent = totalCost.toFixed(2);
 
                 // Función para actualizar los porcentajes y gráficos
                 const updateProgress = (current, target, elementId) => {
                     const progressElement = document.getElementById(elementId);
                     if (!progressElement) return;
                     
+                    const progressBar = progressElement.parentElement; // Seleccionar el contenedor padre
                     const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+                    
                     progressElement.style.width = `${percentage}%`;
+                    progressBar.setAttribute('data-progress', percentage.toFixed(0));
+
+                    // Resetear el radio para animación suave
+                    progressElement.style.borderRadius = '8px 0 0 8px';
+                    
+                    if (percentage >= 100) {
+                        setTimeout(() => {
+                            progressElement.style.borderRadius = '8px';
+                        }, 300);
+                    }
                 };
 
                 if (state.userMacros) {
@@ -2531,7 +2640,7 @@
 
             // Actualizar costo
             const costValue = totals.cost.toFixed(2);
-            document.getElementById('total-cost').textContent = costValue;
+            document.getElementById('total-cost').textContent = totalCost.toFixed(2);
             };
 
             // Exportación
