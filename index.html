@@ -542,11 +542,14 @@
             padding: 8px 15px;
             cursor: pointer;
             border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            color: var(--text);
         }
 
         .shopping-list-tab.active {
             border-bottom-color: var(--secondary);
             font-weight: bold;
+            color: var(--primary);
         }
 
         .macro-calculator {
@@ -957,13 +960,13 @@
                         <h3>🛒 Lista de Compra</h3>
                             <div class="cost-mini-container">
                                 <div class="cost-mini">
-                                    <span>💵 Total <span id="cost-period-label">semanal</span>:</span> 
-                                    $<span id="total-cost">0</span>
+                                    <span>💵</span> 
+                                    <span id="total-cost">0</span>€
                                 </div>
                             </div>
                         <div class="shopping-list-tabs">
-                            <div class="shopping-list-tab active" onclick="App.showShoppingList('weekly')">Semanal</div>
-                            <div class="shopping-list-tab" onclick="App.showShoppingList('monthly')">Mensual</div>
+                            <div class="shopping-list-tab" onclick="App.showShoppingList('weekly', event)">Semanal</div>
+                            <div class="shopping-list-tab" onclick="App.showShoppingList('monthly', event)">Mensual</div>
                         </div>
                         <div class="shopping-list-content" id="shopping-list-content"></div>
                     </div>
@@ -1756,6 +1759,16 @@
                 }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
             };
 
+            const updateTabsVisualState = () => {
+                document.querySelectorAll('.shopping-list-tab').forEach(tab => {
+                    const isWeekly = tab.textContent.includes('Semanal');
+                    tab.classList.toggle('active', 
+                        (isWeekly && state.currentShoppingList === 'weekly') ||
+                        (!isWeekly && state.currentShoppingList === 'monthly')
+                    );
+                });
+            };
+
             const calculateMacros = () => {
                 saveUserData();
 
@@ -2193,10 +2206,14 @@
                 }
             };
 
-            const showShoppingList = (type) => {
+            const showShoppingList = (type, event) => {
                 state.currentShoppingList = type;
                 generateShoppingList();
-                updateTotals(); // Actualizar el coste
+                updateTotals();
+                updateTabsVisualState(); // Actualizar estado visual
+                saveState(); // Guardar en localStorage
+                
+                event.currentTarget.classList.add('active');
                 
                 // Actualizar etiqueta semanal/mensual
                 document.getElementById('cost-period-label').textContent = 
@@ -2206,8 +2223,12 @@
                 document.querySelectorAll('.shopping-list-tab').forEach(tab => {
                     tab.classList.remove('active');
                 });
-                event.target.classList.add('active');
+                
             };
+
+            if (state.currentShoppingList) {
+                updateTabsVisualState();
+            }
 
             // Modales
             const showFoodModal = () => {
