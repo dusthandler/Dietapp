@@ -91,6 +91,10 @@
             background: rgba(0,0,0,0.05);
             border-radius: 5px;
             margin: 5px 0;
+            animation: none; 
+            transition: 
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
         }
 
         .food-info {
@@ -313,6 +317,16 @@
             z-index: 1000;
         }
 
+        #modal-selected-list::-webkit-scrollbar {
+            width: 5px;
+            background: transparent;
+        }
+
+        #modal-selected-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
         .modal-content {
             background: transparent;
             padding: 0;
@@ -320,10 +334,11 @@
             gap: 20px;
             width: 90%;
             max-width: 900px;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
             border: none;
             box-shadow: none;
+            overflow: hidden !important;
         }
 
         .modal-column {
@@ -375,17 +390,68 @@
             padding: 15px;
             border-radius: 10px;
             border: 2px solid transparent;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             cursor: pointer;
             background: var(--surface);
             text-align: center;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .food-item-modal:hover {
-            transform: translateY(-3px);
+            transform: translateY(-3px) rotate(-5deg) scale(1.2);
             background: rgba(0,0,0,0.05);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
+        .food-item-modal:active{
+            animation: 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55)forwards;
+            transform: scale(0.95);
+        }
+
+        @keyframes spinZoom {
+            0% { transform: scale(1) rotate(0); }
+            30% { transform: scale(1.3) rotate(180deg); }
+            70% { transform: scale(0.9) rotate(340deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+            .click-animation {
+            animation: clickEffect 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+            /* Animación al añadir ingrediente */
+        @keyframes popIn {
+            0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+        }
+
+        @keyframes foodItemClickAnimation {
+          0% { transform: scale(1); background: var(--surface); }
+          30% { transform: scale(0.92); background: var(--surface); } /* Contract */
+          70% { transform: scale(0.95); background: rgba(76, 175, 80, 0.1); } /* Start turning green */
+          100% { transform: scale(1); background: rgba(76, 175, 80, 0.1); } /* Return to normal size but green */
+        }
+
+        /* Animation class that will be applied on click */
+        .food-item-modal.clicked-animation {
+          animation: foodItemClickAnimation 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+          border-color: var(--success);
+        }
+
 
         .food-item-modal.selected {
             border-color: var(--success);
@@ -399,10 +465,34 @@
 
         .modal-selected-item {
             padding: 12px;
-            margin: 10px 0;
+            margin: 5px 0;
             background: var(--surface);
             border-radius: 8px;
             border: 1px solid var(--border);
+            /* animation: popIn 0.3s ease-out; */
+            overflow: hidden; /* Previene scrollbars */
+            transform: scale(0.98); /* Pequeño ajuste inicial */
+        }
+
+        .modal-selected-item.new-item {
+            animation: popIn 0.5s ease-out forwards;
+            transform-origin: center;
+        }
+
+        .food-item.new-item {
+            animation: popIn 0.5s ease-out forwards;
+            transform-origin: center;
+        }
+
+        @keyframes bounceBack {
+            0% { transform: translateY(-3px); }
+            50% { transform: translateY(2px); }
+            100% { transform: translateY(0); }
+        }
+
+        .food-item-modal:not(:hover) {
+            transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transform: rotate(0) scale(1);
         }
 
         .food-macros {
@@ -678,6 +768,13 @@
             margin-top: 15px;
         }
 
+        #modal-selected-list {
+            max-height: 60vh; /* Usar viewport height en lugar de porcentaje */
+            overflow-y: auto; /* Mantener auto pero con mejor control */
+            padding-right: 5px; /* Evitar saltos de layout */
+            scrollbar-width: thin; /* Para Firefox */
+        }
+
         .cost-mini {
             background: rgba(159, 90, 253, 0.1);
             padding: 8px 15px;
@@ -828,6 +925,36 @@
         .shopping-list-tabs {
             margin-bottom: 12px;
         }
+
+        .food-emoji {
+            display: inline-block;
+            will-change: transform; /* Optimización para navegadores */
+        }
+
+        /* .food-item-modal:hover {
+            transform: rotate(-5deg) scale(1.15);
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+        } */
+
+        @keyframes spinEmoji {
+          0% { transform: scale(1) rotate(0deg); }
+          20% { transform: scale(0.8) rotate(-30deg); }
+          50% { transform: scale(1.3) rotate(180deg); }
+          80% { transform: scale(1.1) rotate(330deg); }
+          100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .food-emoji-spin {
+          animation: spinEmoji 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important; 
+          transform-origin: center center;
+          filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+        }
+
+        .new-item {
+            animation: popIn 0.5s ease-out forwards;
+            transform-origin: center;
+        }
+
 
     </style>
 </head>
@@ -1736,1097 +1863,1074 @@
             };
 
             const categories = {
-                'Proteínas': '🥩',
-                'Lácteos': '🥛',
-                'Cereales': '🌾',
-                'Tubérculos': '🍠',
-                'Verduras': '🥦',
-                'Frutas': '🍎',
-                'Legumbres': '🥣',
-                'Grasas': '🥑',
-                'Bebidas': '💧',
-                'Especias': '🌿',
-                'Endulzantes': '🍯',
-                'Platos preparados': '🍲'
-            };
-
-            const calculateSelectedTotals = (foods) => {
-                return foods.reduce((acc, food) => ({
-                    calories: acc.calories + (food.calories * food.quantity/100),
-                    protein: acc.protein + (food.protein * food.quantity/100),
-                    carbs: acc.carbs + (food.carbs * food.quantity/100),
-                    fats: acc.fats + (food.fats * food.quantity/100)
-                }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
-            };
-
-            const updateTabsVisualState = () => {
-                document.querySelectorAll('.shopping-list-tab').forEach(tab => {
-                    const isWeekly = tab.textContent.includes('Semanal');
-                    tab.classList.toggle('active', 
-                        (isWeekly && state.currentShoppingList === 'weekly') ||
-                        (!isWeekly && state.currentShoppingList === 'monthly')
-                    );
-                });
-            };
-
-            const calculateMacros = () => {
+        'Proteínas': '🥩',
+        'Lácteos': '🥛',
+        'Cereales': '🌾',
+        'Tubérculos': '🍠',
+        'Verduras': '🥦',
+        'Frutas': '🍎',
+        'Legumbres': '🥣',
+        'Grasas': '🥑',
+        'Bebidas': '💧',
+        'Especias': '🌿',
+        'Endulzantes': '🍯',
+        'Platos preparados': '🍲'
+    };
+    
+    // Application state
+    let state = {
+        currentMeal: null,
+        selectedFoods: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] },
+        savedDiets: {},
+        currentDietIndex: 0,
+        theme: localStorage.getItem('theme') || 'light',
+        selectedFoodsInModal: [],
+        currentShoppingList: 'weekly',
+        userMacros: null,
+        lastAddedItems: [],
+        userData: {
+            age: '',
+            weight: '',
+            height: '',
+            gender: 'male',
+            activity: '1.2',
+            goal: 'maintain'
+        }
+    };
+    
+    // ===== INITIALIZATION =====
+    
+    const init = () => {
+        setTheme(state.theme);
+        loadState();
+        setupEventListeners();
+        renderMeals();
+        renderSavedDiets();
+        updateTotals();
+        generateShoppingList();
+        loadUserData();
+        updatePeriodLabel();
+    };
+    
+    const setupEventListeners = () => {
+        // Modal click outside handler
+        document.getElementById('foodModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('foodModal')) {
+                closeFoodModal();
+            }
+        });
+        
+        // Macro input/select change handlers
+        document.querySelectorAll('.macro-input, .macro-select').forEach(input => {
+            input.addEventListener('change', () => {
                 saveUserData();
-
-                const age = parseInt(state.userData.age);
-                const weight = parseFloat(state.userData.weight);
-                const height = parseFloat(state.userData.height); // Cambiado de value a height
-                const gender = state.userData.gender;             // Cambiado de value a gender
-                const activity = parseFloat(state.userData.activity); // Cambiado de value a activity
-                const goal = state.userData.goal;                 // Cambiado de value a goal
-                if (state.userMacros) {
-                    document.querySelectorAll('.progress-ring-circle').forEach(circle => {
-                        circle.style.strokeDashoffset = 0;
-                    });
-                }
-                if (!age || !weight || !height) {
-                    alert('Por favor completa todos los campos');
-                    return;
-                }
-
-                // Cálculo Mifflin-St Jeor
-                let bmr;
-                if (gender === 'male') {
-                    bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-                } else {
-                    bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-                }
-
-                let tdee = bmr * activity;
-                
-                // Ajustar según objetivo
-                if (goal === 'lose') tdee -= 500;
-                if (goal === 'gain') tdee += 500;
-
-                // Distribución de macros (30% proteína, 40% carbos, 30% grasas)
-                const protein = (tdee * 0.3) / 4;
-                const carbs = (tdee * 0.4) / 4;
-                const fats = (tdee * 0.3) / 9;
-
-                state.userMacros = {
-                    calories: Math.round(tdee),
-                    protein: Math.round(protein),
-                    carbs: Math.round(carbs),
-                    fats: Math.round(fats)
-                };
-
-                showMacroResults();
-                updateTotals(); // Actualizar la comparación
-            };
-
-            const showMacroResults = () => {
-                const results = document.getElementById('macro-results');
-                results.style.display = 'block';
-                
-                // Actualizar display de objetivos
-                document.getElementById('target-calories').textContent = state.userMacros.calories;
-                document.getElementById('target-protein').textContent = state.userMacros.protein;
-                document.getElementById('target-carbs').textContent = state.userMacros.carbs;
-                document.getElementById('target-fats').textContent = state.userMacros.fats;
-                
-                document.getElementById('macro-results').style.display = 'block';
-                state.showMacroResults = true; 
-                updateTotals();
-            };
-
-
-            const createNewDiet = () => {
-                let baseName = 'Nueva Dieta';
-                let counter = 1;
-                while (state.savedDiets[baseName + ' ' + counter]) {
-                    counter++;
-                }
-                const newName = baseName + ' ' + counter;
-                
-                state.savedDiets[newName] = JSON.parse(JSON.stringify({
-                    Desayuno: [],
-                    Almuerzo: [],
-                    Cena: [],
-                    Snacks: []
-                }));
-                
-                state.currentDietIndex = Object.keys(state.savedDiets).length - 1;
-                loadDiet(newName);
                 saveState();
-                renderSavedDiets();
-            };
-
-            const editDietName = () => {
-                const dietNames = Object.keys(state.savedDiets);
-                if (dietNames.length === 0) return;
-                
-                const oldName = dietNames[state.currentDietIndex];
-                const titleElement = document.getElementById('current-diet-title');
-                
-                // Crear input de edición
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = oldName;
-                input.style = `
-                    font-size: inherit;
-                    font-family: inherit;
-                    color: inherit;
-                    background: var(--surface);
-                    border: 2px solid var(--secondary);
-                    border-radius: 5px;
-                    padding: 5px;
-                    width: 200px;
-                `;
-                
-                titleElement.innerHTML = '';
-                titleElement.appendChild(input);
-                input.focus();
-                
-                const finishEditing = () => {
-                    const newName = input.value.trim();
-                    if (!newName || newName === oldName) {
-                        titleElement.textContent = oldName;
-                        return;
-                    }
-                    
-                    if (state.savedDiets[newName]) {
-                        alert('¡Ya existe una dieta con ese nombre!');
-                        titleElement.textContent = oldName;
-                        return;
-                    }
-                    
-                    // Actualizar en el estado
-                    state.savedDiets[newName] = state.savedDiets[oldName];
-                    delete state.savedDiets[oldName];
-                    state.currentDietIndex = Object.keys(state.savedDiets).indexOf(newName);
-                    
-                    titleElement.textContent = newName;
-                    saveState();
-                    renderSavedDiets();
-                };
-                
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') finishEditing();
-                });
-                
-                input.addEventListener('blur', finishEditing);
-            };
-
-            // Estado inicial
-            let state = {
-                currentMeal: null,
-                selectedFoods: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] },
-                savedDiets: {},
-                currentDietIndex: 0,
-                theme: localStorage.getItem('theme') || 'light',
-                selectedFoodsInModal: [],
-                currentShoppingList: 'weekly',
-                userMacros: null,
-                userData: {
+            });
+        });
+    };
+    
+    // ===== STATE MANAGEMENT =====
+    
+    const saveState = () => {
+        localStorage.setItem('dietState', JSON.stringify({
+            selectedFoods: state.selectedFoods,
+            savedDiets: state.savedDiets,
+            userData: state.userData,
+            userMacros: state.userMacros,
+            showMacroResults: state.showMacroResults
+        }));
+    };
+    
+    const loadState = () => {
+        const saved = localStorage.getItem('dietState');
+        if (saved) {
+            const data = JSON.parse(saved);
+            state.selectedFoods = data.selectedFoods || { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+            state.savedDiets = data.savedDiets || {};
+            state.userMacros = data.userMacros || null;
+            state.showMacroResults = data.showMacroResults || false;
+            state.userData = data.userData || {
                 age: '',
                 weight: '',
                 height: '',
                 gender: 'male',
                 activity: '1.2',
                 goal: 'maintain'
+            };
+
+            // Show results if previously visible
+            if (state.showMacroResults) {
+                document.getElementById('macro-results').style.display = 'block';
             }
-            };
 
-            const saveUserData = () => {
-                state.userData = {
-                    age: document.getElementById('age').value,
-                    weight: document.getElementById('weight').value,
-                    height: document.getElementById('height').value,
-                    gender: document.getElementById('gender').value,
-                    activity: document.getElementById('activity').value,
-                    goal: document.getElementById('goal').value
-                };
-                saveState();
-            };
-
-            // Inicialización
-            const init = () => {
-                setTheme(state.theme);
-                loadState();
-                setupEventListeners();
-                renderMeals();
-                renderSavedDiets();
-                updateTotals();
-                generateShoppingList();
-                loadUserData();
-                document.getElementById('cost-period-label').textContent = 
-                    state.currentShoppingList === 'weekly' ? 'semanal' : 'mensual';
-            };
-
-            const loadUserData = () => {
-                document.getElementById('age').value = state.userData.age || '';
-                document.getElementById('weight').value = state.userData.weight || '';
-                document.getElementById('height').value = state.userData.height || '';
-                document.getElementById('gender').value = state.userData.gender;
-                document.getElementById('activity').value = state.userData.activity;
-                document.getElementById('goal').value = state.userData.goal;
-            };
-
-            // Configuración de eventos
-            const setupEventListeners = () => {
-                document.getElementById('foodModal').addEventListener('click', e => {
-                    if (e.target === document.getElementById('foodModal')) {
-                        closeFoodModal();
-                    }
-                });
-            };
-
-            // Manejo del tema
-            const setTheme = (theme) => {
-                document.documentElement.setAttribute('data-theme', theme);
-                localStorage.setItem('theme', theme);
-                state.theme = theme;
-            };
-
-            // Persistencia
-            const saveState = () => {
-                localStorage.setItem('dietState', JSON.stringify({
-                    selectedFoods: state.selectedFoods,
-                    savedDiets: state.savedDiets,
-                    userData: state.userData,
-                    userMacros: state.userMacros, // <-- Añadir
-                    showMacroResults: state.showMacroResults // <-- Añadir
-                }));
-            };
-
-            document.querySelectorAll('.macro-input, .macro-select').forEach(input => {
-                input.addEventListener('change', () => {
-                    saveUserData();
-                    saveState();  // Solo guardar datos, no calcular
-                });
+            // Ensure all data structures are arrays (compatibility)
+            Object.keys(state.selectedFoods).forEach(meal => {
+                if (!Array.isArray(state.selectedFoods[meal])) {
+                    state.selectedFoods[meal] = Object.values(state.selectedFoods[meal]);
+                }
             });
 
-            const loadState = () => {
-                const saved = localStorage.getItem('dietState');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    state.selectedFoods = data.selectedFoods || { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                    state.savedDiets = data.savedDiets || {};
-                    state.userMacros = data.userMacros || null;
-                    state.showMacroResults = data.showMacroResults || false;
-                    
-                    if (state.showMacroResults) {
-                        document.getElementById('macro-results').style.display = 'block';
-                    }
-                    state.userData = data.userData || { // <-- Cargar datos del usuario
-                        age: '',
-                        weight: '',
-                        height: '',
-                        gender: 'male',
-                        activity: '1.2',
-                        goal: 'maintain'
-                    
-                    };
-
-                    if (state.showMacroResults) {
-                        document.getElementById('macro-results').style.display = 'block';
-                    }
-
-                    
-                    // Convertir objetos guardados a arrays si es necesario (para compatibilidad)
-                    Object.keys(state.selectedFoods).forEach(meal => {
-                        if (!Array.isArray(state.selectedFoods[meal])) {
-                            state.selectedFoods[meal] = Object.values(state.selectedFoods[meal]);
-                        }
-                    });
-
-                    // Cargar la última dieta usada
-                    if (Object.keys(state.savedDiets).length > 0) {
-                        state.currentDietIndex = 0;
-                        loadDiet(Object.keys(state.savedDiets)[0]);
-                    }
-                }
-            };
-
-            // Renderizado
-            const renderMeals = () => {
-                const mealsContainer = document.getElementById('meals');
-                mealsContainer.innerHTML = '';
-                
-                const meals = Object.keys(state.selectedFoods);
-                
-                for (let i = 0; i < meals.length; i++) {
-                    const meal = meals[i];
-                    
-                    // Crear tarjeta de comida
-                    const mealCard = document.createElement('div');
-                    mealCard.className = 'meal-card';
-                    mealCard.dataset.meal = meal;
-                    
-                    // Título de la comida
-                    const emoji = meal === 'Desayuno' ? '☀️' : 
-                                 meal === 'Almuerzo' ? '🥗' : 
-                                 meal === 'Cena' ? '🌙' : '🍎';
-                    mealCard.innerHTML = `
-                        <h3>${emoji} ${meal}</h3>
-                        <div class="meal-content" id="${meal}-content"></div>
-                    `;
-                    
-                    // Añadir evento de clic
-                    mealCard.addEventListener('click', (e) => {
-                        if (!e.target.closest('input') && !e.target.closest('button')) {
-                            state.currentMeal = meal;
-                            showFoodModal();
-                        }
-                    });
-                    
-                    mealsContainer.appendChild(mealCard);
-                    
-                    // Renderizar contenido de la comida
-                    renderMealContent(meal);
-                    
-                    // Añadir botón para agregar nueva comida (excepto después de la última)
-                    if (i < meals.length - 1) {
-                        const addBtn = document.createElement('button');
-                        addBtn.className = 'add-meal-btn';
-                        addBtn.innerHTML = '+ Añadir comida';
-                        addBtn.onclick = () => {
-                            const newMealName = prompt('Nombre de la nueva comida:');
-                            if (newMealName && newMealName.trim()) {
-                                state.selectedFoods[newMealName.trim()] = [];
-                                saveState();
-                                renderMeals();
-                                updateTotals();
-                                generateShoppingList();
-                            }
-                        };
-                        mealsContainer.appendChild(addBtn);
-                    }
-                }
-            };
-
-            const renderMealContent = (meal) => {
-                const mealContent = document.getElementById(`${meal}-content`);
-                if (!mealContent) return;
-                
-                const mealTotals = state.selectedFoods[meal].reduce((acc, food) => ({
-                    calories: acc.calories + (food.calories * food.quantity/100),
-                    protein: acc.protein + (food.protein * food.quantity/100),
-                    carbs: acc.carbs + (food.carbs * food.quantity/100),
-                    fats: acc.fats + (food.fats * food.quantity/100),
-                    cost: acc.cost + (food.price * food.quantity/100)
-                }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
-
-                // Actualizar macros en el título (añadiendo coste)
-                const mealCard = mealContent.closest('.meal-card');
-                let macroContainer = mealCard.querySelector('.meal-macros');
-                if (!macroContainer) {
-                    macroContainer = document.createElement('div');
-                    macroContainer.className = 'meal-macros';
-                    mealCard.querySelector('h3').after(macroContainer);
-                }
-                macroContainer.innerHTML = `
-                    <div class="macro-pill">🔥${mealTotals.calories.toFixed(1)}</div>
-                    <div class="macro-pill">💪${mealTotals.protein.toFixed(1)}g</div>
-                    <div class="macro-pill">🍞${mealTotals.carbs.toFixed(1)}g</div>
-                    <div class="macro-pill">🥑${mealTotals.fats.toFixed(1)}g</div>
-                    <div class="macro-pill">💵 $${mealTotals.cost.toFixed(2)}</div>
-                `;
-
-                mealContent.innerHTML = state.selectedFoods[meal].map(food => `
-                    <div class="food-item">
-                        <div class="food-info">
-                            <button class="delete-btn" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
-                            <div style="font-size: 1.2em">${foodDB[food.name].emoji}</div>
-                            <div>
-                                <div><strong>${food.name}</strong></div>
-                                <div class="quantity-actions" style="margin-top: 5px;">
-                                    <input type="number" value="${food.quantity}" 
-                                        class="quantity-input"
-                                        onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
-                                        min="0" step="1">
-                                    <span>g</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="food-macros-actions">
-                            <div class="macros-cost-container">
-                                <div class="macros-grid">
-                                    <div class="macro-badge calories">🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal</div>
-                                    <div class="macro-badge protein">💪 ${(food.protein * food.quantity/100).toFixed(1)}g</div>
-                                    <div class="macro-badge carbs">🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g</div>
-                                    <div class="macro-badge fats">🥑 ${(food.fats * food.quantity/100).toFixed(1)}g</div>
-                                </div>
-                                <div class="cost-badge">
-                                    <div>💵</div>
-                                    <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="quick-amount-vertical">
-                                <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50 g</button>
-                                <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50 g</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                if (state.selectedFoods[meal].length === 0) {
-                    mealContent.innerHTML = '<p style="color: #999;">No hay alimentos añadidos</p>';
-                }
-            };
-
-            const renderSavedDiets = () => {
-                const dietNames = Object.keys(state.savedDiets);
-                const currentDietName = dietNames[state.currentDietIndex] || 'Nueva dieta';
-                document.getElementById('current-diet-title').textContent = currentDietName;
-            };
-
-            // Lista de compra
-            const generateShoppingList = () => {
-                const allFoods = Object.values(state.selectedFoods).flat();
-                const foodQuantities = {};
-                
-                allFoods.forEach(food => {
-                    if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
-                    const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
-                    foodQuantities[food.name] += food.quantity * multiplier;
-                });
-
-                const sortedFoods = Object.keys(foodQuantities).sort();
-                const listContent = document.getElementById('shopping-list-content');
-                
-                listContent.innerHTML = sortedFoods.map(food => `
-                    <div class="shopping-list-item">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                ${foodDB[food].emoji} ${food}
-                            </div>
-                            <div style="font-weight: bold;">${foodQuantities[food].toFixed(0)}g</div>
-                        </div>
-                    </div>
-                `).join('');
-                if (sortedFoods.length === 0) {
-                    listContent.innerHTML = '<div style="color: #999; text-align: center; padding: 10px;">No hay productos en la lista</div>';
-                }
-            };
-
-            const showShoppingList = (type, event) => {
-                state.currentShoppingList = type;
-                generateShoppingList();
-                updateTotals();
-                updateTabsVisualState(); // Actualizar estado visual
-                saveState(); // Guardar en localStorage
-                
-                event.currentTarget.classList.add('active');
-                
-                // Actualizar etiqueta semanal/mensual
-                document.getElementById('cost-period-label').textContent = 
-                    type === 'weekly' ? 'semanal' : 'mensual';
-                
-                // Actualizar pestañas activas
-                document.querySelectorAll('.shopping-list-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                
-            };
-
-            if (state.currentShoppingList) {
-                updateTabsVisualState();
+            // Load the last used diet
+            if (Object.keys(state.savedDiets).length > 0) {
+                state.currentDietIndex = 0;
+                loadDiet(Object.keys(state.savedDiets)[0]);
             }
-
-            // Modales
-            const showFoodModal = () => {
-                const modal = document.getElementById('foodModal');
-                const content = document.getElementById('modalContent');
-                
-                // Calcular totales de los seleccionados
-                const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
-                
-                content.innerHTML = `
-                    <!-- Columna de selección -->
-                    <div class="modal-column selection-column">
-                        <h2>Selecciona una categoría</h2>
-                        <div class="category-grid">
-                            ${Object.entries(categories).map(([name, emoji]) => `
-                                <div class="category-card" onclick="App.showFoods('${name}')" 
-                                    style="background: ${getCategoryColor(name)}">
-                                    <div style="font-size: 2em">${emoji}</div>
-                                    ${name}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Columna de seleccionados -->
-                    <div class="modal-column selected-column">
-                        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-                        
-                        <!-- Añadir sección de totales -->
-                        ${state.selectedFoodsInModal.length > 0 ? `
-                            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
-                                    <div>🔥 Calorías: ${selectedTotals.calories.toFixed(1)}</div>
-                                    <div>💪 Proteína: ${selectedTotals.protein.toFixed(1)}g</div>
-                                    <div>🍞 Carbos: ${selectedTotals.carbs.toFixed(1)}g</div>
-                                    <div>🥑 Grasas: ${selectedTotals.fats.toFixed(1)}g</div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <div id="modal-selected-list" style="max-height: 60%; overflow-y: auto;">
-                            ${state.selectedFoodsInModal.map(food => `
-                                <div class="modal-selected-item" data-food="${food.name}">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="flex-grow: 1;">
-                                            <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
-                                                ${food.emoji} ${food.name}
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                                                <input type="number" 
-                                                    value="${food.quantity}"
-                                                    class="quantity-input"
-                                                    onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                                    min="0">
-                                                <span style="font-size: 0.9em; color: var(--text);">gramos</span>
-                                            </div>
-                                            <div class="macros-cost-container" style="margin-top: 8px;">
-                                                <div class="macros-grid">
-                                                    <div class="macro-badge calories">
-                                                        🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal
-                                                    </div>
-                                                    <div class="macro-badge protein">
-                                                        💪 ${(food.protein * food.quantity/100).toFixed(1)}g
-                                                    </div>
-                                                    <div class="macro-badge carbs">
-                                                        🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g
-                                                    </div>
-                                                    <div class="macro-badge fats">
-                                                        🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
-                                                    </div>
-                                                </div>
-                                                <div class="cost-badge">
-                                                    <div>💵</div>
-                                                    <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
-                                                    <span>coste</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}')">
-                                            ✖
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        ${state.selectedFoodsInModal.length > 0 ? `
-                            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
-                                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
-                                ➕ Añadir a ${state.currentMeal}
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-                
-                modal.style.display = 'flex';
-            };
-
-            const showFoods = (category) => {
-                const content = document.getElementById('modalContent');
-                const foodsInCategory = Object.entries(foodDB)
-                    .filter(([_, data]) => data.category === category)
-                    .map(([name, data]) => ({ name, ...data }));
-
-                // Calcular totales de los seleccionados
-                const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
-                
-                content.innerHTML = `
-                    <!-- Columna de alimentos -->
-                    <div class="modal-column selection-column">
-                        <button class="btn" onclick="App.showFoodModal()" 
-                            style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
-                            ← Volver a categorías
-                        </button>
-                        <h2>${category}</h2>
-                        <div class="food-grid">
-                            ${foodsInCategory.map(food => `
-                                <div class="food-item-modal 
-                                    ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
-                                    onclick="App.toggleFoodSelection('${food.name}')">
-                                    <div style="font-size: 1.5em">${food.emoji}</div>
-                                    <div><strong>${food.name}</strong></div>
-                                    <div class="food-macros">
-                                        <div>🔥 ${food.calories}kcal/100g</div>
-                                        <div>💪 ${food.protein}g</div>
-                                        <div>🍞 ${food.carbs}g</div>
-                                        <div>🥑 ${food.fats}g</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Columna de seleccionados -->
-                    <div class="modal-column selected-column">
-                        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-                        
-                        <!-- Añadir sección de totales -->
-                        ${state.selectedFoodsInModal.length > 0 ? `
-                            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
-                                    <div>🔥 Calorías: ${selectedTotals.calories.toFixed(1)}</div>
-                                    <div>💪 Proteína: ${selectedTotals.protein.toFixed(1)}g</div>
-                                    <div>🍞 Carbos: ${selectedTotals.carbs.toFixed(1)}g</div>
-                                    <div>🥑 Grasas: ${selectedTotals.fats.toFixed(1)}g</div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <div id="modal-selected-list" style="max-height: 60%; overflow-y: auto;">
-                            ${state.selectedFoodsInModal.map(food => `
-                                <div class="modal-selected-item" data-food="${food.name}">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="flex-grow: 1;">
-                                            <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
-                                                ${food.emoji} ${food.name}
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                                                <input type="number" 
-                                                    value="${food.quantity}"
-                                                    style="width: 80px; padding: 6px; border: 1px solid var(--border);"
-                                                    onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                                    min="0">
-                                                <span style="font-size: 0.9em; color: var(--text);">gramos</span>
-                                            </div>
-                                            <!-- Mostrar macros por cantidad -->
-                                            <div style="font-size: 0.8em; color: var(--text); margin-top: 5px;">
-                                                🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal | 
-                                                💪 ${(food.protein * food.quantity/100).toFixed(1)}g | 
-                                                🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g | 
-                                                🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
-                                            </div>
-                                        </div>
-                                        <button onclick="App.toggleFoodSelection('${food.name}')" 
-                                            style="background: none; border: none; cursor: pointer; color: var(--danger); 
-                                                margin-left: 10px; font-size: 1.2em;">
-                                            ✖
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        ${state.selectedFoodsInModal.length > 0 ? `
-                            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
-                                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
-                                ➕ Añadir a ${state.currentMeal}
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-            };
-
-            const closeFoodModal = () => {
-                document.getElementById('foodModal').style.display = 'none';
-            };
-
-            // Funcionalidad de alimentos
-            const toggleFoodSelection = (foodName) => {
-                const existingIndex = state.selectedFoodsInModal.findIndex(f => f.name === foodName);
-                
-                if (existingIndex > -1) {
-                    state.selectedFoodsInModal.splice(existingIndex, 1);
-                } else {
-                    state.selectedFoodsInModal.push({
-                        name: foodName,
-                        quantity: 100,
-                        ...foodDB[foodName]
-                    });
-                }
-                
-                // Mantener la vista actual
-                const currentCategory = foodDB[foodName].category;
-                if (currentCategory) {
-                    showFoods(currentCategory);
-                } else {
-                    showFoodModal();
-                }
-            };
-
-            const updateModalQuantity = (foodName, value) => {
-                const quantity = Math.max(0, parseInt(value) || 0);
-                const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
-                
-                if (foodItem) {
-                    foodItem.quantity = quantity;
-                    // Volver a renderizar la vista actual para actualizar los totales
-                    const currentCategory = foodDB[foodName].category;
-                    if (currentCategory) {
-                        showFoods(currentCategory);
-                    } else {
-                        showFoodModal();
-                    }
-                }
-            };
-
-            const addSelectedFoods = () => {
-                state.selectedFoodsInModal.forEach(modalFood => {
-                    const existingIndex = state.selectedFoods[state.currentMeal]
-                        .findIndex(f => f.name === modalFood.name);
-                    
-                    if (existingIndex > -1) {
-                        state.selectedFoods[state.currentMeal][existingIndex].quantity += modalFood.quantity;
-                    } else {
-                        state.selectedFoods[state.currentMeal].push({
-                            name: modalFood.name,
-                            quantity: modalFood.quantity,
-                            ...foodDB[modalFood.name]
-                        });
-                    }
-                });
-                
-                state.selectedFoodsInModal = [];
-                closeFoodModal();
-                saveState();
-                renderMeals();
-                updateTotals();
-                generateShoppingList();
-            };
-
-            const updateQuantity = (meal, food, value) => {
-                const quantity = Math.max(0, Number(value) || 0);
-                const item = state.selectedFoods[meal].find(i => i.name === food);
-                if (item) {
-                    item.quantity = quantity;
-                    saveState();
-                    renderMealContent(meal);
-                    updateTotals();
-                    generateShoppingList();
-                }
-            };
-
-            const removeFood = (meal, food) => {
-                state.selectedFoods[meal] = state.selectedFoods[meal].filter(f => f.name !== food);
-                saveState();
-                renderMealContent(meal);
-                updateTotals();
-                generateShoppingList();
-            };
-
-            // Funcionalidad de dietas
-            const saveDiet = () => {
-                const nameInput = document.getElementById('diet-name');
-                const name = nameInput.value.trim();
-                
-                if (!name) {
-                    alert('Por favor ingresa un nombre para la dieta');
-                    return;
-                }
-                
-                state.savedDiets[name] = JSON.parse(JSON.stringify(state.selectedFoods));
-                nameInput.value = '';
-                saveState();
-                
-                // Actualizar índice actual
-                const dietNames = Object.keys(state.savedDiets);
-                state.currentDietIndex = dietNames.indexOf(name);
-                
-                renderSavedDiets();
-                
-                // Mostrar feedback
-                const feedback = document.createElement('div');
-                feedback.textContent = '¡Dieta guardada!';
-                feedback.style.position = 'fixed';
-                feedback.style.bottom = '20px';
-                feedback.style.left = '50%';
-                feedback.style.transform = 'translateX(-50%)';
-                feedback.style.backgroundColor = 'var(--success)';
-                feedback.style.color = 'white';
-                feedback.style.padding = '10px 20px';
-                feedback.style.borderRadius = '5px';
-                feedback.style.zIndex = '1000';
-                document.body.appendChild(feedback);
-                
-                setTimeout(() => {
-                    document.body.removeChild(feedback);
-                }, 2000);
-                
-            };
-
-            const loadDiet = (name) => {
-                if (state.savedDiets[name]) {
-                    state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[name]));
-                    saveState();
-                    renderMeals();
-                    updateTotals();
-                    generateShoppingList();
-                    document.getElementById('current-diet-title').textContent = name;
-                }
-            };
-
-            const deleteCurrentDiet = () => {
-                const dietNames = Object.keys(state.savedDiets);
-                if (dietNames.length === 0) return;
-                
-                const dietName = dietNames[state.currentDietIndex];
-                if (confirm(`¿Estás seguro de que quieres eliminar la dieta "${dietName}"?`)) {
-                    delete state.savedDiets[dietName];
-                    
-                    // Ajustar el índice actual
-                    if (state.currentDietIndex >= Object.keys(state.savedDiets).length) {
-                        state.currentDietIndex = Math.max(0, Object.keys(state.savedDiets).length - 1);
-                    }
-                    
-                    // Cargar la siguiente dieta si hay alguna
-                    if (Object.keys(state.savedDiets).length > 0) {
-                        loadDiet(Object.keys(state.savedDiets)[state.currentDietIndex]);
-                    } else {
-                        // Resetear a una dieta vacía
-                        state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                        renderMeals();
-                        updateTotals();
-                        generateShoppingList();
-                    }
-                    
-                    saveState();
-                    renderSavedDiets();
-                }
-            };
-
-            const prevDiet = () => {
-                const dietNames = Object.keys(state.savedDiets);
-                if (dietNames.length === 0) return;
-                
-                state.currentDietIndex = (state.currentDietIndex - 1 + dietNames.length) % dietNames.length;
-                loadDiet(dietNames[state.currentDietIndex]);
-                document.getElementById('current-diet-title').textContent = dietNames[state.currentDietIndex];
-            };
-
-            const nextDiet = () => {
-                const dietNames = Object.keys(state.savedDiets);
-                if (dietNames.length === 0) return;
-                
-                state.currentDietIndex = (state.currentDietIndex + 1) % dietNames.length;
-                loadDiet(dietNames[state.currentDietIndex]);
-                document.getElementById('current-diet-title').textContent = dietNames[state.currentDietIndex];
-            };
-
-            // Cálculos
-            const updateTotals = () => {
-                const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
-                    calories: acc.calories + (food.calories * food.quantity/100),
-                    protein: acc.protein + (food.protein * food.quantity/100),
-                    carbs: acc.carbs + (food.carbs * food.quantity/100),
-                    fats: acc.fats + (food.fats * food.quantity/100),
-                    cost: acc.cost + (food.price * food.quantity/100) // Esto es el costo DIARIO
-                }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
-
-                // Aplicar el multiplicador al costo
-                const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
-                const totalCost = totals.cost * multiplier; // Multiplicar el costo diario
-                document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-
-                // Función para actualizar los porcentajes y gráficos
-                const updateProgress = (current, target, elementId) => {
-                    const progressElement = document.getElementById(elementId);
-                    if (!progressElement) return;
-                    
-                    const progressBar = progressElement.parentElement; // Seleccionar el contenedor padre
-                    const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
-                    
-                    progressElement.style.width = `${percentage}%`;
-                    progressBar.setAttribute('data-progress', percentage.toFixed(0));
-
-                    // Resetear el radio para animación suave
-                    progressElement.style.borderRadius = '8px 0 0 8px';
-                    
-                    if (percentage >= 100) {
-                        setTimeout(() => {
-                            progressElement.style.borderRadius = '8px';
-                        }, 300);
-                    }
-                };
-
-                if (state.userMacros) {
-                // Actualizar todos los valores
-                document.getElementById('current-calories').textContent = totals.calories.toFixed(1);
-                document.getElementById('target-calories').textContent = state.userMacros.calories;
-                document.getElementById('current-protein').textContent = totals.protein.toFixed(1);
-                document.getElementById('target-protein').textContent = state.userMacros.protein;
-                document.getElementById('current-carbs').textContent = totals.carbs.toFixed(1);
-                document.getElementById('target-carbs').textContent = state.userMacros.carbs;
-                document.getElementById('current-fats').textContent = totals.fats.toFixed(1);
-                document.getElementById('target-fats').textContent = state.userMacros.fats;
-
-                // Actualizar barras
-                updateProgress(totals.calories, state.userMacros.calories, 'calories-progress');
-                updateProgress(totals.protein, state.userMacros.protein, 'protein-progress');
-                updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
-                updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
-            }
-
-            // Actualizar costo
-            const costValue = totals.cost.toFixed(2);
-            document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-            };
-
-            // Exportación
-            const exportPDF = () => {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF();
-                
-                pdf.setFontSize(18);
-                pdf.text('Plan Dietético', 105, 20, { align: 'center' });
-                
-                let yPos = 30;
-                const columnWidth = 90;
-                
-                // Encabezado
-                pdf.setFontSize(12);
-                pdf.setTextColor(100);
-                pdf.text("Comida", 20, yPos);
-                pdf.text("Alimento (gramos)", 60, yPos);
-                pdf.text("Macronutrientes", 130, yPos);
-                yPos += 8;
-                
-                // Contenido
-                pdf.setFontSize(10);
-                Object.entries(state.selectedFoods).forEach(([meal, foods]) => {
-                    if (foods.length > 0) {
-                        pdf.setFont(undefined, 'bold');
-                        pdf.setTextColor(0);
-                        pdf.text(`${meal}:`, 20, yPos);
-                        pdf.setFont(undefined, 'normal');
-                        yPos += 7;
-                        
-                        foods.forEach(food => {
-                            const nutrition = `Cal: ${(food.calories * food.quantity/100).toFixed(1)} | P: ${(food.protein * food.quantity/100).toFixed(1)}g | C: ${(food.carbs * food.quantity/100).toFixed(1)}g | G: ${(food.fats * food.quantity/100).toFixed(1)}g`;
-                            pdf.text(`- ${food.name} (${food.quantity}g)`, 25, yPos);
-                            pdf.text(nutrition, 60, yPos);
-                            yPos += 7;
-                            
-                            if (yPos > 270) {
-                                pdf.addPage();
-                                yPos = 20;
-                            }
-                        });
-                        yPos += 5;
-                    }
-                });
-                
-                // Totales
-                pdf.setFont(undefined, 'bold');
-                pdf.setTextColor(0);
-                pdf.text('TOTALES DIARIOS:', 20, yPos);
-                yPos += 7;
-                
-                const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
-                    calories: acc.calories + (food.calories * food.quantity/100),
-                    protein: acc.protein + (food.protein * food.quantity/100),
-                    carbs: acc.carbs + (food.carbs * food.quantity/100),
-                    fats: acc.fats + (food.fats * food.quantity/100),
-                    cost: acc.cost + (food.price * food.quantity/100)
-                }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
-                
-                pdf.text(`🔥 Calorías: ${totals.calories.toFixed(1)} kcal`, 25, yPos);
-                yPos += 7;
-                pdf.text(`💪 Proteína: ${totals.protein.toFixed(1)}g`, 25, yPos);
-                yPos += 7;
-                pdf.text(`🍞 Carbohidratos: ${totals.carbs.toFixed(1)}g`, 25, yPos);
-                yPos += 7;
-                pdf.text(`🥑 Grasas: ${totals.fats.toFixed(1)}g`, 25, yPos);
-                yPos += 7;
-                pdf.text(`💵 Costo total: $${totals.cost.toFixed(2)}`, 25, yPos);
-                
-                // Lista de compra
-                yPos += 15;
-                pdf.setFont(undefined, 'bold');
-                pdf.text('LISTA DE COMPRA SEMANAL:', 20, yPos);
-                yPos += 7;
-                
-                const allFoods = Object.values(state.selectedFoods).flat();
-                const foodQuantities = {};
-                
-                allFoods.forEach(food => {
-                    if (!foodQuantities[food.name]) {
-                        foodQuantities[food.name] = 0;
-                    }
-                    foodQuantities[food.name] += food.quantity * 7 / 100;
-                });
-
-                const sortedFoods = Object.keys(foodQuantities).sort();
-                pdf.setFont(undefined, 'normal');
-                sortedFoods.forEach(food => {
-                    pdf.text(`- ${food}: ${foodQuantities[food].toFixed(0)}g`, 25, yPos);
-                    yPos += 7;
-                    
-                    if (yPos > 270) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                });
-                
-                pdf.save('dieta.pdf');
-            };
-
-            // Helpers
-            const getCategoryColor = (category) => {
-                const colors = {
-                    'Proteínas': 'rgba(246, 229, 141, 0.3)',
-                    'Lácteos': 'rgba(126, 214, 223, 0.3)',
-                    'Cereales': 'rgba(186, 220, 88, 0.3)',
-                    'Tubérculos': 'rgba(222, 184, 135, 0.3)',
-                    'Verduras': 'rgba(106, 176, 76, 0.3)',
-                    'Frutas': 'rgba(255, 121, 121, 0.3)',
-                    'Legumbres': 'rgba(210, 180, 140, 0.3)',
-                    'Grasas': 'rgba(255, 190, 118, 0.3)',
-                    'Bebidas': 'rgba(100, 149, 237, 0.3)',
-                    'Especias': 'rgba(139, 69, 19, 0.3)',
-                    'Endulzantes': 'rgba(255, 215, 0, 0.3)',
-                    'Platos preparados': 'rgba(255, 165, 0, 0.3)'
-                };
-                return colors[category] || 'rgba(248, 249, 250, 0.3)';
-            };
-
-            // API pública
-            return {
-                init,
-                toggleTheme: () => {
-                    const newTheme = state.theme === 'light' ? 'dark' : 'light';
-                    setTheme(newTheme);
-                },
-                showFoodModal,
-                closeFoodModal,
-                showFoods,
-                toggleFoodSelection,
-                addSelectedFoods,
-                updateQuantity,
-                removeFood,
-                saveDiet,
-                loadDiet,
-                deleteCurrentDiet,
-                prevDiet,
-                nextDiet,
-                showShoppingList,
-                exportPDF,
-                updateModalQuantity,
-                calculateSelectedTotals,
-                createNewDiet,
-                editDietName,
-                calculateMacros
-            };
-        })();
-
-         // Código mejorado para el scroll sincronizado
-        document.addEventListener('DOMContentLoaded', () => {
-            const leftColumn = document.querySelector('.container > div:first-child');
-            const rightColumn = document.querySelector('.totals-section');
+        }
+    };
+    
+    const saveUserData = () => {
+        state.userData = {
+            age: document.getElementById('age').value,
+            weight: document.getElementById('weight').value,
+            height: document.getElementById('height').value,
+            gender: document.getElementById('gender').value,
+            activity: document.getElementById('activity').value,
+            goal: document.getElementById('goal').value
+        };
+        saveState();
+    };
+    
+    const loadUserData = () => {
+        document.getElementById('age').value = state.userData.age || '';
+        document.getElementById('weight').value = state.userData.weight || '';
+        document.getElementById('height').value = state.userData.height || '';
+        document.getElementById('gender').value = state.userData.gender;
+        document.getElementById('activity').value = state.userData.activity;
+        document.getElementById('goal').value = state.userData.goal;
+    };
+    
+    // ===== UI RENDERING =====
+    
+    const renderMeals = () => {
+        const mealsContainer = document.getElementById('meals');
+        mealsContainer.innerHTML = '';
+        
+        const meals = Object.keys(state.selectedFoods);
+        
+        for (let i = 0; i < meals.length; i++) {
+            const meal = meals[i];
+            const mealCard = createMealCard(meal);
+            mealsContainer.appendChild(mealCard);
+            renderMealContent(meal);
             
-            if (!leftColumn || !rightColumn) return;
-
-            leftColumn.addEventListener('scroll', () => {
-                // Margen de 5px para considerar que llegó al final
-                const reachedBottom = leftColumn.scrollHeight - leftColumn.scrollTop <= leftColumn.clientHeight + 5;
+            // Add "Add Meal" button between meals
+            if (i < meals.length - 1) {
+                const addBtn = createAddMealButton();
+                mealsContainer.appendChild(addBtn);
+            }
+        }
+    };
+    
+    const createMealCard = (meal) => {
+        const mealCard = document.createElement('div');
+        mealCard.className = 'meal-card';
+        mealCard.dataset.meal = meal;
+        
+        const emoji = getMealEmoji(meal);
+        mealCard.innerHTML = `
+            <h3>${emoji} ${meal}</h3>
+            <div class="meal-content" id="${meal}-content"></div>
+        `;
+        
+        mealCard.addEventListener('click', (e) => {
+            if (!e.target.closest('input') && !e.target.closest('button')) {
+                state.currentMeal = meal;
+                showFoodModal();
+            }
+        });
+        
+        return mealCard;
+    };
+    
+    const getMealEmoji = (meal) => {
+        return meal === 'Desayuno' ? '☀️' : 
+               meal === 'Almuerzo' ? '🥗' : 
+               meal === 'Cena' ? '🌙' : '🍎';
+    };
+    
+    const createAddMealButton = () => {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-meal-btn';
+        addBtn.innerHTML = '+ Añadir comida';
+        addBtn.onclick = () => {
+            const newMealName = prompt('Nombre de la nueva comida:');
+            if (newMealName && newMealName.trim()) {
+                state.selectedFoods[newMealName.trim()] = [];
+                saveState();
+                renderMeals();
+                updateTotals();
+                generateShoppingList();
+            }
+        };
+        return addBtn;
+    };
+    
+    const renderMealContent = (meal) => {
+        const mealContent = document.getElementById(`${meal}-content`);
+        if (!mealContent) return;
+        
+        const mealTotals = calculateMealTotals(meal);
+        updateMealMacros(meal, mealTotals);
+        
+        // Render food items
+        if (state.selectedFoods[meal].length === 0) {
+            mealContent.innerHTML = '<p style="color: #999;">No hay alimentos añadidos</p>';
+            return;
+        }
+        
+        mealContent.innerHTML = state.selectedFoods[meal].map(food => 
+            createFoodItemHTML(food, meal)
+        ).join('');
+    };
+    
+    const calculateMealTotals = (meal) => {
+        return state.selectedFoods[meal].reduce((acc, food) => ({
+            calories: acc.calories + (food.calories * food.quantity/100),
+            protein: acc.protein + (food.protein * food.quantity/100),
+            carbs: acc.carbs + (food.carbs * food.quantity/100),
+            fats: acc.fats + (food.fats * food.quantity/100),
+            cost: acc.cost + (food.price * food.quantity/100)
+        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+    };
+    
+    const updateMealMacros = (meal, totals) => {
+        const mealCard = document.querySelector(`.meal-card[data-meal="${meal}"]`);
+        if (!mealCard) return;
+        
+        let macroContainer = mealCard.querySelector('.meal-macros');
+        if (!macroContainer) {
+            macroContainer = document.createElement('div');
+            macroContainer.className = 'meal-macros';
+            mealCard.querySelector('h3').after(macroContainer);
+        }
+        
+        macroContainer.innerHTML = `
+            <div class="macro-pill">🔥${totals.calories.toFixed(1)}</div>
+            <div class="macro-pill">💪${totals.protein.toFixed(1)}g</div>
+            <div class="macro-pill">🍞${totals.carbs.toFixed(1)}g</div>
+            <div class="macro-pill">🥑${totals.fats.toFixed(1)}g</div>
+            <div class="macro-pill">💵 $${totals.cost.toFixed(2)}</div>
+        `;
+    };
+    
+    const createFoodItemHTML = (food, meal) => {
+        return `
+            <div class="food-item ${state.lastAddedItems.includes(food.name) ? 'new-item' : ''}">
+                <div class="food-info">
+                    <button class="delete-btn" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
+                    <div style="font-size: 1.2em">${foodDB[food.name].emoji}</div>
+                    <div>
+                        <div><strong>${food.name}</strong></div>
+                        <div class="quantity-actions" style="margin-top: 5px;">
+                            <input type="number" value="${food.quantity}" 
+                                class="quantity-input"
+                                onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
+                                min="0" step="1">
+                            <span>g</span>
+                        </div>
+                    </div>
+                </div>
                 
-                if (reachedBottom && rightColumn.scrollTop < rightColumn.scrollHeight - rightColumn.clientHeight) {
-                    rightColumn.scrollTop += 15; // Velocidad de scroll
+                <div class="food-macros-actions">
+                    <div class="macros-cost-container">
+                        <div class="macros-grid">
+                            <div class="macro-badge calories">🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal</div>
+                            <div class="macro-badge protein">💪 ${(food.protein * food.quantity/100).toFixed(1)}g</div>
+                            <div class="macro-badge carbs">🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g</div>
+                            <div class="macro-badge fats">🥑 ${(food.fats * food.quantity/100).toFixed(1)}g</div>
+                        </div>
+                        <div class="cost-badge">
+                            <div>💵</div>
+                            <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-amount-vertical">
+                        <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50 g</button>
+                        <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50 g</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+    
+    const renderSavedDiets = () => {
+        const dietNames = Object.keys(state.savedDiets);
+        const currentDietName = dietNames[state.currentDietIndex] || 'Nueva dieta';
+        document.getElementById('current-diet-title').textContent = currentDietName;
+    };
+    
+    // ===== MODAL MANAGEMENT =====
+    
+    const showFoodModal = () => {
+        const modal = document.getElementById('foodModal');
+        const content = document.getElementById('modalContent');
+        updateModalHeights();
+        
+        content.innerHTML = createCategorySelectionHTML();
+        modal.style.display = 'flex';
+    };
+    
+    const createCategorySelectionHTML = () => {
+        const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+        
+        return `
+            <!-- Columna de selección -->
+            <div class="modal-column selection-column">
+                <h2>Selecciona una categoría</h2>
+                <div class="category-grid">
+                    ${Object.entries(categories).map(([name, emoji]) => `
+                        <div class="category-card" onclick="App.showFoods('${name}')" 
+                            style="background: ${getCategoryColor(name)}">
+                            <div style="font-size: 2em">${emoji}</div>
+                            ${name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <!-- Columna de seleccionados -->
+            <div class="modal-column selected-column">
+                <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                
+                ${createSelectedTotalsHTML(selectedTotals)}
+                ${createSelectedFoodsListHTML()}
+                ${createAddButtonHTML()}
+            </div>
+        `;
+    };
+    
+    const createSelectedTotalsHTML = (totals) => {
+        if (state.selectedFoodsInModal.length === 0) return '';
+        
+        return `
+            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
+                    <div>🔥 Calorías: ${totals.calories.toFixed(1)}</div>
+                    <div>💪 Proteína: ${totals.protein.toFixed(1)}g</div>
+                    <div>🍞 Carbos: ${totals.carbs.toFixed(1)}g</div>
+                    <div>🥑 Grasas: ${totals.fats.toFixed(1)}g</div>
+                </div>
+            </div>
+        `;
+    };
+    
+    const createSelectedFoodsListHTML = () => {
+        return `
+            <div id="modal-selected-list" style="max-height: 60%; overflow-y: auto;">
+                ${state.selectedFoodsInModal.map(food => `
+                    <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex-grow: 1;">
+                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
+                                    <span class="food-emoji">${food.emoji}</span> ${food.name}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                                    <input type="number" 
+                                        value="${food.quantity}"
+                                        class="quantity-input"
+                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                        min="0">
+                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
+                                </div>
+                                <div class="macros-cost-container" style="margin-top: 8px;">
+                                    <div class="macros-grid">
+                                        <div class="macro-badge calories">
+                                            🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal
+                                        </div>
+                                        <div class="macro-badge protein">
+                                            💪 ${(food.protein * food.quantity/100).toFixed(1)}g
+                                        </div>
+                                        <div class="macro-badge carbs">
+                                            🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g
+                                        </div>
+                                        <div class="macro-badge fats">
+                                            🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
+                                        </div>
+                                    </div>
+                                    <div class="cost-badge">
+                                        <div>💵</div>
+                                        <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
+                                        <span>coste</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}', event)">
+                                ✖
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    };
+    
+    const createAddButtonHTML = () => {
+        if (state.selectedFoodsInModal.length === 0) return '';
+        
+        return `
+            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                ➕ Añadir a ${state.currentMeal}
+            </button>
+        `;
+    };
+    
+    const showFoods = (category) => {
+        const content = document.getElementById('modalContent');
+        const foodsInCategory = Object.entries(foodDB)
+            .filter(([_, data]) => data.category === category)
+            .map(([name, data]) => ({ name, ...data }));
+        
+        const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+        
+        content.innerHTML = `
+            <div class="modal-column selection-column">
+                <button class="btn" onclick="App.showFoodModal()" 
+                    style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+                    ← Volver a categorías
+                </button>
+                <h2>${category}</h2>
+                <div class="food-grid">
+                    ${foodsInCategory.map(food => `
+                        <div class="food-item-modal 
+                            ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+                            onclick="App.toggleFoodSelection('${food.name}', event)">
+                            <div style="font-size: 1.5em"><span class="food-emoji">${food.emoji}</span></div>
+                            <div><strong>${food.name}</strong></div>
+                            <div class="food-macros">
+                                <div>🔥 ${food.calories}kcal/100g</div>
+                                <div>💪 ${food.protein}g</div>
+                                <div>🍞 ${food.carbs}g</div>
+                                <div>🥑 ${food.fats}g</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="modal-column selected-column">
+                <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                ${createSelectedTotalsHTML(selectedTotals)}
+                ${createSelectedFoodsListHTML()}
+                ${createAddButtonHTML()}
+            </div>
+        `;
+    };
+    
+    const closeFoodModal = () => {
+        document.getElementById('foodModal').style.display = 'none';
+    };
+    
+    const updateModalHeights = () => {
+        const modalList = document.getElementById('modal-selected-list');
+        if (modalList) {
+            const viewportHeight = window.innerHeight;
+            modalList.style.maxHeight = `${viewportHeight * 0.6}px`;
+        }
+    };
+    
+    // ===== FOOD SELECTION HANDLERS =====
+    
+    const toggleFoodSelection = (foodName) => {
+    const card = event.currentTarget.closest('.food-item-modal');
+    if (card) {
+        // Handle emoji animation
+        const emoji = card.querySelector('.food-emoji');
+        emoji.style.animation = 'none';
+        emoji.classList.remove('food-emoji-spin');
+        void emoji.offsetWidth;
+        emoji.classList.add('food-emoji-spin');
+        
+        // Handle card animation separately
+        card.classList.remove('clicked-animation'); // Remove any existing animation
+        void card.offsetWidth; // Force reflow
+        
+        // Apply new animation class
+        card.classList.add('clicked-animation');
+        
+        // We don't need to remove it since "forwards" preserves the final state
+    }
+    
+    // Rest of your toggle selection logic
+    const existingIndex = state.selectedFoodsInModal.findIndex(f => f.name === foodName);
+    
+    if (existingIndex > -1) {
+        state.selectedFoodsInModal.splice(existingIndex, 1);
+    } else {
+        state.selectedFoodsInModal.forEach(item => item.isNew = false);
+        state.selectedFoodsInModal.push({
+            name: foodName,
+            quantity: 100,
+            ...foodDB[foodName],
+            isNew: true
+        });
+    }
+    
+    // Update UI after animation completes
+    setTimeout(() => {
+        const currentCategory = foodDB[foodName].category;
+        if (currentCategory) {
+            showFoods(currentCategory);
+        } else {
+            showFoodModal();
+        }
+    }, 500); // Match animation duration
+};
+    
+    const updateModalQuantity = (foodName, value) => {
+        const quantity = Math.max(0, parseInt(value) || 0);
+        const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
+        
+        if (foodItem) {
+            foodItem.quantity = quantity;
+            const currentCategory = foodDB[foodName].category;
+            if (currentCategory) {
+                showFoods(currentCategory);
+            } else {
+                showFoodModal();
+            }
+        }
+    };
+    
+    const addSelectedFoods = () => {
+        const prevItems = new Set(state.selectedFoods[state.currentMeal].map(f => f.name));
+        const newItems = [];
+        
+        state.selectedFoodsInModal.forEach(modalFood => {
+            const existingIndex = state.selectedFoods[state.currentMeal]
+                .findIndex(f => f.name === modalFood.name);
+            
+            if (!prevItems.has(modalFood.name)) {
+                newItems.push(modalFood.name);
+            }
+            
+            if (existingIndex > -1) {
+                state.selectedFoods[state.currentMeal][existingIndex].quantity += modalFood.quantity;
+            } else {
+                state.selectedFoods[state.currentMeal].push({
+                    name: modalFood.name,
+                    quantity: modalFood.quantity,
+                    ...foodDB[modalFood.name]
+                });
+            }
+        });
+        
+        state.lastAddedItems = newItems;
+        state.selectedFoodsInModal = [];
+        
+        closeFoodModal();
+        saveState();
+        renderMeals();
+        updateTotals();
+        generateShoppingList();
+        
+        setTimeout(() => {
+            state.lastAddedItems = [];
+            renderMeals();
+        }, 500);
+    };
+    
+    const updateQuantity = (meal, food, value) => {
+        const quantity = Math.max(0, Number(value) || 0);
+        const item = state.selectedFoods[meal].find(i => i.name === food);
+        
+        if (item) {
+            item.quantity = quantity;
+            saveState();
+            renderMealContent(meal);
+            updateTotals();
+            generateShoppingList();
+        }
+    };
+    
+    const removeFood = (meal, food) => {
+        state.selectedFoods[meal] = state.selectedFoods[meal].filter(f => f.name !== food);
+        saveState();
+        renderMealContent(meal);
+        updateTotals();
+        generateShoppingList();
+    };
+    
+    // ===== SHOPPING LIST =====
+    
+    const generateShoppingList = () => {
+        const allFoods = Object.values(state.selectedFoods).flat();
+        const foodQuantities = {};
+        
+        allFoods.forEach(food => {
+            if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
+            const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
+            foodQuantities[food.name] += food.quantity * multiplier;
+        });
+
+        const sortedFoods = Object.keys(foodQuantities).sort();
+        const listContent = document.getElementById('shopping-list-content');
+        
+        if (sortedFoods.length === 0) {
+            listContent.innerHTML = '<div style="color: #999; text-align: center; padding: 10px;">No hay productos en la lista</div>';
+            return;
+        }
+        
+        listContent.innerHTML = sortedFoods.map(food => `
+            <div class="shopping-list-item">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        ${foodDB[food].emoji} ${food}
+                    </div>
+                    <div style="font-weight: bold;">${foodQuantities[food].toFixed(0)}g</div>
+                </div>
+            </div>
+        `).join('');
+    };
+    
+    const showShoppingList = (type, event) => {
+        state.currentShoppingList = type;
+        generateShoppingList();
+        updateTotals();
+        updateTabsVisualState();
+        saveState();
+        
+        updatePeriodLabel();
+        
+        // Update active tabs
+        document.querySelectorAll('.shopping-list-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+    };
+    
+    const updatePeriodLabel = () => {
+        const label = document.getElementById('cost-period-label');
+        if (label) {
+            label.textContent = state.currentShoppingList === 'weekly' ? 'semanal' : 'mensual';
+        }
+    };
+    
+    const updateTabsVisualState = () => {
+        document.querySelectorAll('.shopping-list-tab').forEach(tab => {
+            const isWeekly = tab.textContent.includes('Semanal');
+            tab.classList.toggle('active', 
+                (isWeekly && state.currentShoppingList === 'weekly') ||
+                (!isWeekly && state.currentShoppingList === 'monthly')
+            );
+        });
+    };
+    
+    // ===== DIET MANAGEMENT =====
+    
+    const createNewDiet = () => {
+        let baseName = 'Nueva Dieta';
+        let counter = 1;
+        
+        while (state.savedDiets[baseName + ' ' + counter]) {
+            counter++;
+        }
+        
+        const newName = baseName + ' ' + counter;
+        state.savedDiets[newName] = JSON.parse(JSON.stringify({
+            Desayuno: [],
+            Almuerzo: [],
+            Cena: [],
+            Snacks: []
+        }));
+        
+        state.currentDietIndex = Object.keys(state.savedDiets).length - 1;
+        loadDiet(newName);
+        saveState();
+        renderSavedDiets();
+    };
+    
+    const loadDiet = (name) => {
+        if (state.savedDiets[name]) {
+            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[name]));
+            saveState();
+            renderMeals();
+            updateTotals();
+            generateShoppingList();
+            document.getElementById('current-diet-title').textContent = name;
+        }
+    };
+    
+    const deleteCurrentDiet = () => {
+        const dietNames = Object.keys(state.savedDiets);
+        if (dietNames.length === 0) return;
+        
+        const dietName = dietNames[state.currentDietIndex];
+        if (!confirm(`¿Estás seguro de que quieres eliminar la dieta "${dietName}"?`)) {
+            return;
+        }
+        
+        delete state.savedDiets[dietName];
+        
+        // Adjust index and load next diet
+        state.currentDietIndex = Math.max(0, Math.min(state.currentDietIndex, Object.keys(state.savedDiets).length - 1));
+        
+        if (Object.keys(state.savedDiets).length > 0) {
+            loadDiet(Object.keys(state.savedDiets)[state.currentDietIndex]);
+        } else {
+            state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+            renderMeals();
+            updateTotals();
+            generateShoppingList();
+        }
+        
+        saveState();
+        renderSavedDiets();
+    };
+    
+    const prevDiet = () => {
+        const dietNames = Object.keys(state.savedDiets);
+        if (dietNames.length === 0) return;
+        
+        state.currentDietIndex = (state.currentDietIndex - 1 + dietNames.length) % dietNames.length;
+        loadDiet(dietNames[state.currentDietIndex]);
+    };
+    
+    const nextDiet = () => {
+        const dietNames = Object.keys(state.savedDiets);
+        if (dietNames.length === 0) return;
+        
+        state.currentDietIndex = (state.currentDietIndex + 1) % dietNames.length;
+        loadDiet(dietNames[state.currentDietIndex]);
+    };
+    
+    const editDietName = () => {
+        const dietNames = Object.keys(state.savedDiets);
+        if (dietNames.length === 0) return;
+        
+        const oldName = dietNames[state.currentDietIndex];
+        const titleElement = document.getElementById('current-diet-title');
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = oldName;
+        input.style = `
+            font-size: inherit;
+            font-family: inherit;
+            color: inherit;
+            background: var(--surface);
+            border: 2px solid var(--secondary);
+            border-radius: 5px;
+            padding: 5px;
+            width: 200px;
+        `;
+        
+        titleElement.innerHTML = '';
+        titleElement.appendChild(input);
+        input.focus();
+        
+        const finishEditing = () => {
+            const newName = input.value.trim();
+            if (!newName || newName === oldName) {
+                titleElement.textContent = oldName;
+                return;
+            }
+            
+            if (state.savedDiets[newName]) {
+                alert('¡Ya existe una dieta con ese nombre!');
+                titleElement.textContent = oldName;
+                return;
+            }
+            
+            state.savedDiets[newName] = state.savedDiets[oldName];
+            delete state.savedDiets[oldName];
+            state.currentDietIndex = Object.keys(state.savedDiets).indexOf(newName);
+            
+            titleElement.textContent = newName;
+            saveState();
+            renderSavedDiets();
+        };
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') finishEditing();
+        });
+        
+        input.addEventListener('blur', finishEditing);
+    };
+    
+    // ===== MACRO CALCULATIONS =====
+    
+    const calculateMacros = () => {
+        saveUserData();
+
+        const age = parseInt(state.userData.age);
+        const weight = parseFloat(state.userData.weight);
+        const height = parseFloat(state.userData.height);
+        const gender = state.userData.gender;
+        const activity = parseFloat(state.userData.activity);
+        const goal = state.userData.goal;
+        
+        if (!age || !weight || !height) {
+            alert('Por favor completa todos los campos');
+            return;
+        }
+
+        // Mifflin-St Jeor formula
+        let bmr;
+        if (gender === 'male') {
+            bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+        } else {
+            bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+        }
+
+        let tdee = bmr * activity;
+        
+        // Adjust based on goal
+        if (goal === 'lose') tdee -= 500;
+        if (goal === 'gain') tdee += 500;
+
+        // Macronutrient distribution (30% protein, 40% carbs, 30% fat)
+        const protein = (tdee * 0.3) / 4;
+        const carbs = (tdee * 0.4) / 4;
+        const fats = (tdee * 0.3) / 9;
+
+        state.userMacros = {
+            calories: Math.round(tdee),
+            protein: Math.round(protein),
+            carbs: Math.round(carbs),
+            fats: Math.round(fats)
+        };
+
+        showMacroResults();
+        updateTotals();
+    };
+    
+    const showMacroResults = () => {
+        const results = document.getElementById('macro-results');
+        results.style.display = 'block';
+        
+        // Update target values display
+        document.getElementById('target-calories').textContent = state.userMacros.calories;
+        document.getElementById('target-protein').textContent = state.userMacros.protein;
+        document.getElementById('target-carbs').textContent = state.userMacros.carbs;
+        document.getElementById('target-fats').textContent = state.userMacros.fats;
+        
+        state.showMacroResults = true;
+        updateTotals();
+    };
+    
+    const updateTotals = () => {
+        const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
+            calories: acc.calories + (food.calories * food.quantity/100),
+            protein: acc.protein + (food.protein * food.quantity/100),
+            carbs: acc.carbs + (food.carbs * food.quantity/100),
+            fats: acc.fats + (food.fats * food.quantity/100),
+            cost: acc.cost + (food.price * food.quantity/100)
+        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+
+        // Apply multiplier to daily cost
+        const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
+        const totalCost = totals.cost * multiplier;
+        document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+
+        if (state.userMacros) {
+            // Update current values
+            document.getElementById('current-calories').textContent = totals.calories.toFixed(1);
+            document.getElementById('current-protein').textContent = totals.protein.toFixed(1);
+            document.getElementById('current-carbs').textContent = totals.carbs.toFixed(1);
+            document.getElementById('current-fats').textContent = totals.fats.toFixed(1);
+            
+            // Update progress bars
+            updateProgress(totals.calories, state.userMacros.calories, 'calories-progress');
+            updateProgress(totals.protein, state.userMacros.protein, 'protein-progress');
+            updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
+            updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
+        }
+    };
+    
+    const updateProgress = (current, target, elementId) => {
+        const progressElement = document.getElementById(elementId);
+        if (!progressElement) return;
+        
+        const progressBar = progressElement.parentElement;
+        const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+        
+        progressElement.style.width = `${percentage}%`;
+        progressBar.setAttribute('data-progress', percentage.toFixed(0));
+        
+        progressElement.style.borderRadius = '8px 0 0 8px';
+        
+        if (percentage >= 100) {
+            setTimeout(() => {
+                progressElement.style.borderRadius = '8px';
+            }, 300);
+        }
+    };
+    
+    // ===== PDF EXPORT =====
+    
+    const exportPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        
+        pdf.setFontSize(18);
+        pdf.text('Plan Dietético', 105, 20, { align: 'center' });
+        
+        let yPos = 30;
+        
+        // Header
+        pdf.setFontSize(12);
+        pdf.setTextColor(100);
+        pdf.text("Comida", 20, yPos);
+        pdf.text("Alimento (gramos)", 60, yPos);
+        pdf.text("Macronutrientes", 130, yPos);
+        yPos += 8;
+        
+        // Content - meals and foods
+        pdf.setFontSize(10);
+        Object.entries(state.selectedFoods).forEach(([meal, foods]) => {
+            if (foods.length === 0) return;
+            
+            pdf.setFont(undefined, 'bold');
+            pdf.setTextColor(0);
+            pdf.text(`${meal}:`, 20, yPos);
+            pdf.setFont(undefined, 'normal');
+            yPos += 7;
+            
+            foods.forEach(food => {
+                const nutrition = `Cal: ${(food.calories * food.quantity/100).toFixed(1)} | P: ${(food.protein * food.quantity/100).toFixed(1)}g | C: ${(food.carbs * food.quantity/100).toFixed(1)}g | G: ${(food.fats * food.quantity/100).toFixed(1)}g`;
+                pdf.text(`- ${food.name} (${food.quantity}g)`, 25, yPos);
+                pdf.text(nutrition, 60, yPos);
+                yPos += 7;
+                
+                if (yPos > 270) {
+                    pdf.addPage();
+                    yPos = 20;
                 }
             });
+            yPos += 5;
         });
+        
+        // Totals
+        const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
+            calories: acc.calories + (food.calories * food.quantity/100),
+            protein: acc.protein + (food.protein * food.quantity/100),
+            carbs: acc.carbs + (food.carbs * food.quantity/100),
+            fats: acc.fats + (food.fats * food.quantity/100),
+            cost: acc.cost + (food.price * food.quantity/100)
+        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TOTALES DIARIOS:', 20, yPos);
+        yPos += 7;
+        
+        pdf.text(`🔥 Calorías: ${totals.calories.toFixed(1)} kcal`, 25, yPos); yPos += 7;
+        pdf.text(`💪 Proteína: ${totals.protein.toFixed(1)}g`, 25, yPos); yPos += 7;
+        pdf.text(`🍞 Carbohidratos: ${totals.carbs.toFixed(1)}g`, 25, yPos); yPos += 7;
+        pdf.text(`🥑 Grasas: ${totals.fats.toFixed(1)}g`, 25, yPos); yPos += 7;
+        pdf.text(`💵 Costo total: $${totals.cost.toFixed(2)}`, 25, yPos);
+        
+        // Shopping list
+        yPos += 15;
+        pdf.setFont(undefined, 'bold');
+        pdf.text('LISTA DE COMPRA SEMANAL:', 20, yPos);
+        yPos += 7;
+        
+        const allFoods = Object.values(state.selectedFoods).flat();
+        const foodQuantities = {};
+        
+        allFoods.forEach(food => {
+            if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
+            foodQuantities[food.name] += food.quantity * 7 / 100;
+        });
+
+        const sortedFoods = Object.keys(foodQuantities).sort();
+        pdf.setFont(undefined, 'normal');
+        
+        sortedFoods.forEach(food => {
+            pdf.text(`- ${food}: ${foodQuantities[food].toFixed(0)}g`, 25, yPos);
+            yPos += 7;
+            
+            if (yPos > 270) {
+                pdf.addPage();
+                yPos = 20;
+            }
+        });
+        
+        pdf.save('dieta.pdf');
+    };
+    
+    // ===== HELPER FUNCTIONS =====
+    
+    const setTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        state.theme = theme;
+    };
+    
+    const calculateSelectedTotals = (foods) => {
+        return foods.reduce((acc, food) => ({
+            calories: acc.calories + (food.calories * food.quantity/100),
+            protein: acc.protein + (food.protein * food.quantity/100),
+            carbs: acc.carbs + (food.carbs * food.quantity/100),
+            fats: acc.fats + (food.fats * food.quantity/100)
+        }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+    };
+    
+    const getCategoryColor = (category) => {
+        const colors = {
+            'Proteínas': 'rgba(246, 229, 141, 0.3)',
+            'Lácteos': 'rgba(126, 214, 223, 0.3)',
+            'Cereales': 'rgba(186, 220, 88, 0.3)',
+            'Tubérculos': 'rgba(222, 184, 135, 0.3)',
+            'Verduras': 'rgba(106, 176, 76, 0.3)',
+            'Frutas': 'rgba(255, 121, 121, 0.3)',
+            'Legumbres': 'rgba(210, 180, 140, 0.3)',
+            'Grasas': 'rgba(255, 190, 118, 0.3)',
+            'Bebidas': 'rgba(100, 149, 237, 0.3)',
+            'Especias': 'rgba(139, 69, 19, 0.3)',
+            'Endulzantes': 'rgba(255, 215, 0, 0.3)',
+            'Platos preparados': 'rgba(255, 165, 0, 0.3)'
+        };
+        return colors[category] || 'rgba(248, 249, 250, 0.3)';
+    };
+    
+    // ===== PUBLIC API =====
+    return {
+        init,
+        toggleTheme: () => {
+            const newTheme = state.theme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        },
+        showFoodModal,
+        closeFoodModal,
+        showFoods,
+        toggleFoodSelection,
+        addSelectedFoods,
+        updateQuantity,
+        removeFood,
+        loadDiet,
+        deleteCurrentDiet,
+        prevDiet,
+        nextDiet,
+        showShoppingList,
+        exportPDF,
+        updateModalQuantity,
+        createNewDiet,
+        editDietName,
+        calculateMacros
+    };
+})();
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', App.init);
+
+// Setup synchronized scrolling between columns
+document.addEventListener('DOMContentLoaded', () => {
+    const leftColumn = document.querySelector('.container > div:first-child');
+    const rightColumn = document.querySelector('.totals-section');
+    
+    if (!leftColumn || !rightColumn) return;
+    
+    leftColumn.addEventListener('scroll', () => {
+        const reachedBottom = leftColumn.scrollHeight - leftColumn.scrollTop <= leftColumn.clientHeight + 5;
+        
+        if (reachedBottom && rightColumn.scrollTop < rightColumn.scrollHeight - rightColumn.clientHeight) {
+            rightColumn.scrollTop += 15; // Scroll speed
+        }
+    });
+});
 
         // Inicializar la aplicación cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', App.init);
