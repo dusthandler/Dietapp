@@ -6,6 +6,19 @@
     <title>Dietapp</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+
+         /* 1. Reset y box-sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
@@ -35,7 +48,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
             background: var(--background);
             color: var(--text);
             transition: background 0.3s, color 0.3s;
@@ -123,13 +135,22 @@
         }
 
         .container {
+            display: grid;
+            gap: 30px;
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            height: 100vh;
+            height: 100%;
+            padding: 20px 20px 50px;      /* antes estaba en body */
             overflow: hidden;
+        }
+
+        .container > div {
+            height: 100%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            /* ocultar scrollbar si quieres */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
         .container > div:first-child {
@@ -145,8 +166,8 @@
 
         @media (min-width: 768px) {
             .container {
-                grid-template-columns: 2fr 1fr;
-                height: calc(100vh - 40px);
+               grid-template-columns: 2fr 1fr;
+                /* antes height: calc(100vh - 40px); */
             }
         }
 
@@ -184,10 +205,12 @@
 
         .meal-macros {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 8px;
+    top: 15px;
+    right: 50px; /* Cambiado de 15px a 40px para dejar espacio */
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap; /* Permitir que se ajusten si hay muchas */
+    max-width: 60%; /* Limitar el ancho máximo */
         }
 
         .macro-pill {
@@ -610,15 +633,17 @@
             background: rgba(0,0,0,0.05);
         }
 
+        .container > .left-column,
+
         .totals-section {
-            position: sticky;
-            top: 0;
-            height: calc(100vh - 40px);
+            height: 100%;
             overflow-y: auto;
+            scroll-behavior: smooth; /* para los scrollBy programáticos */
             scrollbar-width: none;
             -ms-overflow-style: none;
-            padding-right: 15px;
         }
+
+        .container > .left-column::-webkit-scrollbar,
 
         .totals-section::-webkit-scrollbar {
             display: none;
@@ -979,6 +1004,40 @@
             transform-origin: center;
         }
 
+        .meal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.delete-meal-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--danger);
+    font-size: 1.1em;
+    position: absolute;
+    top: 15px;
+    right: 15px; /* Posicionamos la cruz a la derecha */
+    z-index: 1; /* Aseguramos que esté por encima */
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.meal-card h3 {
+    margin-right: 30px; /* Dejar espacio para la cruz */
+    padding-right: 10px; /* Evitar que el texto toque la cruz */
+}
+
+.delete-meal-btn:hover {
+    transform: scale(1.2);
+}
+
 
     </style>
 </head>
@@ -1002,8 +1061,8 @@
             </div>
         </div>
 
-        <div>
-            <div class="totals-section">
+        
+            <aside class="totals-section">
                 <h2>💾 Dietas Guardadas</h2>
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 10px 0;">
                     <div class="diet-navigation">
@@ -1123,11 +1182,11 @@
                     </div>
                 </div>
                 </div>
-            </div>
+            </aside>
 
                 
-            </div>
-        </div>
+            
+        
     </div>
 
     <!-- Modal de alimentos -->
@@ -1918,7 +1977,10 @@
             height: '',
             gender: 'male',
             activity: '1.2',
-            goal: 'maintain'
+            goal: 'maintain',
+            mealOrder: ['Desayuno', 'Almuerzo', 'Cena', 'Snacks'],
+            savedDiets: {} // Modificado para guardar estructura completa
+
         }
     };
     
@@ -1964,6 +2026,8 @@
             showMacroResults: state.showMacroResults
         }));
     };
+
+    
     
     const loadState = () => {
         const saved = localStorage.getItem('dietState');
@@ -2031,6 +2095,8 @@
         
         const meals = Object.keys(state.selectedFoods);
         
+
+        
         for (let i = 0; i < meals.length; i++) {
             const meal = meals[i];
             const mealCard = createMealCard(meal);
@@ -2052,9 +2118,14 @@
         
         const emoji = getMealEmoji(meal);
         mealCard.innerHTML = `
-            <h3>${emoji} ${meal}</h3>
-            <div class="meal-content" id="${meal}-content"></div>
-        `;
+   
+    <div class="meal-header">
+        <h3>${emoji} ${meal}</h3>
+        <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
+    </div>
+    <div class="meal-content" id="${meal}-content"></div>
+
+    `;
         
         mealCard.addEventListener('click', (e) => {
             if (!e.target.closest('input') && !e.target.closest('button')) {
@@ -2555,7 +2626,15 @@
     };
     
     // ===== DIET MANAGEMENT =====
-    
+    const deleteMeal = (meal) => {
+        if (confirm(`¿Estás seguro de eliminar la comida "${meal}"?`)) {
+            delete state.selectedFoods[meal];
+            saveState();
+            renderMeals();
+            updateTotals();
+            generateShoppingList();
+        }
+    };
     const createNewDiet = () => {
         let baseName = 'Nueva Dieta';
         let counter = 1;
@@ -2937,6 +3016,7 @@
         addSelectedFoods,
         updateQuantity,
         removeFood,
+        deleteMeal,
         loadDiet,
         deleteCurrentDiet,
         prevDiet,
@@ -2972,5 +3052,93 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inicializar la aplicación cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', App.init);
     </script>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const leftCol  = document.querySelector('.container > div:first-child');
+    const rightCol = document.querySelector('.totals-section');
+
+    leftCol.addEventListener('wheel', e => {
+      const delta = e.deltaY;
+      // Scroll hacia abajo cuando izquierda llegó al final
+      if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
+        rightCol.scrollTop += delta;
+        e.preventDefault();
+      }
+      // Scroll hacia arriba cuando izquierda está arriba y derecha no en tope
+      else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
+        rightCol.scrollTop += delta;
+        e.preventDefault();
+      }
+    }, { passive: false });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const leftCol  = document.querySelector('.container > div:first-child');
+    const rightCol = document.querySelector('.totals-section');
+
+    // De izquierda → derecha
+    leftCol.addEventListener('wheel', e => {
+      const delta = e.deltaY;
+      if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
+        rightCol.scrollTop += delta;
+        e.preventDefault();
+      }
+      else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
+        rightCol.scrollTop += delta;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // De derecha → izquierda
+    rightCol.addEventListener('wheel', e => {
+      const delta = e.deltaY;
+      if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
+        leftCol.scrollTop += delta;
+        e.preventDefault();
+      }
+      else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
+        leftCol.scrollTop += delta;
+        e.preventDefault();
+      }
+    }, { passive: false });
+  });
+</script>
+ <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const leftCol  = document.querySelector('.left-column');
+      const rightCol = document.querySelector('.totals-section');
+
+      const syncScroll = (delta, target) => {
+        target.scrollBy({ top: delta, behavior: 'smooth' });
+      };
+
+      // De izquierda → derecha
+      leftCol.addEventListener('wheel', e => {
+        const d = e.deltaY;
+        if (d > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
+          syncScroll(d, rightCol);
+          e.preventDefault();
+        } else if (d < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
+          syncScroll(d, rightCol);
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      // De derecha → izquierda
+      rightCol.addEventListener('wheel', e => {
+        const d = e.deltaY;
+        if (d > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
+          syncScroll(d, leftCol);
+          e.preventDefault();
+        } else if (d < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
+          syncScroll(d, leftCol);
+          e.preventDefault();
+        }
+      }, { passive: false });
+    });
+  </script>
 </body>
 </html>
