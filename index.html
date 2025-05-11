@@ -177,9 +177,10 @@
 
         .diet-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
         }
 
         .meal-grid {
@@ -1038,6 +1039,130 @@
     transform: scale(1.2);
 }
 
+.modern-arrow {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.modern-arrow::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--primary);
+    border-left: none;
+    border-bottom: none;
+}
+
+.modern-arrow.prev::before {
+    transform: translate(-50%, -50%) rotate(-135deg);
+    margin-left: 2px;
+}
+
+.modern-arrow.next::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+    margin-left: -2px;
+}
+
+.modern-arrow:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modern-arrow:hover::before {
+    border-color: white;
+}
+
+.diet-nav-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.diet-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+#current-diet-title {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--primary);
+}
+
+.edit-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 0.9em;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.edit-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Botones de acciones */
+.diet-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.centered-title-container {
+    position: relative;
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 60%;
+    margin: 0 15px;
+}
+
+#current-diet-title {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    padding: 4px;
+    margin-left: 5px;
+    transition: transform 0.2s;
+}
+
+.edit-btn:hover {
+    transform: scale(1.1);
+}
+
+.nav-btn {
+    flex-shrink: 0; /* Previene que las flechas se encojan */
+    /* Mantén los estilos originales de .nav-btn aquí */
+}
 
     </style>
 </head>
@@ -1050,12 +1175,24 @@
     <div class="container">
         <div>
             <div class="diet-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <h2 id="current-diet-title">Dieta Actual</h2>
-                    <button onclick="App.editDietName()" style="background: none; border: none; cursor: pointer; color: var(--text);">✏️</button>
-                </div>
-                <button class="btn btn-primary" onclick="App.exportPDF()">📄 Exportar PDF</button>
-            </div>
+    <!-- Contenedor izquierdo (flechas y título) -->
+    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+        <button class="modern-arrow prev" onclick="App.prevDiet()"></button>
+        <!-- Contenedor del título centrado -->
+        <div class="centered-title-container">
+            <h2 id="current-diet-title">Dieta Actual</h2>
+            <button onclick="App.editDietName()" class="edit-btn">✏️</button>
+        </div>
+        <button class="modern-arrow next" onclick="App.nextDiet()"></button>
+    </div>
+
+    <!-- Contenedor derecho (botones de acción) -->
+    <div style="display: flex; gap: 10px;">
+        <button class="btn btn-success" onclick="App.createNewDiet()">➕ Nueva</button>
+        <button class="btn btn-danger" onclick="App.deleteCurrentDiet()">🗑 Eliminar</button>
+        <button class="btn btn-primary" onclick="App.exportPDF()">📄 Exportar PDF</button>
+    </div>
+</div>
             <div class="meal-grid" id="meals">
                 <!-- Las comidas se generarán dinámicamente -->
             </div>
@@ -1063,17 +1200,7 @@
 
         
             <aside class="totals-section">
-                <h2>💾 Dietas Guardadas</h2>
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 10px 0;">
-                    <div class="diet-navigation">
-                        <button class="nav-btn" onclick="App.prevDiet()">←</button>
-                        <button class="nav-btn" onclick="App.nextDiet()">→</button>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-success" onclick="App.createNewDiet()">➕ Nueva</button>
-                        <button class="btn btn-danger" onclick="App.deleteCurrentDiet()">🗑 Eliminar</button>
-                    </div>
-                </div>
+                
 
                 <div class="macro-calculator">
                     <h2>⚖️ Tus Objetivos</h2>
@@ -1971,6 +2098,7 @@
         currentShoppingList: 'weekly',
         userMacros: null,
         lastAddedItems: [],
+        showMacroResults: false, // Añadir esta propiedad
         userData: {
             age: '',
             weight: '',
@@ -2037,6 +2165,12 @@
             state.savedDiets = data.savedDiets || {};
             state.userMacros = data.userMacros || null;
             state.showMacroResults = data.showMacroResults || false;
+            if (state.showMacroResults) {
+            document.getElementById('macro-results').style.display = 'block';
+            if (state.userMacros) {
+                showMacroResults();
+            }
+        }
             state.userData = data.userData || {
                 age: '',
                 weight: '',
@@ -2823,6 +2957,7 @@
         document.getElementById('target-fats').textContent = state.userMacros.fats;
         
         state.showMacroResults = true;
+        saveState(); // Añadir esta línea para guardar el estado
         updateTotals();
     };
     
