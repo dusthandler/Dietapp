@@ -894,7 +894,7 @@
             color: white;
             position: absolute;
             z-index: 3;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgb(0, 0, 0);
             font-size: 0.9em;
             /* Añadir para prevenir encogimiento */
             flex-shrink: 0;
@@ -903,18 +903,23 @@
             left: 15px;
     transform: translateY(-50%);
         }
+        .current {
+    color: black !important; /* Forzar el color negro */
+}
     
         .macro-numbers {
+            color: black !important;
     position: absolute;
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.9em;
+    font-size: 1em;
+    font-weight: bold;
     display: flex;
     gap: 5px;
     padding: 2px 8px;
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+    background: rgb(255, 255, 255); /* Fondo semitransparente */
     backdrop-filter: blur(2px); /* Efecto de vidrio */
     z-index: 3;
 }
@@ -1177,31 +1182,31 @@
 
 
 .macro-numbers .current .divider .unit {
-    transition: color 0.3s ease, text-shadow 0.3s ease;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    color: white; /* Color base cuando no tiene clase */
+    transition: color 0.3s ease;
+   
+    color: rgb(0, 0, 0); /* Color base cuando no tiene clase */
 }
 
 .macro-numbers .target {
-    transition: color 0.3s ease, text-shadow 0.3s ease;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    color: white; /* Color base cuando no tiene clase */
+    transition: color 0.3s ease;
+  
+    color: rgb(0, 0, 0); /* Color base cuando no tiene clase */
 }
 
 
 .safe {
     color: var(--success) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+    
 }
 
 .warning {
     color: var(--warning) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+    
 }
 
 .danger {
     color: var(--danger) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+    
 }
 
     </style>
@@ -3124,19 +3129,19 @@
 if (excessWidth > 0) {
         const excessClip = 100 - (excessWidth / (percentage / 100));
         progressExcess.style.clipPath = `inset(0 ${100 - excessWidth}% 0 0)`;
+        
     } else {
         progressExcess.style.clipPath = 'inset(0 0 0 100%)';
+        
     }
     // Cambiar color del texto si hay exceso
     if (current > target) {
         currentElement.style.color = '#ff6b6b';
-        currentElement.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
     } else {
         currentElement.style.color = 'white';
         currentElement.style.textShadow = 'none';
     }
     currentElement.style.color = excessWidth > 0 ? '#ff6b6b' : 'white';
-    currentElement.style.textShadow = excessWidth > 0 ? '0 1px 2px rgba(0,0,0,0.3)' : 'none';
     };
     
     // ===== PDF EXPORT =====
