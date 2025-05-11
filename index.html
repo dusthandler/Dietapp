@@ -41,10 +41,6 @@
             --border: #2c3e50;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -726,20 +722,7 @@
             margin: 10px 0;
         }
 
-        .progress-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-            display: flex;
-            align-items: center;
-            position: relative;
-            /* Añadir estas propiedades */
-            justify-content: flex-start; /* Alinear contenido a la izquierda */
-            padding: 0 15px;
-            overflow: visible; /* Permitir que el texto se salga del contenedor */
-            border-radius: 8px 0 0 8px; /* Esquina redondeada solo a la izquierda */
-            margin-right: -8px; /* Compensar el radio reducido */
 
-        }
 
         .progress-fill.protein { background: rgba(77, 171, 247, 0.4); }
         .progress-fill.carbs { background: rgba(254, 202, 87, 0.4); }
@@ -849,14 +832,13 @@
         }
 
         .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: rgba(0,0,0,0.05); /* Fondo base para todas las barras */
-            border-radius: 12px;
-            overflow: visible !important;
-            margin: 5px 0;
-            position: relative;
-            padding-right: 0 !important; /* Eliminar padding que causaba el espacio */
+    width: 100%;
+    height: 30px; /* Ajusta según lo que prefieras */
+    border-radius: 12px;
+    position: relative;
+    background: rgba(0,0,0,0.05); /* O rgba(0,0,0,0.1) según el diseño */
+    overflow: hidden; /* Usa "hidden" si no necesitas "visible" */
+    margin: 5px 0;
         }
 
         .progress-bar::after {
@@ -882,25 +864,20 @@
         .progress-fill.carbs { background: #feca57; }
         .progress-fill.fats { background: #78e08f; }
 
-        .progress-bar {
-            width: 100%;
-            height: 25px;
-            border-radius: 12px;
-            position: relative; /* Para posicionamiento absoluto */
-            background: rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin: 5px 0;
-        }
+     
 
         .progress-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
-            position: relative;
-        }
+    height: 100%;
+    transition: width 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px; /* Si es necesario */
+}
 
         .progress-fill.calories { background: #ff6b6b; }
         .progress-fill.protein { background: #4da7f7; }
@@ -915,37 +892,53 @@
 
         .macro-label {
             color: white;
-            position: relative;
-            z-index: 2;
+            position: absolute;
+            z-index: 3;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             font-size: 0.9em;
             /* Añadir para prevenir encogimiento */
             flex-shrink: 0;
             margin-right: 10px;
+            top: 50%;
+            left: 15px;
+    transform: translateY(-50%);
         }
     
         .macro-numbers {
-            position: absolute;
-            right: 8px; /* Alineación perfecta al borde */
-            top: 50%;
-            transform: translateY(-50%) translateX(0px); /* Ajuste milimétrico */
-            color: white;
-            font-size: 0.9em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            display: flex;
-            gap: 5px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            background: rgba(0,0,0,0.3); /* Fondo para contraste */
-            backdrop-filter: blur(2px); /* Efecto vidrio opcional */
-            transition: color 0.3s;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9em;
+    display: flex;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+    backdrop-filter: blur(2px); /* Efecto de vidrio */
+    z-index: 3;
+}
 
-        }
+.svg-text {
+    width: 100px; /* Ajusta según sea necesario */
+    height: 50px; /* Ajusta según sea necesario */
+}
+
+.svg-text text {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 24px; /* Tamaño del texto */
+    font-weight: 800; /* Extra bold */
+    fill: white; /* Color del texto */
+    stroke: black; /* Color del contorno */
+    stroke-width: 2px; /* Grosor del contorno */
+    paint-order: stroke fill; /* Asegura que el contorno se dibuje fuera del texto */
+}
 
         .progress-bar[data-progress="0"] .macro-label,
-        .progress-bar[data-progress="0"] .macro-numbers {
+        .progress-bar[data-progress="0"]{
             color: var(--primary); /* Color del tema */
             text-shadow: none;
+            z-index: 3;
         }
 
         .shopping-list-header {
@@ -1163,6 +1156,53 @@
     flex-shrink: 0; /* Previene que las flechas se encojan */
     /* Mantén los estilos originales de .nav-btn aquí */
 }
+.progress-excess {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 0, 0, 0.4),
+        rgba(255, 0, 0, 0.4) 10px,
+        rgba(255, 50, 50, 0.4) 10px,
+        rgba(255, 50, 50, 0.4) 20px
+    );
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 0.3s ease;
+    border-radius: 8px;
+    z-index: 2;
+}
+
+
+.macro-numbers .current .divider .unit {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    color: white; /* Color base cuando no tiene clase */
+}
+
+.macro-numbers .target {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    color: white; /* Color base cuando no tiene clase */
+}
+
+
+.safe {
+    color: var(--success) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+}
+
+.warning {
+    color: var(--warning) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+}
+
+.danger {
+    color: var(--danger) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
+}
 
     </style>
 </head>
@@ -1227,19 +1267,19 @@
                         <div class="input-group">
                             <label>Actividad:</label>
                             <select id="activity" class="macro-select">
-                                <option value="1.2">Sedentario</option>
-                                <option value="1.375">Ligera</option>
-                                <option value="1.55">Moderada</option>
-                                <option value="1.725">Intensa</option>
-                                <option value="1.9">Extrema</option>
+                                <option value="Sedentario">Sedentario</option>
+    <option value="Baja">Ligera</option>
+    <option value="Media">Moderada</option>
+    <option value="Alta">Intensa</option>
+    <option value="Extra">Extrema</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label>Objetivo:</label>
                             <select id="goal" class="macro-select">
-                                <option value="maintain">Mantener peso</option>
-                                <option value="lose">Perder peso</option>
-                                <option value="gain">Ganar peso</option>
+                                <option value="Pérdida de peso">Perder peso</option>
+    <option value="Mantenimiento">Mantener peso</option>
+    <option value="Ganancia muscular">Ganar peso</option>
                             </select>
                         </div>
                     </div>
@@ -1250,47 +1290,56 @@
                 <div id="macro-results" style="display: none;">
                     <!-- Sección Calorías y Costo -->
                     
-                        <div class="progress-bar calories" style="flex: 1;">
-                            <div class="progress-fill calories" id="calories-progress">
-                                <span class="macro-label">🔥 Calorías</span>
-                            </div>
-                            <span class="macro-numbers">
-                                <span id="current-calories">0</span>/<span id="target-calories">0</span> kcal
-                            </span>
-                        </div>
-                    
-                
-                    <!-- Contenedor de Barras de Macros -->
-                    <div class="macro-bars-container">
-                        <!-- Proteínas -->
-                        <div class="progress-bar protein">
-                            <div class="progress-fill protein" id="protein-progress">
-                                <span class="macro-label">💪 Proteínas</span>
-                            </div>
-                            <span class="macro-numbers">
-                                <span id="current-protein">0</span>/<span id="target-protein">0</span>g
-                            </span>
-                        </div>
-                
-                        <!-- Carbohidratos -->
-                        <div class="progress-bar carbs">
-                            <div class="progress-fill carbs" id="carbs-progress">
-                                <span class="macro-label">🍞 Carbohidratos</span>
-                                </div>
-                                <span class="macro-numbers">
-                                    <span id="current-carbs">0</span>/<span id="target-carbs">0</span>g
-                                </span>
-                            </div>
-                
-                        <!-- Grasas -->
-                        <div class="progress-bar fats">
-                            <div class="progress-fill fats" id="fats-progress">
-                                <span class="macro-label">🥑 Grasas</span>
-                            </div>
-                            <span class="macro-numbers">
-                                <span id="current-fats">0</span>/<span id="target-fats">0</span>g
-                            </span>
-                        </div>
+                        <div class="progress-bar calories">
+    <div class="progress-fill calories" id="calories-progress"></div>
+    <div class="progress-excess" id="calories-excess"></div>
+    <span class="macro-label">🔥 Calorías</span>
+    <span class="macro-numbers">
+    <span id="current-calories" class="current">0</span>
+    <span id="calories-divider" class="divider">/</span>
+    <span id="target-calories" class="target">0</span>
+    <span id="calories-unit" class="unit">kcal</span>
+</span>
+</div>
+
+<!-- Proteínas -->
+<div class="progress-bar protein">
+    <div class="progress-fill protein" id="protein-progress"></div>
+    <div class="progress-excess" id="protein-excess"></div>
+    <span class="macro-label">💪 Proteínas</span>
+    <span class="macro-numbers">
+        <span id="current-protein" class="current">0</span>
+        <span id="protein-divider" class="divider">/</span>
+        <span id="target-protein" class="target">0</span> 
+        <span id="protein-unit" class="unit">g</span>
+    </span>
+</div>
+
+<!-- Carbohidratos -->
+<div class="progress-bar carbs">
+    <div class="progress-fill carbs" id="carbs-progress"></div>
+    <div class="progress-excess" id="carbs-excess"></div>
+    <span class="macro-label">🍞 Carbohidratos</span>
+    <span class="macro-numbers">
+        <span id="current-carbs" class="current">0</span>
+        <span id="carbs-divider" class="divider">/</span>
+        <span id="target-carbs" class="target">0</span>
+        <span id="carbs-unit" class="unit">g</span>
+    </span>
+</div>
+
+<!-- Grasas -->
+<div class="progress-bar fats">
+    <div class="progress-fill fats" id="fats-progress"></div>
+    <div class="progress-excess" id="fats-excess"></div>
+    <span class="macro-label">🥑 Grasas</span>
+    <span class="macro-numbers">
+        <span id="current-fats" class="current">0</span>
+        <span id="fats-divider" class="divider">/</span>
+        <span id="target-fats" class="target">0</span>
+        <span id="fats-unit" class="unit">g</span>
+    </span>
+</div>
                         </div>
                     </div>
                     <div class="shopping-list">
@@ -2126,7 +2175,6 @@
         updatePeriodLabel();
     };
     
-    const setupEventListeners = () => {
         // Modal click outside handler
         document.getElementById('foodModal').addEventListener('click', e => {
             if (e.target === document.getElementById('foodModal')) {
@@ -2141,7 +2189,7 @@
                 saveState();
             });
         });
-    };
+  
     
     // ===== STATE MANAGEMENT =====
     
@@ -2902,49 +2950,79 @@
     // ===== MACRO CALCULATIONS =====
     
     const calculateMacros = () => {
-        saveUserData();
+    saveUserData();
 
-        const age = parseInt(state.userData.age);
-        const weight = parseFloat(state.userData.weight);
-        const height = parseFloat(state.userData.height);
-        const gender = state.userData.gender;
-        const activity = parseFloat(state.userData.activity);
-        const goal = state.userData.goal;
-        
-        if (!age || !weight || !height) {
-            alert('Por favor completa todos los campos');
-            return;
-        }
+    const age = parseInt(state.userData.age);
+    const weight = parseFloat(state.userData.weight);
+    const height = parseFloat(state.userData.height);
+    const gender = state.userData.gender;
+    const activity = state.userData.activity;
+    const goal = state.userData.goal;
 
-        // Mifflin-St Jeor formula
-        let bmr;
-        if (gender === 'male') {
-            bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-        } else {
-            bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-        }
+    if (!age || !weight || !height) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
 
-        let tdee = bmr * activity;
-        
-        // Adjust based on goal
-        if (goal === 'lose') tdee -= 500;
-        if (goal === 'gain') tdee += 500;
+    // Paso 1: Calcular TMB (Ecuación de Mifflin-St Jeor)
+    let bmr;
+    if (gender === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
 
-        // Macronutrient distribution (30% protein, 40% carbs, 30% fat)
-        const protein = (tdee * 0.3) / 4;
-        const carbs = (tdee * 0.4) / 4;
-        const fats = (tdee * 0.3) / 9;
-
-        state.userMacros = {
-            calories: Math.round(tdee),
-            protein: Math.round(protein),
-            carbs: Math.round(carbs),
-            fats: Math.round(fats)
-        };
-
-        showMacroResults();
-        updateTotals();
+    // Paso 2: Ajustar TMB según el nivel de actividad y el objetivo
+    const activityFactors = {
+        Sedentario: 1.2,
+        Baja: 1.375,
+        Media: 1.55,
+        Alta: 1.725,
+        Extra: 1.9
     };
+
+    const adjustment = {
+        "Pérdida de peso": -275,
+        Mantenimiento: 0,
+        "Ganancia muscular": 275
+    };
+
+    let tdee;
+    if (activityFactors[activity] !== undefined && adjustment[goal] !== undefined) {
+        tdee = bmr * activityFactors[activity] + adjustment[goal];
+    } else {
+        alert('Nivel de actividad o objetivo no válido');
+        return;
+    }
+
+    // Paso 3: Calcular macronutrientes según el objetivo
+    let protein, fats, carbs;
+
+    if (goal === "Pérdida de peso") {
+        protein = weight * 2.0; // Proteínas en gramos
+        fats = (tdee * 0.25) / 9; // Grasas en gramos
+        carbs = (tdee - (protein * 4) - (fats * 9)) / 4; // Carbohidratos en gramos
+    } else if (goal === "Mantenimiento") {
+        protein = weight * 1.6; // Proteínas en gramos
+        fats = (tdee * 0.30) / 9; // Grasas en gramos
+        carbs = (tdee - (protein * 4) - (fats * 9)) / 4; // Carbohidratos en gramos
+    } else if (goal === "Ganancia muscular") {
+        protein = weight * 1.8; // Proteínas en gramos
+        fats = (tdee * 0.20) / 9; // Grasas en gramos
+        carbs = (tdee - (protein * 4) - (fats * 9)) / 4; // Carbohidratos en gramos
+    }
+
+    // Guardar los resultados en el estado
+    state.userMacros = {
+        calories: Math.round(tdee),
+        protein: parseFloat(protein.toFixed(2)),
+        carbs: parseFloat(carbs.toFixed(2)),
+        fats: parseFloat(fats.toFixed(2))
+    };
+
+    showMacroResults();
+    updateTotals();
+};
     
     const showMacroResults = () => {
         const results = document.getElementById('macro-results');
@@ -2963,12 +3041,13 @@
     
     const updateTotals = () => {
         const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
-            calories: acc.calories + (food.calories * food.quantity/100),
-            protein: acc.protein + (food.protein * food.quantity/100),
-            carbs: acc.carbs + (food.carbs * food.quantity/100),
-            fats: acc.fats + (food.fats * food.quantity/100),
-            cost: acc.cost + (food.price * food.quantity/100)
-        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+        calories: acc.calories + (food.calories * food.quantity/100),
+        protein: acc.protein + (food.protein * food.quantity/100),
+        carbs: acc.carbs + (food.carbs * food.quantity/100),
+        fats: acc.fats + (food.fats * food.quantity/100),
+        cost: acc.cost + (food.price * food.quantity/100)
+    }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+
 
         // Apply multiplier to daily cost
         const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
@@ -2976,37 +3055,88 @@
         document.getElementById('total-cost').textContent = totalCost.toFixed(2);
 
         if (state.userMacros) {
-            // Update current values
-            document.getElementById('current-calories').textContent = totals.calories.toFixed(1);
-            document.getElementById('current-protein').textContent = totals.protein.toFixed(1);
-            document.getElementById('current-carbs').textContent = totals.carbs.toFixed(1);
-            document.getElementById('current-fats').textContent = totals.fats.toFixed(1);
-            
-            // Update progress bars
-            updateProgress(totals.calories, state.userMacros.calories, 'calories-progress');
-            updateProgress(totals.protein, state.userMacros.protein, 'protein-progress');
-            updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
-            updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
-        }
+        document.getElementById('current-calories').textContent = totals.calories.toFixed(1);
+        document.getElementById('current-protein').textContent = totals.protein.toFixed(1);
+        document.getElementById('current-carbs').textContent = totals.carbs.toFixed(1);
+        document.getElementById('current-fats').textContent = totals.fats.toFixed(1);
+        
+        updateProgress(totals.calories, state.userMacros.calories, 'calories-progress');
+        updateProgress(totals.protein, state.userMacros.protein, 'protein-progress');
+        updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
+        updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
+    }
     };
     
     const updateProgress = (current, target, elementId) => {
-        const progressElement = document.getElementById(elementId);
-        if (!progressElement) return;
-        
-        const progressBar = progressElement.parentElement;
-        const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
-        
-        progressElement.style.width = `${percentage}%`;
-        progressBar.setAttribute('data-progress', percentage.toFixed(0));
-        
-        progressElement.style.borderRadius = '8px 0 0 8px';
-        
-        if (percentage >= 100) {
-            setTimeout(() => {
-                progressElement.style.borderRadius = '8px';
-            }, 300);
-        }
+         const currentElement = document.getElementById(`current-${elementId.split('-')[0]}`);
+    const targetElement = document.getElementById(`target-${elementId.split('-')[0]}`);
+    const dividerElement = document.querySelector(`#${elementId.split('-')[0]}-divider`);
+    const unitElement = document.querySelector(`#${elementId.split('-')[0]}-unit`);
+    const progressFill = document.getElementById(elementId);
+    const progressBar = progressFill.parentElement;
+    const progressExcess = progressBar.querySelector('.progress-excess');
+
+    // Definir márgenes de tolerancia
+    const lowerSafeThreshold = target * 0.95;  // 5% menos del objetivo
+    const upperSafeThreshold = target * 1.05; // 5% más del objetivo
+    const warningThreshold = target * 1.15;   // 15% más del objetivo
+
+    // Eliminar clases previas
+    currentElement.classList.remove('safe', 'warning', 'danger');
+    targetElement.classList.remove('safe', 'warning', 'danger');
+    if (dividerElement) dividerElement.classList.remove('safe', 'warning', 'danger');
+    if (unitElement) unitElement.classList.remove('safe', 'warning', 'danger');
+
+    // Determinar el estado y aplicar la clase correspondiente
+    if (current >= lowerSafeThreshold && current <= upperSafeThreshold) {
+        currentElement.classList.add('safe');
+        targetElement.classList.add('safe');
+        if (dividerElement) dividerElement.classList.add('safe');
+        if (unitElement) unitElement.classList.add('safe');
+    } else if (current > upperSafeThreshold && current <= warningThreshold) {
+        currentElement.classList.add('warning');
+        targetElement.classList.add('warning');
+        if (dividerElement) dividerElement.classList.add('warning');
+        if (unitElement) unitElement.classList.add('warning');
+    } else if (current > warningThreshold) {
+        currentElement.classList.add('danger');
+        targetElement.classList.add('danger');
+        if (dividerElement) dividerElement.classList.add('danger');
+        if (unitElement) unitElement.classList.add('danger');
+    }
+
+    // Actualizar el ancho de las barras de progreso
+    const percentage = (current / target) * 100;
+    const fillWidth = Math.min(percentage, 100);
+    const excessWidth = Math.max(percentage - 100, 0);
+
+    progressFill.style.width = `${fillWidth}%`;
+    progressExcess.style.width = `${excessWidth}%`;
+
+    // Ajustar bordes redondeados
+    progressFill.style.borderRadius = fillWidth >= 100 ? '8px' : '8px 0 0 8px';
+    progressExcess.style.borderRadius = excessWidth > 0 ? '0 8px 8px 0' : '0';
+
+    // Actualizar clip-path del exceso
+    progressExcess.style.clipPath = excessWidth > 0
+        ? `inset(0 ${100 - excessWidth}% 0 0)`
+        : 'inset(0 0 0 100%)';
+if (excessWidth > 0) {
+        const excessClip = 100 - (excessWidth / (percentage / 100));
+        progressExcess.style.clipPath = `inset(0 ${100 - excessWidth}% 0 0)`;
+    } else {
+        progressExcess.style.clipPath = 'inset(0 0 0 100%)';
+    }
+    // Cambiar color del texto si hay exceso
+    if (current > target) {
+        currentElement.style.color = '#ff6b6b';
+        currentElement.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
+    } else {
+        currentElement.style.color = 'white';
+        currentElement.style.textShadow = 'none';
+    }
+    currentElement.style.color = excessWidth > 0 ? '#ff6b6b' : 'white';
+    currentElement.style.textShadow = excessWidth > 0 ? '0 1px 2px rgba(0,0,0,0.3)' : 'none';
     };
     
     // ===== PDF EXPORT =====
