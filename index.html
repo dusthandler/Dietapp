@@ -10,7 +10,6 @@
          /* 1. Reset y box-sizing */
         *, *::before, *::after {
             box-sizing: border-box;
-            margin: 0;
             padding: 0;
         }
 
@@ -2166,26 +2165,23 @@
     // Application state
     let state = {
         currentMeal: null,
-        selectedFoods: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] },
-        savedDiets: {},
-        currentDietIndex: 0,
-        theme: localStorage.getItem('theme') || 'light',
-        selectedFoodsInModal: [],
-        currentShoppingList: 'weekly',
-        userMacros: null,
-        lastAddedItems: [],
-        showMacroResults: false, // Añadir esta propiedad
-        userData: {
-            age: '',
-            weight: '',
-            height: '',
-            gender: 'male',
-            activity: '1.2',
-            goal: 'maintain',
-            mealOrder: ['Desayuno', 'Almuerzo', 'Cena', 'Snacks'],
-            savedDiets: {} // Modificado para guardar estructura completa
-
-        }
+    selectedFoods: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] },
+    savedDiets: {},
+    currentDietIndex: 0,
+    theme: localStorage.getItem('theme') || 'light',
+    selectedFoodsInModal: [],
+    currentShoppingList: 'weekly',
+    userMacros: null,
+    lastAddedItems: [],
+    showMacroResults: false,
+    userData: {
+        age: '',
+        weight: '',
+        height: '',
+        gender: 'male',
+        activity: '1.2',
+        goal: 'maintain'
+    }
     };
     
     // ===== INITIALIZATION =====
@@ -2274,6 +2270,24 @@
                 state.currentDietIndex = 0;
                 loadDiet(Object.keys(state.savedDiets)[0]);
             }
+        } else {
+            // Si no hay dietas, crea una por defecto
+            state.savedDiets = {
+                "Mi primera dieta": {
+                    Desayuno: [],
+                    Almuerzo: [],
+                    Cena: [],
+                    Snacks: []
+                }
+            };
+            state.currentDietIndex = 0;
+            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets["Mi primera dieta"]));
+            saveState();
+            renderMeals();
+            renderSavedDiets();
+            updateTotals();
+            generateShoppingList();
+            document.getElementById('current-diet-title').textContent = "Mi primera dieta";
         }
     };
     
@@ -2311,6 +2325,23 @@
         weeklyTab.classList.remove('active');
     }
 };
+    // ===== UI RENDERING =====
+const updatePeriodLabel = () => {
+    const label = document.getElementById('cost-period-label');
+    if (label) {
+        label.textContent = state.currentShoppingList === 'weekly' ? 'semanal' : 'mensual';
+    }
+};
+
+
+
+const setTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    state.theme = theme;
+};
+    
+    
     const renderMeals = () => {
         const mealsContainer = document.getElementById('meals');
         mealsContainer.innerHTML = '';
@@ -2405,7 +2436,7 @@
         const mealContent = document.getElementById(`${meal}-content`);
         if (!mealContent) return;
         
-        const mealTotals = calculateMealTotals(meal);
+        const mealTotals = calculateTotals(state.selectedFoods[meal]);
         updateMealMacros(meal, mealTotals);
         
         // Render food items
@@ -2417,16 +2448,6 @@
         mealContent.innerHTML = state.selectedFoods[meal].map(food => 
             createFoodItemHTML(food, meal)
         ).join('');
-    };
-    
-    const calculateMealTotals = (meal) => {
-        return state.selectedFoods[meal].reduce((acc, food) => ({
-            calories: acc.calories + (food.calories * food.quantity/100),
-            protein: acc.protein + (food.protein * food.quantity/100),
-            carbs: acc.carbs + (food.carbs * food.quantity/100),
-            fats: acc.fats + (food.fats * food.quantity/100),
-            cost: acc.cost + (food.price * food.quantity/100)
-        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
     };
     
     const updateMealMacros = (meal, totals) => {
@@ -2492,7 +2513,7 @@
     
     const renderSavedDiets = () => {
         const dietNames = Object.keys(state.savedDiets);
-        const currentDietName = dietNames[state.currentDietIndex] || 'Nueva dieta';
+        const currentDietName = dietNames[state.currentDietIndex] || 'Mi primera dieta';
         document.getElementById('current-diet-title').textContent = currentDietName;
     };
     
@@ -2508,7 +2529,7 @@
     };
     
     const createCategorySelectionHTML = () => {
-        const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+        const selectedTotals = calculateTotals(state.selectedFoodsInModal);
         
         return `
             <!-- Columna de selección -->
@@ -2625,7 +2646,7 @@
             .filter(([_, data]) => data.category === category)
             .map(([name, data]) => ({ name, ...data }));
         
-        const selectedTotals = calculateSelectedTotals(state.selectedFoodsInModal);
+        const selectedTotals = calculateTotals(state.selectedFoodsInModal);
         
         content.innerHTML = `
             <div class="modal-column selection-column">
@@ -2852,22 +2873,8 @@
         event.currentTarget.classList.add('active');
     };
     
-    const updatePeriodLabel = () => {
-        const label = document.getElementById('cost-period-label');
-        if (label) {
-            label.textContent = state.currentShoppingList === 'weekly' ? 'semanal' : 'mensual';
-        }
-    };
     
-    const updateTabsVisualState = () => {
-        document.querySelectorAll('.shopping-list-tab').forEach(tab => {
-            const isWeekly = tab.textContent.includes('Semanal');
-            tab.classList.toggle('active', 
-                (isWeekly && state.currentShoppingList === 'weekly') ||
-                (!isWeekly && state.currentShoppingList === 'monthly')
-            );
-        });
-    };
+    
     
     // ===== DIET MANAGEMENT =====
     const deleteMeal = (meal) => {
@@ -2880,84 +2887,115 @@
         }
     };
     const createNewDiet = () => {
-        let baseName = 'Nueva Dieta';
-        let counter = 1;
-        
-        while (state.savedDiets[baseName + ' ' + counter]) {
-            counter++;
-        }
-        
-        const newName = baseName + ' ' + counter;
-        state.savedDiets[newName] = JSON.parse(JSON.stringify({
-            Desayuno: [],
-            Almuerzo: [],
-            Cena: [],
-            Snacks: []
-        }));
-        
-        state.currentDietIndex = Object.keys(state.savedDiets).length - 1;
-        loadDiet(newName);
-        saveState();
-        renderSavedDiets();
-    };
+    const dietNames = Object.keys(state.savedDiets);
+    if (state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
+        const currentDietName = dietNames[state.currentDietIndex];
+        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
+
+    let baseName = 'Nueva Dieta';
+    let counter = 1;
+    while (state.savedDiets[`${baseName} ${counter}`]) {
+        counter++;
+    }
+    const newName = `${baseName} ${counter}`;
+    state.savedDiets[newName] = JSON.parse(JSON.stringify({
+        Desayuno: [],
+        Almuerzo: [],
+        Cena: [],
+        Snacks: []
+    }));
+
+    const newIndex = Object.keys(state.savedDiets).indexOf(newName);
+    loadDietByIndex(newIndex, true); // <--- NO guardar el estado actual
+    saveState();
+    renderSavedDiets();
+};
     
     const loadDiet = (name) => {
-        if (state.savedDiets[name]) {
-            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[name]));
-            saveState();
-            renderMeals();
-            updateTotals();
-            generateShoppingList();
-            document.getElementById('current-diet-title').textContent = name;
-        }
+        const dietNames = Object.keys(state.savedDiets);
+    // Guarda la dieta actual antes de cambiar
+    if (state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
+        const currentDietName = dietNames[state.currentDietIndex];
+        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
+
+    if (state.savedDiets[name]) {
+        state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[name]));
+        state.currentDietIndex = dietNames.indexOf(name); // Actualiza el índice actual
+        saveState();
+        renderMeals();
+        updateTotals();
+        generateShoppingList();
+        document.getElementById('current-diet-title').textContent = name;
+    }
     };
+    
+    const loadDietByIndex = (index, skipSaveCurrent = false) => {
+    const dietNames = Object.keys(state.savedDiets);
+    if (dietNames.length === 0) return;
+
+    // Solo guarda la dieta actual si no se indica lo contrario
+    if (!skipSaveCurrent && state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
+        const currentDietName = dietNames[state.currentDietIndex];
+        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
+
+    state.currentDietIndex = index;
+    const dietName = dietNames[state.currentDietIndex];
+    state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[dietName]));
+    saveState();
+    renderMeals();
+    updateTotals();
+    generateShoppingList();
+    document.getElementById('current-diet-title').textContent = dietName;
+};
     
     const deleteCurrentDiet = () => {
-        const dietNames = Object.keys(state.savedDiets);
-        if (dietNames.length === 0) return;
-        
-        const dietName = dietNames[state.currentDietIndex];
-        if (!confirm(`¿Estás seguro de que quieres eliminar la dieta "${dietName}"?`)) {
-            return;
-        }
-        
-        delete state.savedDiets[dietName];
-        
-        // Adjust index and load next diet
-        state.currentDietIndex = Math.max(0, Math.min(state.currentDietIndex, Object.keys(state.savedDiets).length - 1));
-        
-        if (Object.keys(state.savedDiets).length > 0) {
-            loadDiet(Object.keys(state.savedDiets)[state.currentDietIndex]);
-        } else {
-            state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-            renderMeals();
-            updateTotals();
-            generateShoppingList();
-        }
-        
-        saveState();
-        renderSavedDiets();
-    };
+    const dietNames = Object.keys(state.savedDiets);
+    if (dietNames.length <= 1) {
+        alert("No puedes eliminar la última dieta.");
+        return;
+    }
+    if (dietNames.length === 0) return;
+
+    const dietName = dietNames[state.currentDietIndex];
+    if (!confirm(`¿Estás seguro de que quieres eliminar la dieta "${dietName}"?`)) {
+        return;
+    }
+
+    delete state.savedDiets[dietName];
+    const newIndex = Math.max(0, state.currentDietIndex - 1);
+    loadDietByIndex(newIndex);
+    saveState();
+    renderSavedDiets();
+};
     
     const prevDiet = () => {
-        const dietNames = Object.keys(state.savedDiets);
-        if (dietNames.length === 0) return;
-        
-        state.currentDietIndex = (state.currentDietIndex - 1 + dietNames.length) % dietNames.length;
-        loadDiet(dietNames[state.currentDietIndex]);
-    };
-    
-    const nextDiet = () => {
-        const dietNames = Object.keys(state.savedDiets);
-        if (dietNames.length === 0) return;
-        
-        state.currentDietIndex = (state.currentDietIndex + 1) % dietNames.length;
-        loadDiet(dietNames[state.currentDietIndex]);
-    };
+    const dietNames = Object.keys(state.savedDiets);
+    if (dietNames.length === 0) return;
+
+    const newIndex = (state.currentDietIndex - 1 + dietNames.length) % dietNames.length;
+    loadDietByIndex(newIndex);
+};
+
+const nextDiet = () => {
+    const dietNames = Object.keys(state.savedDiets);
+    if (dietNames.length === 0) return;
+
+    const newIndex = (state.currentDietIndex + 1) % dietNames.length;
+    loadDietByIndex(newIndex);
+};
     
     const editDietName = () => {
-        const dietNames = Object.keys(state.savedDiets);
-        if (dietNames.length === 0) return;
+       const dietNames = Object.keys(state.savedDiets);
+    if (dietNames.length === 0) return;
+
+    // Guarda la dieta actual antes de renombrar
+    if (state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
+        const currentDietName = dietNames[state.currentDietIndex];
+        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
         
         const oldName = dietNames[state.currentDietIndex];
         const titleElement = document.getElementById('current-diet-title');
@@ -3102,13 +3140,7 @@
     };
     
     const updateTotals = () => {
-        const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
-        calories: acc.calories + (food.calories * food.quantity/100),
-        protein: acc.protein + (food.protein * food.quantity/100),
-        carbs: acc.carbs + (food.carbs * food.quantity/100),
-        fats: acc.fats + (food.fats * food.quantity/100),
-        cost: acc.cost + (food.price * food.quantity/100)
-    }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+        const totals = calculateTotals(Object.values(state.selectedFoods).flat());
 
 
         // Apply multiplier to daily cost
@@ -3130,44 +3162,9 @@
     };
     
     const updateProgress = (current, target, elementId) => {
-         const currentElement = document.getElementById(`current-${elementId.split('-')[0]}`);
-    const targetElement = document.getElementById(`target-${elementId.split('-')[0]}`);
-    const dividerElement = document.querySelector(`#${elementId.split('-')[0]}-divider`);
-    const unitElement = document.querySelector(`#${elementId.split('-')[0]}-unit`);
     const progressFill = document.getElementById(elementId);
-    const progressBar = progressFill.parentElement;
-    const progressExcess = progressBar.querySelector('.progress-excess');
+    const progressExcess = progressFill.parentElement.querySelector('.progress-excess');
 
-    // Definir márgenes de tolerancia
-    const lowerSafeThreshold = target * 0.95;  // 5% menos del objetivo
-    const upperSafeThreshold = target * 1.05; // 5% más del objetivo
-    const warningThreshold = target * 1.15;   // 15% más del objetivo
-
-    // Eliminar clases previas
-    currentElement.classList.remove('safe', 'warning', 'danger');
-    targetElement.classList.remove('safe', 'warning', 'danger');
-    if (dividerElement) dividerElement.classList.remove('safe', 'warning', 'danger');
-    if (unitElement) unitElement.classList.remove('safe', 'warning', 'danger');
-
-    // Determinar el estado y aplicar la clase correspondiente
-    if (current >= lowerSafeThreshold && current <= upperSafeThreshold) {
-        currentElement.classList.add('safe');
-        targetElement.classList.add('safe');
-        if (dividerElement) dividerElement.classList.add('safe');
-        if (unitElement) unitElement.classList.add('safe');
-    } else if (current > upperSafeThreshold && current <= warningThreshold) {
-        currentElement.classList.add('warning');
-        targetElement.classList.add('warning');
-        if (dividerElement) dividerElement.classList.add('warning');
-        if (unitElement) unitElement.classList.add('warning');
-    } else if (current > warningThreshold) {
-        currentElement.classList.add('danger');
-        targetElement.classList.add('danger');
-        if (dividerElement) dividerElement.classList.add('danger');
-        if (unitElement) unitElement.classList.add('danger');
-    }
-
-    // Actualizar el ancho de las barras de progreso
     const percentage = (current / target) * 100;
     const fillWidth = Math.min(percentage, 100);
     const excessWidth = Math.max(percentage - 100, 0);
@@ -3175,141 +3172,139 @@
     progressFill.style.width = `${fillWidth}%`;
     progressExcess.style.width = `${excessWidth}%`;
 
-    // Ajustar bordes redondeados
     progressFill.style.borderRadius = fillWidth >= 100 ? '8px' : '8px 0 0 8px';
     progressExcess.style.borderRadius = excessWidth > 0 ? '0 8px 8px 0' : '0';
 
-    // Actualizar clip-path del exceso
     progressExcess.style.clipPath = excessWidth > 0
         ? `inset(0 ${100 - excessWidth}% 0 0)`
         : 'inset(0 0 0 100%)';
-if (excessWidth > 0) {
-        const excessClip = 100 - (excessWidth / (percentage / 100));
-        progressExcess.style.clipPath = `inset(0 ${100 - excessWidth}% 0 0)`;
-        
-    } else {
-        progressExcess.style.clipPath = 'inset(0 0 0 100%)';
-        
-    }
-    // Cambiar color del texto si hay exceso
-    if (current > target) {
-        currentElement.style.color = '#ff6b6b';
-    } else {
-        currentElement.style.color = 'white';
-        currentElement.style.textShadow = 'none';
-    }
-    currentElement.style.color = excessWidth > 0 ? '#ff6b6b' : 'white';
-    };
+};
     
     // ===== PDF EXPORT =====
     
     const exportPDF = () => {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
-        
-        pdf.setFontSize(18);
-        pdf.text('Plan Dietético', 105, 20, { align: 'center' });
-        
-        let yPos = 30;
-        
-        // Header
-        pdf.setFontSize(12);
-        pdf.setTextColor(100);
-        pdf.text("Comida", 20, yPos);
-        pdf.text("Alimento (gramos)", 60, yPos);
-        pdf.text("Macronutrientes", 130, yPos);
-        yPos += 8;
-        
-        // Content - meals and foods
-        pdf.setFontSize(10);
-        Object.entries(state.selectedFoods).forEach(([meal, foods]) => {
-            if (foods.length === 0) return;
-            
-            pdf.setFont(undefined, 'bold');
-            pdf.setTextColor(0);
-            pdf.text(`${meal}:`, 20, yPos);
-            pdf.setFont(undefined, 'normal');
-            yPos += 7;
-            
-            foods.forEach(food => {
-                const nutrition = `Cal: ${(food.calories * food.quantity/100).toFixed(1)} | P: ${(food.protein * food.quantity/100).toFixed(1)}g | C: ${(food.carbs * food.quantity/100).toFixed(1)}g | G: ${(food.fats * food.quantity/100).toFixed(1)}g`;
-                pdf.text(`- ${food.name} (${food.quantity}g)`, 25, yPos);
-                pdf.text(nutrition, 60, yPos);
-                yPos += 7;
-                
-                if (yPos > 270) {
-                    pdf.addPage();
-                    yPos = 20;
-                }
-            });
-            yPos += 5;
-        });
-        
-        // Totals
-        const totals = Object.values(state.selectedFoods).flat().reduce((acc, food) => ({
-            calories: acc.calories + (food.calories * food.quantity/100),
-            protein: acc.protein + (food.protein * food.quantity/100),
-            carbs: acc.carbs + (food.carbs * food.quantity/100),
-            fats: acc.fats + (food.fats * food.quantity/100),
-            cost: acc.cost + (food.price * food.quantity/100)
-        }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
-        
-        pdf.setFont(undefined, 'bold');
-        pdf.text('TOTALES DIARIOS:', 20, yPos);
-        yPos += 7;
-        
-        pdf.text(`🔥 Calorías: ${totals.calories.toFixed(1)} kcal`, 25, yPos); yPos += 7;
-        pdf.text(`💪 Proteína: ${totals.protein.toFixed(1)}g`, 25, yPos); yPos += 7;
-        pdf.text(`🍞 Carbohidratos: ${totals.carbs.toFixed(1)}g`, 25, yPos); yPos += 7;
-        pdf.text(`🥑 Grasas: ${totals.fats.toFixed(1)}g`, 25, yPos); yPos += 7;
-        pdf.text(`💵 Costo total: $${totals.cost.toFixed(2)}`, 25, yPos);
-        
-        // Shopping list
-        yPos += 15;
-        pdf.setFont(undefined, 'bold');
-        pdf.text('LISTA DE COMPRA SEMANAL:', 20, yPos);
-        yPos += 7;
-        
-        const allFoods = Object.values(state.selectedFoods).flat();
-        const foodQuantities = {};
-        
-        allFoods.forEach(food => {
-            if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
-            foodQuantities[food.name] += food.quantity * 7 / 100;
-        });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
 
-        const sortedFoods = Object.keys(foodQuantities).sort();
-        pdf.setFont(undefined, 'normal');
-        
-        sortedFoods.forEach(food => {
-            pdf.text(`- ${food}: ${foodQuantities[food].toFixed(0)}g`, 25, yPos);
-            yPos += 7;
-            
-            if (yPos > 270) {
-                pdf.addPage();
-                yPos = 20;
-            }
+    // Título principal
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(18);
+    pdf.text('Plan Dietético', 105, 15, { align: 'center' });
+
+    let y = 25;
+
+    // ====== TOTALES DIARIOS ======
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    const title = 'Totales diarios';
+    pdf.text(title, 15, y);
+    const titleWidth = pdf.getTextWidth(title);
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.line(15, y + 1.5, 15 + titleWidth, y + 1.5);
+    y += 9;
+
+    // Macros en una línea
+    const totals = calculateTotals(Object.values(state.selectedFoods).flat());
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(11);
+    pdf.setTextColor(80, 80, 80);
+    pdf.text(
+        `Calorías: ${totals.calories.toFixed(1)} kcal | Proteínas: ${totals.protein.toFixed(1)}g | Carbohidratos: ${totals.carbs.toFixed(1)}g | Grasas: ${totals.fats.toFixed(1)}g | Coste${totals.cost.toFixed(2)}€`,
+        20, y
+    );
+    y += 12;
+
+    // Línea divisoria al final de la sección
+    pdf.setDrawColor(180);
+    pdf.line(15, y, 195, y);
+    y += 7;
+
+    // ====== DIETA DETALLADA ======
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    const titleDiet = 'Dieta';
+    pdf.text(titleDiet, 15, y);
+    const titleDietWidth = pdf.getTextWidth(titleDiet);
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.line(15, y + 1.5, 15 + titleDietWidth, y + 1.5);
+    y += 9;
+
+    Object.entries(state.selectedFoods).forEach(([meal, foods]) => {
+        if (foods.length === 0) return;
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(12);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(`• ${meal}`, 18, y);
+        y += 6;
+
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(11);
+        pdf.setTextColor(80, 80, 80);
+        foods.forEach(food => {
+            pdf.text(`${food.name} (${food.quantity}g)`, 25, y);
+            pdf.text(
+                `Cal: ${(food.calories * food.quantity / 100).toFixed(1)} | P: ${(food.protein * food.quantity / 100).toFixed(1)}g | C: ${(food.carbs * food.quantity / 100).toFixed(1)}g | G: ${(food.fats * food.quantity / 100).toFixed(1)}g`,
+                80, y
+            );
+            y += 6;
+            if (y > 270) { pdf.addPage(); y = 15; }
         });
-        
-        pdf.save('dieta.pdf');
-    };
+        y += 3;
+    });
+
+    // Línea divisoria al final de la sección
+    pdf.setDrawColor(180);
+    pdf.line(15, y, 195, y);
+    y += 7;
+
+    // ====== LISTA DE LA COMPRA ======
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    const titleShopping = 'Lista de la compra';
+    pdf.text(titleShopping, 15, y);
+    const titleShoppingWidth = pdf.getTextWidth(titleShopping);
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.line(15, y + 1.5, 15 + titleShoppingWidth, y + 1.5);
+    y += 9;
+
+    // Calcula la lista de la compra igual que en la app
+    const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
+    const allFoods = Object.values(state.selectedFoods).flat();
+    const foodQuantities = {};
+    allFoods.forEach(food => {
+        if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
+        foodQuantities[food.name] += food.quantity * multiplier;
+    });
+    const sortedFoods = Object.keys(foodQuantities).sort();
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(11);
+    pdf.setTextColor(80, 80, 80);
+    sortedFoods.forEach(food => {
+        pdf.text(
+            `${food}: ${foodQuantities[food].toFixed(0)}g`,
+            20, y
+        );
+        y += 6;
+        if (y > 270) { pdf.addPage(); y = 15; }
+    });
+
+    // Línea divisoria al final de la sección
+    pdf.setDrawColor(180);
+    pdf.line(15, y, 195, y);
+
+    pdf.save('dieta.pdf');
+};
     
     // ===== HELPER FUNCTIONS =====
     
-    const setTheme = (theme) => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        state.theme = theme;
-    };
     
-    const calculateSelectedTotals = (foods) => {
-        return foods.reduce((acc, food) => ({
-            calories: acc.calories + (food.calories * food.quantity/100),
-            protein: acc.protein + (food.protein * food.quantity/100),
-            carbs: acc.carbs + (food.carbs * food.quantity/100),
-            fats: acc.fats + (food.fats * food.quantity/100)
-        }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
-    };
     
     const getCategoryColor = (category) => {
         const colors = {
@@ -3394,6 +3389,16 @@ const addMeal = () => {
         renderMeals();
     }
 };
+
+const calculateTotals = (foods) => {
+    return foods.reduce((acc, food) => ({
+        calories: acc.calories + (food.calories * food.quantity / 100),
+        protein: acc.protein + (food.protein * food.quantity / 100),
+        carbs: acc.carbs + (food.carbs * food.quantity / 100),
+        fats: acc.fats + (food.fats * food.quantity / 100),
+        cost: acc.cost + (food.price * food.quantity / 100)
+    }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
+};
     
     // ===== PUBLIC API =====
     return {
@@ -3411,6 +3416,7 @@ const addMeal = () => {
         removeFood,
         deleteMeal,
         loadDiet,
+        loadDietByIndex,
         deleteCurrentDiet,
         prevDiet,
         nextDiet,
@@ -3425,115 +3431,44 @@ const addMeal = () => {
 })();
 
 // Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', App.init);
-
-// Setup synchronized scrolling between columns
 document.addEventListener('DOMContentLoaded', () => {
-    const leftColumn = document.querySelector('.container > div:first-child');
-    const rightColumn = document.querySelector('.totals-section');
-    
-    if (!leftColumn || !rightColumn) return;
-    
-    leftColumn.addEventListener('scroll', () => {
-        const reachedBottom = leftColumn.scrollHeight - leftColumn.scrollTop <= leftColumn.clientHeight + 5;
-        
-        if (reachedBottom && rightColumn.scrollTop < rightColumn.scrollHeight - rightColumn.clientHeight) {
-            rightColumn.scrollTop += 15; // Scroll speed
-        }
-    });
-});
+    // Inicializar la aplicación
+    App.init();
 
-        // Inicializar la aplicación cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', App.init);
-    </script>
-
-    <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const leftCol  = document.querySelector('.container > div:first-child');
-    const rightCol = document.querySelector('.totals-section');
-
-    leftCol.addEventListener('wheel', e => {
-      const delta = e.deltaY;
-      // Scroll hacia abajo cuando izquierda llegó al final
-      if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
-        rightCol.scrollTop += delta;
-        e.preventDefault();
-      }
-      // Scroll hacia arriba cuando izquierda está arriba y derecha no en tope
-      else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
-        rightCol.scrollTop += delta;
-        e.preventDefault();
-      }
-    }, { passive: false });
-  });
-</script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const leftCol  = document.querySelector('.container > div:first-child');
-    const rightCol = document.querySelector('.totals-section');
-
-    // De izquierda → derecha
-    leftCol.addEventListener('wheel', e => {
-      const delta = e.deltaY;
-      if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
-        rightCol.scrollTop += delta;
-        e.preventDefault();
-      }
-      else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
-        rightCol.scrollTop += delta;
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    // De derecha → izquierda
-    rightCol.addEventListener('wheel', e => {
-      const delta = e.deltaY;
-      if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
-        leftCol.scrollTop += delta;
-        e.preventDefault();
-      }
-      else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
-        leftCol.scrollTop += delta;
-        e.preventDefault();
-      }
-    }, { passive: false });
-  });
-</script>
- <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Sincronizar scroll entre columnas
     const leftCol = document.querySelector('.container > div:first-child');
     const rightCol = document.querySelector('.totals-section');
 
     if (leftCol && rightCol) {
+        const syncScroll = (delta, targetCol) => {
+            targetCol.scrollTop += delta;
+        };
+
         leftCol.addEventListener('wheel', e => {
             const delta = e.deltaY;
             if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
-                rightCol.scrollTop += delta;
+                syncScroll(delta, rightCol);
                 e.preventDefault();
             } else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
-                rightCol.scrollTop += delta;
+                syncScroll(delta, rightCol);
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        rightCol.addEventListener('wheel', e => {
+            const delta = e.deltaY;
+            if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
+                syncScroll(delta, leftCol);
+                e.preventDefault();
+            } else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
+                syncScroll(delta, leftCol);
                 e.preventDefault();
             }
         }, { passive: false });
     } else {
         console.error('No se encontraron los elementos necesarios para sincronizar el scroll.');
     }
-const syncScroll = (delta, targetCol) => {
-    targetCol.scrollTop += delta;
-};
-      // De derecha → izquierda
-      rightCol.addEventListener('wheel', e => {
-    const delta = e.deltaY;
-    if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
-        syncScroll(delta, leftCol); // Llamar a la función syncScroll
-        e.preventDefault();
-    } else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
-        syncScroll(delta, leftCol); // Llamar a la función syncScroll
-        e.preventDefault();
-    }
-}, { passive: false });
-    });
-  </script>
+});
+</script>
 </body>
 </html>
