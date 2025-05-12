@@ -2224,7 +2224,8 @@
             savedDiets: state.savedDiets,
             userData: state.userData,
             userMacros: state.userMacros,
-            showMacroResults: state.showMacroResults
+            showMacroResults: state.showMacroResults,
+            currentDietId: state.currentDietId
         }));
     };
 
@@ -2232,51 +2233,39 @@
     
     const loadState = () => {
         const saved = localStorage.getItem('dietState');
-        if (saved) {
-            const data = JSON.parse(saved);
-            state.selectedFoods = data.selectedFoods || { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-            state.savedDiets = data.savedDiets || {};
-            state.userMacros = data.userMacros || null;
-            state.showMacroResults = data.showMacroResults || false;
-            if (state.showMacroResults) {
-            document.getElementById('macro-results').style.display = 'block';
-            if (state.userMacros) {
-                showMacroResults();
-            }
-        }
-            state.userData = data.userData || {
-                age: '',
-                weight: '',
-                height: '',
-                gender: 'male',
-                activity: '1.2',
-                goal: 'maintain'
-            };
+    if (saved) {
+        const data = JSON.parse(saved);
+        state.savedDiets = data.savedDiets || {};
+        state.userMacros = data.userMacros || null;
+        state.showMacroResults = data.showMacroResults || false;
+        state.userData = data.userData || {
+            age: '',
+            weight: '',
+            height: '',
+            gender: 'male',
+            activity: '1.2',
+            goal: 'maintain'
+        };
+        state.currentDietId = data.currentDietId || Object.keys(state.savedDiets)[0];
 
-            // Show results if previously visible
-            if (state.showMacroResults) {
-                document.getElementById('macro-results').style.display = 'block';
-            }
-
-            // Ensure all data structures are arrays (compatibility)
-            Object.keys(state.selectedFoods).forEach(meal => {
-                if (!Array.isArray(state.selectedFoods[meal])) {
-                    state.selectedFoods[meal] = Object.values(state.selectedFoods[meal]);
-                }
-            });
-
-            // Load the last used diet
-            if (Object.keys(state.savedDiets).length > 0) {
-                state.currentDietIndex = 0;
-                loadDiet(Object.keys(state.savedDiets)[0]);
-            }
+        // Carga la dieta activa correctamente
+        if (state.currentDietId && state.savedDiets[state.currentDietId]) {
+            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[state.currentDietId]));
         } else {
-            // Si no hay dietas, crea una nueva dieta como si se hubiera pulsado el botón "Nueva"
-            state.savedDiets = {};
+            // Si no existe, crea una nueva dieta
+            const newName = 'Nueva Dieta 1';
+            state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+            state.currentDietId = newName;
             state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-            state.currentDietIndex = 0;
-            App.createNewDiet();
         }
+    } else {
+        // Si no hay dietas, crea una nueva dieta
+        const newName = 'Nueva Dieta 1';
+        state.savedDiets = {};
+        state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+        state.currentDietId = newName;
+        state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+    }
     };
     
     const saveUserData = () => {
@@ -2901,16 +2890,12 @@ const setTheme = (theme) => {
 };
     
     const loadDiet = (name) => {
-        const dietNames = Object.keys(state.savedDiets);
-    // Guarda la dieta actual antes de cambiar
-    if (state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
-        const currentDietName = dietNames[state.currentDietIndex];
-        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+        if (state.currentDietId && state.savedDiets[state.currentDietId]) {
+        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
     }
-
     if (state.savedDiets[name]) {
         state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[name]));
-        state.currentDietIndex = dietNames.indexOf(name); // Actualiza el índice actual
+        state.currentDietId = name;
         saveState();
         renderMeals();
         updateTotals();
