@@ -2271,23 +2271,11 @@
                 loadDiet(Object.keys(state.savedDiets)[0]);
             }
         } else {
-            // Si no hay dietas, crea una por defecto
-            state.savedDiets = {
-                "Mi primera dieta": {
-                    Desayuno: [],
-                    Almuerzo: [],
-                    Cena: [],
-                    Snacks: []
-                }
-            };
+            // Si no hay dietas, crea una nueva dieta como si se hubiera pulsado el botón "Nueva"
+            state.savedDiets = {};
+            state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
             state.currentDietIndex = 0;
-            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets["Mi primera dieta"]));
-            saveState();
-            renderMeals();
-            renderSavedDiets();
-            updateTotals();
-            generateShoppingList();
-            document.getElementById('current-diet-title').textContent = "Mi primera dieta";
+            App.createNewDiet();
         }
     };
     
