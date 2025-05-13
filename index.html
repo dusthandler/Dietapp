@@ -397,6 +397,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
         }
 
         .add-button-container {
@@ -515,15 +517,9 @@
         }
 
         .modal-selected-item {
-            padding: 12px;
-            margin: 5px 0;
-            background: var(--surface);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            /* animation: popIn 0.3s ease-out; */
-            overflow: hidden; /* Previene scrollbars */
-            transform: scale(0.98); /* Pequeño ajuste inicial */
-            contain: layout paint style;
+            padding: 10px 4px;
+            margin-right: 2px;
+            position: relative;
         }
 
         .modal-selected-item.new-item {
@@ -1393,7 +1389,15 @@
 
     <!-- Modal de alimentos -->
     <div class="food-modal" id="foodModal">
-        <div class="modal-content" id="modalContent"></div>
+        <div class="modal-content" id="modalContent">
+            <button class="btn" onclick="
+    state.currentCategoryInModal = null;
+    App.showFoodModal();
+" 
+style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+    ← Volver a categorías
+</button>
+        </div>
     </div>
 
 
@@ -2181,7 +2185,8 @@
         gender: 'male',
         activity: '1.2',
         goal: 'maintain'
-    }
+    },
+    currentCategoryInModal: null
     };
     
     // ===== INITIALIZATION =====
@@ -2387,7 +2392,6 @@ const setTheme = (theme) => {
     const createAddMealButton = (index) => {
     const addBtn = document.createElement('button');
     addBtn.className = 'add-meal-btn';
-    addBtn.innerHTML = '+ Añadir comida';
     addBtn.onclick = () => {
         const mealName = Object.keys(state.selectedFoods)[index];
         state.currentMeal = mealName; // Establecer la comida actual
@@ -2497,24 +2501,51 @@ const setTheme = (theme) => {
     // ===== MODAL MANAGEMENT =====
     
     const showFoodModal = () => {
+        state.currentCategoryInModal = null;
         const modal = document.getElementById('foodModal');
         const content = document.getElementById('modalContent');
         updateModalHeights();
         
-        content.innerHTML = createCategorySelectionHTML();
+        if (state.currentCategoryInModal) {
+            showFoods(state.currentCategoryInModal);
+        } else {
+            content.innerHTML = createCategorySelectionHTML();
+        }
+        
         modal.style.display = 'flex';
     };
     
     const createCategorySelectionHTML = () => {
-        const selectedTotals = calculateTotals(state.selectedFoodsInModal);
-        
-        return `
-            <!-- Columna de selección -->
-            <div class="modal-column selection-column">
-                <h2>Selecciona una categoría</h2>
+    const selectedTotals = calculateTotals(state.selectedFoodsInModal);
+
+    return `
+        <!-- Columna de selección -->
+        <div class="modal-column selection-column">
+            <div style="display:flex;align-items:center;gap:10px;position:relative;">
+                <h2 style="margin:0;">Selecciona una categoría</h2>
+                <span style="position:relative;flex:1;">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
+    <input 
+        id="food-search-input"
+        type="text"
+        placeholder="Buscar alimento..."
+        style="padding:6px 32px 6px 32px;border-radius:6px;border:1px solid #ccc;font-size:1em;width:100%;"
+        oninput="App.handleFoodSearch(this.value)"
+        autocomplete="off"
+    >
+    <button 
+        id="food-search-clear"
+        style="display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#e74c3c;"
+        onclick="document.getElementById('food-search-input').value='';App.handleFoodSearch('');return false;"
+        tabindex="-1"
+        aria-label="Limpiar búsqueda"
+    >✖</button>
+</span>
+            </div>
+            <div id="food-category-or-search">
                 <div class="category-grid">
                     ${Object.entries(categories).map(([name, emoji]) => `
-                        <div class="category-card" onclick="App.showFoods('${name}')" 
+                        <div class="category-card" onclick="App.showFoods('${name}')"
                             style="background: ${getCategoryColor(name)}">
                             <div style="font-size: 2em">${emoji}</div>
                             ${name}
@@ -2522,118 +2553,64 @@ const setTheme = (theme) => {
                     `).join('')}
                 </div>
             </div>
-            
-            <!-- Columna de seleccionados -->
-            <div class="modal-column selected-column">
-   <div style="padding: 20px; padding-bottom: 10px;">
-        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-        ${createSelectedTotalsHTML(selectedTotals)}
-    </div>
-    
-    <div id="modal-selected-list">
-        ${createSelectedFoodsListHTML()}
-    </div>
-    
-    <div class="add-button-container">
-        ${createAddButtonHTML()}
-    </div>
-</div>
-        `;
-    };
-    
-    const createSelectedTotalsHTML = (totals) => {
-        if (state.selectedFoodsInModal.length === 0) return '';
-        
-        return `
-            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
-                    <div>🔥 Calorías: ${totals.calories.toFixed(1)}</div>
-                    <div>💪 Proteína: ${totals.protein.toFixed(1)}g</div>
-                    <div>🍞 Carbos: ${totals.carbs.toFixed(1)}g</div>
-                    <div>🥑 Grasas: ${totals.fats.toFixed(1)}g</div>
-                </div>
+        </div>
+        <!-- Columna de seleccionados -->
+        <div class="modal-column selected-column">
+            <div style="padding: 20px; padding-bottom: 10px;">
+                <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                ${createSelectedTotalsHTML(selectedTotals)}
             </div>
-        `;
-    };
+            <div id="modal-selected-list">
+                ${createSelectedFoodsListHTML()}
+            </div>
+            <div class="add-button-container">
+                ${createAddButtonHTML()}
+            </div>
+        </div>
+    `;
+};
+
+    const removeDiacritics = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
     
-    const createSelectedFoodsListHTML = () => {
-        return `
-            <div id="modal-selected-list" style=""overflow-y: auto;">
-                ${state.selectedFoodsInModal.map(food => `
-                    <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="flex-grow: 1;">
-                                <div style="font-size: 1.1em; display: flex; align-items: center; gap: 8px;">
-                                    <span class="food-emoji">${food.emoji}</span> ${food.name}
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
-                                    <input type="number" 
-                                        value="${food.quantity}"
-                                        class="quantity-input"
-                                        onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                        min="0">
-                                    <span style="font-size: 0.9em; color: var(--text);">gramos</span>
-                                </div>
-                                <div class="macros-cost-container" style="margin-top: 8px;">
-                                    <div class="macros-grid">
-                                        <div class="macro-badge calories">
-                                            🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal
-                                        </div>
-                                        <div class="macro-badge protein">
-                                            💪 ${(food.protein * food.quantity/100).toFixed(1)}g
-                                        </div>
-                                        <div class="macro-badge carbs">
-                                            🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g
-                                        </div>
-                                        <div class="macro-badge fats">
-                                            🥑 ${(food.fats * food.quantity/100).toFixed(1)}g
-                                        </div>
-                                    </div>
-                                    <div class="cost-badge">
-                                        <div>💵</div>
-                                        <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
-                                        <span>coste</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}', event)">
-                                ✖
-                            </button>
-                        </div>
+const handleFoodSearch = (query) => {
+    const container = document.getElementById('food-category-or-search');
+    const searchInput = document.getElementById('food-search-input');
+    const search = removeDiacritics(query.trim().toLowerCase());
+
+    if (!search) {
+        // Si está vacío, muestra las categorías
+        container.innerHTML = `
+            <div class="category-grid">
+                ${Object.entries(categories).map(([name, emoji]) => `
+                    <div class="category-card" onclick="App.showFoods('${name}')"
+                        style="background: ${getCategoryColor(name)}">
+                        <div style="font-size: 2em">${emoji}</div>
+                        ${name}
                     </div>
                 `).join('')}
             </div>
         `;
-    };
-    
-    const createAddButtonHTML = () => {
-        if (state.selectedFoodsInModal.length === 0) return '';
-        
-        return `
-            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
-                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
-                ➕ Añadir a ${state.currentMeal}
-            </button>
-        `;
-    };
-    
-    const showFoods = (category) => {
-        const content = document.getElementById('modalContent');
-        const foodsInCategory = Object.entries(foodDB)
-            .filter(([_, data]) => data.category === category)
+        // NO return aquí, sigue para mostrar/ocultar la cruz
+    } else {
+        // Filtra alimentos por nombre ignorando tildes
+        const results = Object.entries(foodDB)
+            .filter(([name]) => removeDiacritics(name.toLowerCase()).includes(search))
             .map(([name, data]) => ({ name, ...data }));
-        
-        const selectedTotals = calculateTotals(state.selectedFoodsInModal);
-        
-        content.innerHTML = `
-            <div class="modal-column selection-column">
-                <button class="btn" onclick="App.showFoodModal()" 
-                    style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
-                    ← Volver a categorías
-                </button>
-                <h2>${category}</h2>
+
+        if (results.length === 0) {
+            container.innerHTML = `<div style="padding:20px;color:#888;">No se encontraron alimentos.</div>`;
+            // NO return aquí, sigue para mostrar/ocultar la cruz
+        } else {
+            container.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <button class="btn" onclick="
+                        document.getElementById('food-search-input').value = '';
+                        App.handleFoodSearch('');
+                    ">← Volver a categorías</button>
+                </div>
                 <div class="food-grid">
-                    ${foodsInCategory.map(food => `
+                    ${results.map(food => `
                         <div class="food-item-modal 
                             ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
                             onclick="App.toggleFoodSelection('${food.name}', event)">
@@ -2648,24 +2625,151 @@ const setTheme = (theme) => {
                         </div>
                     `).join('')}
                 </div>
+            `;
+        }
+    }
+
+    // Mostrar u ocultar la cruz según si hay texto
+    const clearBtn = document.getElementById('food-search-clear');
+    if (clearBtn) {
+        clearBtn.style.display = query.trim() ? 'block' : 'none';
+    }
+
+    // Actualiza la columna de seleccionados SIEMPRE
+    const selectedColumn = document.querySelector('.modal-column.selected-column');
+    if (selectedColumn) {
+        const selectedTotals = calculateTotals(state.selectedFoodsInModal);
+        const selectedList = selectedColumn.querySelector('#modal-selected-list');
+        if (selectedList) selectedList.innerHTML = createSelectedFoodsListHTML();
+        const addBtnContainer = selectedColumn.querySelector('.add-button-container');
+        if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
+        const totalsDiv = selectedColumn.querySelector('.selected-totals');
+        if (totalsDiv) totalsDiv.outerHTML = createSelectedTotalsHTML(selectedTotals);
+    }
+};
+
+    const createSelectedTotalsHTML = (totals) => {
+        if (state.selectedFoodsInModal.length === 0) return '';
+    return `
+        <div class="selected-totals" style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin: 10px 0;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; font-size: 0.9em;">
+                <div>🔥 Calorías: ${totals.calories.toFixed(1)}</div>
+                <div>💪 Proteína: ${totals.protein.toFixed(1)}g</div>
+                <div>🍞 Carbos: ${totals.carbs.toFixed(1)}g</div>
+                <div>🥑 Grasas: ${totals.fats.toFixed(1)}g</div>
             </div>
-            
-            <div class="modal-column selected-column">
-    <div style="padding: 20px; padding-bottom: 10px;">
-        <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-        ${createSelectedTotalsHTML(selectedTotals)}
-    </div>
+        </div>
+    `;
+    };
     
-    <div id="modal-selected-list">
-        ${createSelectedFoodsListHTML()}
-    </div>
+    const createSelectedFoodsListHTML = () => {
+    setTimeout(() => {
+        state.selectedFoodsInModal.forEach(item => item.isNew = false);
+    }, 100);
+    return `
+        <div id="modal-selected-list" style="overflow-y: auto;">
+            ${state.selectedFoodsInModal.map(food => `
+                <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}" style="padding:10px 4px 10px 4px; margin-right:2px;">
+                    <!-- Fila 1: Cruz, emoji, nombre, coste -->
+                    <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 6px;">
+                        <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}', event)" 
+                            style="margin-right:0px;">✖</button>
+                        <span class="food-emoji" style="font-size:1.2em; min-width:32px;">${food.emoji}</span>
+                        <span style="font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
+                            ${food.name}
+                        </span>
+                        <span class="macro-badge cost" style="background:none;margin-left:8px; display:flex; align-items:center;">
+                            <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity/100).toFixed(2)}€</span>
+                        </span>
+                    </div>
+                    <!-- Fila 2: Macros a la izquierda, gramos a la derecha -->
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span class="macro-badge calories"><span>🔥</span><span style="margin-left:2px;">${Math.round(food.calories * food.quantity/100)}</span></span>
+                        <span class="macro-badge protein"><span>💪</span><span style="margin-left:2px;">${Math.round(food.protein * food.quantity/100)}</span></span>
+                        <span class="macro-badge carbs"><span>🍞</span><span style="margin-left:2px;">${Math.round(food.carbs * food.quantity/100)}</span></span>
+                        <span class="macro-badge fats"><span>🥑</span><span style="margin-left:2px;">${Math.round(food.fats * food.quantity/100)}</span></span>
+                        <span style="display:flex; align-items:center; gap:2px; margin-left:auto;">
+                            <input type="number" 
+                                value="${food.quantity}"
+                                class="quantity-input"
+                                style="width:50px;"
+                                onchange="App.updateModalQuantity('${food.name}', this.value)"
+                                min="0">
+                            <span style="font-size:0.95em;color:#888;">g</span>
+                        </span>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
     
-    <div class="add-button-container">
-        ${createAddButtonHTML()}
-    </div>
-</div>
+    const createAddButtonHTML = () => {
+        if (state.selectedFoodsInModal.length === 0) return '';
+        
+        return `
+            <button class="btn btn-primary" onclick="App.addSelectedFoods()" 
+                style="width: 100%; margin-top: 20px; padding: 12px; font-size: 1.1em;">
+                ➕ Añadir a ${state.currentMeal}
+            </button>
         `;
     };
+    
+    const showFoods = (category) => {
+        console.log('showFoods llamada con', category);
+        const content = document.getElementById('modalContent');
+    // Guarda la categoría activa para navegación correcta
+    state.currentCategoryInModal = category;
+
+    // Filtra los alimentos de la categoría
+    const foodsInCategory = Object.entries(foodDB)
+        .filter(([name, data]) => data.category === category)
+        .map(([name, data]) => ({ name, ...data }));
+
+    const selectedTotals = calculateTotals(state.selectedFoodsInModal);
+
+    content.innerHTML = `
+        <div class="modal-column selection-column">
+            <button class="btn" onclick="
+                state.currentCategoryInModal = null;
+                App.showFoodModal()
+            " 
+            style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+                ← Volver a categorías
+            </button>
+            <h2>${category}</h2>
+            <div class="food-grid">
+                ${foodsInCategory.map(food => `
+                    <div class="food-item-modal 
+                        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+                        onclick="App.toggleFoodSelection('${food.name}', event)">
+                        <div style="font-size: 1.5em"><span class="food-emoji">${food.emoji}</span></div>
+                        <div><strong>${food.name}</strong></div>
+                        <div class="food-macros">
+                            <div>🔥 ${food.calories}kcal/100g</div>
+                            <div>💪 ${food.protein}g</div>
+                            <div>🍞 ${food.carbs}g</div>
+                            <div>🥑 ${food.fats}g</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div class="modal-column selected-column">
+            <div style="padding: 20px; padding-bottom: 10px;">
+                <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
+                ${createSelectedTotalsHTML(selectedTotals)}
+            </div>
+            <div id="modal-selected-list">
+                ${createSelectedFoodsListHTML()}
+            </div>
+            <div class="add-button-container">
+                ${createAddButtonHTML()}
+            </div>
+        </div>
+    `;
+};
     
     const closeFoodModal = () => {
         document.getElementById('foodModal').style.display = 'none';
@@ -2681,27 +2785,24 @@ const setTheme = (theme) => {
     
     // ===== FOOD SELECTION HANDLERS =====
     
-    const toggleFoodSelection = (foodName) => {
-        const card = event.currentTarget.closest('.food-item-modal');
-        const isDeleteButton = event?.target?.closest('.delete-btn');
-        if (card && !isDeleteButton) {
-            // Handle emoji animation
-            const emoji = card.querySelector('.food-emoji');
+    const toggleFoodSelection = (foodName, event) => {
+    const card = event?.currentTarget?.closest('.food-item-modal');
+    const isDeleteButton = event?.target?.closest('.delete-btn');
+    if (card && !isDeleteButton) {
+        // Animaciones
+        const emoji = card.querySelector('.food-emoji');
+        if (emoji) {
             emoji.style.animation = 'none';
-            void emoji.offsetWidth; // Trigger reflow
+            void emoji.offsetWidth;
             emoji.style.animation = 'spinEmoji 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards';
-            
-            // Animación de la tarjeta
-            card.classList.remove('clicked-animation');
-            void card.offsetWidth; // Trigger reflow
-            card.classList.add('clicked-animation');
-            
-            // We don't need to remove it since "forwards" preserves the final state
         }
-    
-    // Rest of your toggle selection logic
+        card.classList.remove('clicked-animation');
+        void card.offsetWidth;
+        card.classList.add('clicked-animation');
+    }
+
     const existingIndex = state.selectedFoodsInModal.findIndex(f => f.name === foodName);
-    
+
     if (existingIndex > -1) {
         state.selectedFoodsInModal.splice(existingIndex, 1);
     } else {
@@ -2713,32 +2814,42 @@ const setTheme = (theme) => {
             isNew: true
         });
     }
-    
-    // Update UI after animation completes
-    setTimeout(() => {
-        const currentCategory = foodDB[foodName].category;
-        if (currentCategory) {
-            showFoods(currentCategory);
+
+    // Refresca ambas columnas SIEMPRE
+    const modal = document.getElementById('foodModal');
+    const content = document.getElementById('modalContent');
+    if (modal && content) {
+        const searchInput = document.getElementById('food-search-input');
+        const searchValue = searchInput ? searchInput.value.trim() : '';
+        if (searchValue) {
+            handleFoodSearch(searchValue);
+        } else if (state.currentCategoryInModal) {
+            showFoods(state.currentCategoryInModal);
         } else {
-            showFoodModal();
+            content.innerHTML = createCategorySelectionHTML();
         }
-    }, 300); // Match animation duration
+    }
 };
     
     const updateModalQuantity = (foodName, value) => {
-        const quantity = Math.max(0, parseInt(value) || 0);
-        const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
-        
-        if (foodItem) {
-            foodItem.quantity = quantity;
-            const currentCategory = foodDB[foodName].category;
-            if (currentCategory) {
-                showFoods(currentCategory);
-            } else {
-                showFoodModal();
-            }
+    const quantity = Math.max(0, parseInt(value) || 0);
+    const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
+
+    if (foodItem) {
+        foodItem.quantity = quantity;
+        // Solo refresca la columna de seleccionados, no navegues
+        const selectedColumn = document.querySelector('.modal-column.selected-column');
+        if (selectedColumn) {
+            const selectedTotals = calculateTotals(state.selectedFoodsInModal);
+            const selectedList = selectedColumn.querySelector('#modal-selected-list');
+            if (selectedList) selectedList.innerHTML = createSelectedFoodsListHTML();
+            const addBtnContainer = selectedColumn.querySelector('.add-button-container');
+            if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
+            const totalsDiv = selectedColumn.querySelector('.selected-totals');
+            if (totalsDiv) totalsDiv.outerHTML = createSelectedTotalsHTML(selectedTotals);
         }
-    };
+    }
+};
     
     const addSelectedFoods = () => {
         const prevItems = new Set(state.selectedFoods[state.currentMeal].map(f => f.name));
@@ -2776,6 +2887,10 @@ const setTheme = (theme) => {
         state.lastAddedItems = [];
         renderMeals();
     }, 500);
+
+    setTimeout(() => {
+        state.selectedFoodsInModal.forEach(item => item.isNew = false);
+    }, 50);
     };
     
     const updateQuantity = (meal, food, value) => {
@@ -3381,6 +3496,9 @@ const calculateTotals = (foods) => {
             setTheme(newTheme);
         },
         showFoodModal,
+        goToCategories: () => {
+        App.showFoodModal();
+    },
         closeFoodModal,
         showFoods,
         toggleFoodSelection,
@@ -3399,6 +3517,7 @@ const calculateTotals = (foods) => {
         createNewDiet,
         editDietName,
         calculateMacros,
+        handleFoodSearch,
         addMeal
     };
 })();
