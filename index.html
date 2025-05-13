@@ -1390,11 +1390,8 @@
     <!-- Modal de alimentos -->
     <div class="food-modal" id="foodModal">
         <div class="modal-content" id="modalContent">
-            <button class="btn" onclick="
-    state.currentCategoryInModal = null;
-    App.showFoodModal();
-" 
-style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+            <button class="btn" onclick="App.goToCategories()"
+    style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
     ← Volver a categorías
 </button>
         </div>
@@ -2730,13 +2727,10 @@ const handleFoodSearch = (query) => {
 
     content.innerHTML = `
         <div class="modal-column selection-column">
-            <button class="btn" onclick="
-                state.currentCategoryInModal = null;
-                App.showFoodModal()
-            " 
-            style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
-                ← Volver a categorías
-            </button>
+            <button class="btn" onclick="App.goToCategories()"
+    style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+    ← Volver a categorías
+</button>
             <h2>${category}</h2>
             <div class="food-grid">
                 ${foodsInCategory.map(food => `
@@ -3497,6 +3491,7 @@ const calculateTotals = (foods) => {
         },
         showFoodModal,
         goToCategories: () => {
+            state.currentCategoryInModal = null;
         App.showFoodModal();
     },
         closeFoodModal,
