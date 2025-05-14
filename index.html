@@ -1504,12 +1504,12 @@
                         <div class="input-group">
                             <label>Actividad:</label>
                             <select id="activity" class="macro-select">
-                                <option value="Sedentario">Sedentario</option>
-    <option value="Baja">Ligera</option>
-    <option value="Media">Moderada</option>
-    <option value="Alta">Intensa</option>
-    <option value="Extra">Extrema</option>
-                            </select>
+    <option value="Sedentario">Sedentario</option>
+    <option value="Baja">Baja</option>
+    <option value="Media">Media</option>
+    <option value="Alta">Alta</option>
+    <option value="Extra">Extra</option>
+</select>
                         </div>
                         <div class="input-group">
                             <label>Objetivo:</label>
@@ -3322,6 +3322,11 @@ const saveRecipe = () => {
     state.selectedFoodsInModal = [];
 
     closeFoodModal();
+
+    // ACTUALIZA LA DIETA ACTUAL EN savedDiets
+    if (state.currentDietId) {
+        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
     saveState();
     renderMeals();
     updateTotals();
@@ -3340,9 +3345,13 @@ const saveRecipe = () => {
     const updateQuantity = (meal, food, value) => {
         const quantity = Math.max(0, Number(value) || 0);
         const item = state.selectedFoods[meal].find(i => i.name === food);
-        
+
         if (item) {
             item.quantity = quantity;
+            // ACTUALIZA LA DIETA ACTUAL EN savedDiets
+            if (state.currentDietId) {
+                state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+            }
             saveState();
             renderMealContent(meal);
             updateTotals();
@@ -3352,10 +3361,14 @@ const saveRecipe = () => {
     
     const removeFood = (meal, food) => {
         state.selectedFoods[meal] = state.selectedFoods[meal].filter(f => f.name !== food);
-        saveState();
-        renderMealContent(meal);
-        updateTotals();
-        generateShoppingList();
+    // ACTUALIZA LA DIETA ACTUAL EN savedDiets
+    if (state.currentDietId) {
+        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
+    saveState();
+    renderMealContent(meal);
+    updateTotals();
+    generateShoppingList();
     };
     
     // ===== SHOPPING LIST =====
@@ -3922,6 +3935,10 @@ const addMeal = () => {
             return;
         }
         state.selectedFoods[mealName] = [];
+        // ACTUALIZA LA DIETA ACTUAL EN savedDiets
+        if (state.currentDietId) {
+            state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+        }
         saveState();
         renderMeals();
     }
