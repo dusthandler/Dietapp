@@ -1247,7 +1247,7 @@
 #recipesModal h2,
 #recipeEditorModal h2,
 #recipeDetailModal h2 {
-    color: #2176ae;
+    color: #3498db;
     font-size: 1.5em;
     font-weight: 700;
     margin: 0 0 8px 0;
@@ -1259,7 +1259,7 @@
 #recipeEditorModal .btn,
 #recipeDetailModal .btn {
     background: #f5fafd;
-    color: #2176ae;
+    color: #3498db;
     border: none;
     font-weight: 600;
     box-shadow: none;
@@ -1269,7 +1269,7 @@
 #recipeEditorModal .btn:hover,
 #recipeDetailModal .btn:hover {
     background: #e3f0ff;
-    color: #185a9d;
+    color: #43aee5;
     transform: translateY(-2px) scale(1.04);
 }
 
@@ -1278,7 +1278,7 @@
 #recipeEditorModal .btn[onclick*="close"],
 #recipeDetailModal .btn[onclick*="close"] {
     background: transparent;
-    color: #2176ae;
+    color: #3498db;
     font-size: 1.3em;
     box-shadow: none;
     padding: 6px 14px;
@@ -1287,7 +1287,7 @@
 #recipeEditorModal .btn[onclick*="close"]:hover,
 #recipeDetailModal .btn[onclick*="close"]:hover {
     background: #e3f0ff;
-    color: #185a9d;
+    color: #43aee5;
 }
 
 /* Tarjetas de receta */
@@ -1295,14 +1295,14 @@
     background: #fafdff;
     border: 1.5px solid #e3f0ff;
     border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(33, 118, 174, 0.07);
-    color: #2176ae;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.07);
+    color: #3498db;
     transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
 }
 .category-card:hover {
     background: linear-gradient(135deg, #d2f6ef 60%, #e3f0ff 100%);
     transform: translateY(-4px) scale(1.04);
-    box-shadow: 0 8px 24px rgba(33, 118, 174, 0.13);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.13);
 }
 
 /* Inputs y buscadores */
@@ -1355,7 +1355,7 @@
 
 /* Botón guardar receta */
 #recipeEditorModal .btn-primary {
-    background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+    background: linear-gradient(90deg, #43cea2 0%, #43aee5 100%);
     color: #fff;
     border: none;
     font-weight: 600;
@@ -1366,7 +1366,8 @@
     width: 100%;
 }
 #recipeEditorModal .btn-primary:hover {
-    background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
+    background: linear-gradient(90deg, #43aee5 0%, #43cea2 100%);
+    color: #fff;
 }
 
 /* Detalle de receta */
@@ -2959,17 +2960,20 @@ const openRecipeDetail = idx => {
     document.getElementById('recipeDetailModal').style.display = 'flex';
     let meals = Object.keys(state.selectedFoods);
     document.getElementById('recipe-detail-body').innerHTML = `
-        <h2>${r.name}</h2>
-        <div style="margin-bottom:10px;color:#555;">${r.desc || ''}</div>
-        <div><strong>Ingredientes:</strong></div>
-        <ul style="margin-bottom:10px;">
-            ${r.ingredients.map(ing => `<li>${foodDB[ing.food]?.emoji || ''} ${ing.food} - <b>${ing.qty}g</b></li>`).join('')}
-        </ul>
-        <div style="margin-bottom:10px;"><strong>Añadir a:</strong></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${meals.map(meal => `<button class="btn btn-success" onclick="App.addRecipeToMeal(${idx},'${meal}')">${meal}</button>`).join('')}
-        </div>
-    `;
+    <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
+        <h2 style="margin: 0 auto; text-align: center; width: 100%;">${r.name}</h2>
+        <button class="btn" onclick="App.closeRecipeDetail()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
+    </div>
+    <div style="margin-bottom:10px;color:#555;">${r.desc || ''}</div>
+    <div><strong>Ingredientes:</strong></div>
+    <ul style="margin-bottom:10px;">
+        ${r.ingredients.map(ing => `<li>${foodDB[ing.food]?.emoji || ''} ${ing.food} - <b>${ing.qty}g</b></li>`).join('')}
+    </ul>
+    <div style="margin-bottom:10px;"><strong>Añadir a:</strong></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${meals.map(meal => `<button class="btn btn-success" onclick="App.addRecipeToMeal(${idx},'${meal}')">${meal}</button>`).join('')}
+    </div>
+`;
 };
 const closeRecipeDetail = () => {
     document.getElementById('recipeDetailModal').style.display = 'none';
@@ -3712,7 +3716,6 @@ const nextDiet = () => {
     // Calcula la lista de la compra igual que en la app
     const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
     const allFoods = Object.values(state.selectedFoods).flat();
-    const foodQuantities = {};
     allFoods.forEach(food => {
         if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
         foodQuantities[food.name] += food.quantity * multiplier;
@@ -3983,7 +3986,6 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- Modal de Detalle de Receta -->
 <div class="food-modal" id="recipeDetailModal" style="display:none;">
     <div class="modal-content" id="recipeDetailContent" style="flex-direction:column;max-width:600px;">
-        <button class="btn" onclick="App.closeRecipeDetail()" style="align-self:flex-end;margin-bottom:10px;">✖ Cerrar</button>
         <div id="recipe-detail-body"></div>
     </div>
 </div>
