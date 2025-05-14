@@ -1223,6 +1223,252 @@
     transition: transform 0.2s ease;
 }
 
+/* ==== MODAL DE RECETAS ==== */
+#recipesModal .modal-content,
+#recipeEditorModal .modal-content,
+#recipeDetailModal .modal-content {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
+    padding: 32px 24px 24px 24px;
+    max-width: 480px;
+    width: 95vw;
+    min-width: 320px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+    overflow: visible;
+    border: 2px solid var(--secondary);
+    background: linear-gradient(135deg, #f5f6fa 80%, #eaf6fb 100%);
+}
+#recipesModal .btn,
+#recipeEditorModal .btn,
+#recipeDetailModal .btn {
+    min-width: 0;
+    width: auto;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 1em;
+    background: var(--danger);
+    color: white;
+    margin-bottom: 0;
+    align-self: flex-end;
+}
+#recipesModal h2,
+#recipeEditorModal h2,
+#recipeDetailModal h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary);
+    font-size: 1.5em;
+    text-align: center;
+}
+
+#recipes-list {
+    margin-top: 10px;
+}
+
+.category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 18px;
+    margin-top: 0;
+}
+
+.category-card {
+    background: linear-gradient(135deg, #f5f6fa 60%, #eaf6fb 100%);
+    border: 1.5px solid var(--secondary);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+    padding: 18px 10px 14px 10px;
+    font-size: 1.1em;
+    color: var(--primary);
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-height: 90px;
+}
+
+.category-card:hover {
+    background: linear-gradient(135deg, #eaf6fb 60%, #f5f6fa 100%);
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 6px 18px rgba(44, 62, 80, 0.13);
+}
+
+#recipe-search-input {
+    border-radius: 8px;
+    border: 1.5px solid var(--secondary);
+    padding: 10px 14px;
+    font-size: 1em;
+    margin-bottom: 0;
+    background: var(--surface);
+    transition: border 0.2s;
+}
+
+#recipe-search-input:focus {
+    border: 1.5px solid var(--primary);
+    outline: none;
+}
+
+#recipes-list .category-card {
+    font-size: 1.08em;
+    padding: 16px 8px 12px 8px;
+}
+
+#recipes-list .category-card > div:first-child {
+    font-size: 2.2em;
+    margin-bottom: 4px;
+}
+
+#recipeEditorModal input[type="text"],
+#recipeEditorModal textarea,
+#recipeEditorModal select,
+#recipeEditorModal input[type="number"] {
+    border-radius: 8px;
+    border: 1.5px solid var(--secondary);
+    padding: 8px 10px;
+    font-size: 1em;
+    background: var(--surface);
+    margin-bottom: 0;
+    transition: border 0.2s;
+}
+
+#recipeEditorModal input[type="text"]:focus,
+#recipeEditorModal textarea:focus,
+#recipeEditorModal select:focus,
+#recipeEditorModal input[type="number"]:focus {
+    border: 1.5px solid var(--primary);
+    outline: none;
+}
+
+#recipe-ingredients-list {
+    margin: 10px 0 0 0;
+    min-height: 24px;
+}
+
+#recipe-ingredients-list > div {
+    background: rgba(52, 152, 219, 0.07);
+    border-radius: 7px;
+    padding: 5px 10px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+}
+
+#recipe-ingredients-list .btn-danger {
+    padding: 2px 10px;
+    font-size: 1em;
+    margin-left: auto;
+}
+
+#recipeDetailModal ul {
+    padding-left: 18px;
+    margin: 0 0 10px 0;
+}
+
+#recipeDetailModal li {
+    margin-bottom: 4px;
+    font-size: 1em;
+}
+
+#recipeDetailModal .btn-success {
+    margin-bottom: 6px;
+    font-size: 0.98em;
+    padding: 7px 14px;
+}
+
+#recipeDetailModal .btn-success:not(:last-child) {
+    margin-right: 7px;
+}
+
+#recipeDetailModal strong {
+    color: var(--primary);
+}
+
+#recipesModal .btn-success,
+#recipesModal .btn-primary,
+#recipeEditorModal .btn-success,
+#recipeEditorModal .btn-primary {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 1.08em;
+    padding: 10px 0;
+    border-radius: 8px;
+}
+
+#recipesModal .btn-success {
+    margin-top: 15px;
+}
+
+#recipesModal .btn {
+    margin-bottom: 0;
+}
+
+#recipeEditorModal label {
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+#recipeEditorModal .modal-content > *:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.recipe-main-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 18px 0;
+    font-size: 1.15em;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+    border: none;
+    margin-bottom: 18px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+}
+.recipe-main-btn:hover {
+    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(44,62,80,0.13);
+}
+
+.fab-recipes-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    color: white;
+    font-size: 2em;
+    box-shadow: 0 6px 24px rgba(44,62,80,0.18);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.fab-recipes-btn:hover {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    transform: scale(1.08);
+    box-shadow: 0 12px 32px rgba(44,62,80,0.22);
+}
+
     </style>
 </head>
 
@@ -1264,9 +1510,10 @@
             <aside class="totals-section">
 
                 <!-- Botón de Recetas -->
-<button class="btn btn-primary" id="open-recipes-btn" style="width:100%;margin-bottom:15px;">
-    📖 Recetas
-</button>               
+<button class="btn btn-primary recipe-main-btn" id="open-recipes-btn">
+    <span style="font-size:1.6em;vertical-align:middle;">📖</span>
+    <span style="font-size:1.1em;font-weight:600;margin-left:8px;vertical-align:middle;">Recetas</span>
+</button>             
 
                 <div class="macro-calculator">
                     <h2>⚖️ Tus Objetivos</h2>
@@ -2831,9 +3078,9 @@ const renderRecipeIngredientsList = () => {
     document.getElementById('recipe-ingredients-list').innerHTML = tempIngredients.length === 0
         ? '<div style="color:#888;">Sin ingredientes</div>'
         : tempIngredients.map((ing,i) => `
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                <span>${foodDB[ing.food]?.emoji || ''} ${ing.food} - <b>${ing.qty}g</b></span>
-                <button class="btn btn-danger" style="padding:2px 8px;" onclick="App.removeIngredientFromRecipe(${i})">✖</button>
+            <div>
+                <span>${foodDB[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span></span>
+                <button class="btn btn-danger" onclick="App.removeIngredientFromRecipe(${i})">✖</button>
             </div>
         `).join('');
 };
@@ -3737,6 +3984,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('No se encontraron los elementos necesarios para sincronizar el scroll.');
     }
+
+    document.getElementById('open-recipes-btn').onclick = App.openRecipesModal;
 });
 </script>
 <!-- Modal de Recetas -->
