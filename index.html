@@ -1244,6 +1244,13 @@
     background: linear-gradient(135deg, #f5f6fa 80%, #eaf6fb 100%);
 }
 
+#recipesModal .modal-content > div:first-child h2 {
+    font-size: 1.5em;
+    color: var(--primary);
+    margin: 0;
+}
+
+
 #recipeEditorModal .modal-content > div > div[style*="display:flex"] > input,
 #recipeEditorModal .modal-content > div > div[style*="display:flex"] > button {
     margin-bottom: 0 !important;
@@ -4042,10 +4049,12 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- Modal de Recetas -->
 <div class="food-modal" id="recipesModal" style="display:none;">
     <div class="modal-content" id="recipesModalContent" style="flex-direction:column;max-width:600px;">
-        <button class="btn" onclick="App.closeRecipesModal()" style="align-self:flex-end;margin-bottom:10px;">✖ Cerrar</button>
-        <h2>📖 Recetas</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <h2 style="margin:0;">📖 Recetas</h2>
+            <button class="btn" onclick="App.closeRecipesModal()" style="margin-left:10px;">✖</button>
+        </div>
         <div style="margin-bottom:10px;">
-            <input id="recipe-search-input" type="text" placeholder="Buscar receta..." style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;" oninput="App.renderRecipesList()">
+            <input id="recipe-search-input" type="text" placeholder="Buscar receta..." style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #ccc;" oninput="App.renderRecipesList()">
         </div>
         <div id="recipes-list"></div>
         <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕ Crear receta</button>
@@ -4053,10 +4062,12 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- Modal de Crear/Editar Receta -->
-<div class="food-modal" id="recipeEditorModal" style="display:none;">
+<<div class="food-modal" id="recipeEditorModal" style="display:none;">
     <div class="modal-content" id="recipeEditorContent" style="flex-direction:column;max-width:600px;">
-        <button class="btn" onclick="App.closeRecipeEditor()" style="align-self:flex-end;margin-bottom:10px;">✖ Cerrar</button>
-        <h2 id="recipe-editor-title">Crear Receta</h2>
+        <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
+            <button class="btn" onclick="App.closeRecipeEditor()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
+            <h2 id="recipe-editor-title" style="margin: 0 auto; text-align: center; width: 100%;">Crear Receta</h2>
+        </div>
         <div style="margin-bottom:10px;">
             <input id="recipe-name-input" type="text" placeholder="Nombre de la receta" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
         </div>
@@ -4067,11 +4078,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <label><strong>Ingredientes:</strong></label>
             <div id="recipe-ingredients-list"></div>
             <div style="display:flex;gap:5px;margin-top:5px;">
-    <input id="ingredient-food-search" type="text" placeholder="Buscar alimento..." style="flex:3;padding:6px;" autocomplete="off" list="ingredient-food-list">
-    <datalist id="ingredient-food-list"></datalist>
-    <input id="ingredient-qty-input" type="number" min="1" placeholder="g" style="flex:1;padding:6px;">
-    <button class="btn btn-success btn-mini" type="button" onclick="App.addIngredientToRecipe()">➕</button>
-</div>
+                <input id="ingredient-food-search" type="text" placeholder="Buscar alimento..." style="flex:3;padding:6px;" autocomplete="off" list="ingredient-food-list">
+                <datalist id="ingredient-food-list"></datalist>
+                <input id="ingredient-qty-input" type="number" min="1" placeholder="g" style="flex:1;padding:6px;">
+                <button class="btn btn-success btn-mini" type="button" onclick="App.addIngredientToRecipe()">➕</button>
+            </div>
         </div>
         <button class="btn btn-primary" onclick="App.saveRecipe()" style="margin-top:10px;">Guardar receta</button>
     </div>
