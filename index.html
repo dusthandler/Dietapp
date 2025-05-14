@@ -2825,13 +2825,13 @@ const setupIngredientFoodSearch = () => {
         </div>
         <!-- Columna de seleccionados -->
         <div class="modal-column selected-column">
-            <div style="padding: 20px; padding-bottom: 10px;">
-                <h3>🛒 Seleccionados (${state.selectedFoodsInModal.length})</h3>
-                ${createSelectedTotalsHTML(selectedTotals)}
-            </div>
-            <div id="modal-selected-list">
-                ${createSelectedFoodsListHTML()}
-            </div>
+    <div style="padding: 20px; padding-bottom: 10px;">
+        <h3>🛒 Seleccionados (<span id="selected-count"></span>)</h3>
+        <div id="selected-totals"></div>
+    </div>
+    <div id="modal-selected-list"></div>
+    <div class="add-button-container" id="add-button-container"></div>
+</div>
             <div class="add-button-container">
                 ${createAddButtonHTML()}
             </div>
@@ -2840,7 +2840,27 @@ const setupIngredientFoodSearch = () => {
 };
 
     const removeDiacritics = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const renderSelectedColumn = () => {
+    // Actualiza el número de seleccionados
+    const count = document.getElementById('selected-count');
+    if (count) count.textContent = state.selectedFoodsInModal.length;
 
+    // Actualiza los totales
+    const totalsDiv = document.getElementById('selected-totals');
+    if (totalsDiv) totalsDiv.innerHTML = createSelectedTotalsHTML(calculateTotals(state.selectedFoodsInModal));
+
+    // Actualiza la lista de seleccionados y mantiene el scroll
+    const selectedList = document.getElementById('modal-selected-list');
+    if (selectedList) {
+        const prevScroll = selectedList.scrollTop;
+        selectedList.innerHTML = createSelectedFoodsListHTML();
+        selectedList.scrollTop = prevScroll;
+    }
+
+    // Actualiza el botón de añadir
+    const addBtnContainer = document.getElementById('add-button-container');
+    if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
+};
     
 const handleFoodSearch = (query) => {
     const container = document.getElementById('food-category-or-search');
@@ -2864,7 +2884,7 @@ const handleFoodSearch = (query) => {
     } else {
         // Filtra alimentos por nombre ignorando tildes
         const results = Object.entries(foodDB)
-            .filter(([name]) => removeDiacritics(name.toLowerCase()).includes(search))
+            .filter(([name, data]) => removeDiacritics(name.toLowerCase()).includes(search))
             .map(([name, data]) => ({ name, ...data }));
 
         if (results.length === 0) {
@@ -2908,13 +2928,18 @@ const handleFoodSearch = (query) => {
     const selectedColumn = document.querySelector('.modal-column.selected-column');
     if (selectedColumn) {
         const selectedTotals = calculateTotals(state.selectedFoodsInModal);
-        const selectedList = selectedColumn.querySelector('#modal-selected-list');
-        if (selectedList) selectedList.innerHTML = createSelectedFoodsListHTML();
+        const selectedList = document.getElementById('modal-selected-list');
+    if (selectedList) {
+    const prevScroll = selectedList.scrollTop;
+    selectedList.innerHTML = createSelectedFoodsListHTML();
+    selectedList.scrollTop = prevScroll;
+    }
         const addBtnContainer = selectedColumn.querySelector('.add-button-container');
         if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
         const totalsDiv = selectedColumn.querySelector('.selected-totals');
         if (totalsDiv) totalsDiv.outerHTML = createSelectedTotalsHTML(selectedTotals);
     }
+    renderSelectedColumn();
 };
 
     const createSelectedTotalsHTML = (totals) => {
@@ -2932,45 +2957,38 @@ const handleFoodSearch = (query) => {
     };
     
     const createSelectedFoodsListHTML = () => {
-    setTimeout(() => {
-        state.selectedFoodsInModal.forEach(item => item.isNew = false);
-    }, 100);
-    return `
-        <div id="modal-selected-list" style="overflow-y: auto;">
-            ${state.selectedFoodsInModal.map(food => `
-                <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}" style="padding:10px 4px 10px 4px; margin-right:2px;">
-                    <!-- Fila 1: Cruz, emoji, nombre, coste -->
-                    <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 6px;">
-                        <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}', event)" 
-                            style="margin-right:0px;">✖</button>
-                        <span class="food-emoji" style="font-size:1.2em; min-width:32px;">${food.emoji}</span>
-                        <span style="font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
-                            ${food.name}
-                        </span>
-                        <span class="macro-badge cost" style="background:none;margin-left:8px; display:flex; align-items:center;">
-                            <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity/100).toFixed(2)}€</span>
-                        </span>
-                    </div>
-                    <!-- Fila 2: Macros a la izquierda, gramos a la derecha -->
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span class="macro-badge calories"><span>🔥</span><span style="margin-left:2px;">${Math.round(food.calories * food.quantity/100)}</span></span>
-                        <span class="macro-badge protein"><span>💪</span><span style="margin-left:2px;">${Math.round(food.protein * food.quantity/100)}</span></span>
-                        <span class="macro-badge carbs"><span>🍞</span><span style="margin-left:2px;">${Math.round(food.carbs * food.quantity/100)}</span></span>
-                        <span class="macro-badge fats"><span>🥑</span><span style="margin-left:2px;">${Math.round(food.fats * food.quantity/100)}</span></span>
-                        <span style="display:flex; align-items:center; gap:2px; margin-left:auto;">
-                            <input type="number" 
-                                value="${food.quantity}"
-                                class="quantity-input"
-                                style="width:50px;"
-                                onchange="App.updateModalQuantity('${food.name}', this.value)"
-                                min="0">
-                            <span style="font-size:0.95em;color:#888;">g</span>
-                        </span>
-                    </div>
-                </div>
-            `).join('')}
+    return state.selectedFoodsInModal.map(food => `
+        <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}" style="padding:10px 4px 10px 4px; margin-right:2px;">
+            <!-- Fila 1: Cruz, emoji, nombre, coste -->
+            <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 6px;">
+                <button class="delete-btn" onclick="App.toggleFoodSelection('${food.name}', event)" 
+                    style="margin-right:0px;">✖</button>
+                <span class="food-emoji" style="font-size:1.2em; min-width:32px;">${food.emoji}</span>
+                <span style="font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
+                    ${food.name}
+                </span>
+                <span class="macro-badge cost" style="background:none;margin-left:8px; display:flex; align-items:center;">
+                    <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity/100).toFixed(2)}€</span>
+                </span>
+            </div>
+            <!-- Fila 2: Macros a la izquierda, gramos a la derecha -->
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span class="macro-badge calories"><span>🔥</span><span style="margin-left:2px;">${Math.round(food.calories * food.quantity/100)}</span></span>
+                <span class="macro-badge protein"><span>💪</span><span style="margin-left:2px;">${Math.round(food.protein * food.quantity/100)}</span></span>
+                <span class="macro-badge carbs"><span>🍞</span><span style="margin-left:2px;">${Math.round(food.carbs * food.quantity/100)}</span></span>
+                <span class="macro-badge fats"><span>🥑</span><span style="margin-left:2px;">${Math.round(food.fats * food.quantity/100)}</span></span>
+                <span style="display:flex; align-items:center; gap:2px; margin-left:auto;">
+                    <input type="number" 
+                        value="${food.quantity}"
+                        class="quantity-input"
+                        style="width:50px;"
+                        onchange="App.updateModalQuantity('${food.name}', this.value)"
+                        min="0">
+                    <span style="font-size:0.95em;color:#888;">g</span>
+                </span>
+            </div>
         </div>
-    `;
+    `).join('');
 };
 
 // ===== RECETAS =====
@@ -3243,6 +3261,7 @@ const saveRecipe = () => {
         card.classList.remove('clicked-animation');
         void card.offsetWidth;
         card.classList.add('clicked-animation');
+        renderSelectedColumn();
     }
 
     const existingIndex = state.selectedFoodsInModal.findIndex(f => f.name === foodName);
@@ -3286,13 +3305,18 @@ const saveRecipe = () => {
         if (selectedColumn) {
             const selectedTotals = calculateTotals(state.selectedFoodsInModal);
             const selectedList = selectedColumn.querySelector('#modal-selected-list');
-            if (selectedList) selectedList.innerHTML = createSelectedFoodsListHTML();
+if (selectedList) {
+    const prevScroll = selectedList.scrollTop;
+    selectedList.innerHTML = createSelectedFoodsListHTML();
+    selectedList.scrollTop = prevScroll;
+}
             const addBtnContainer = selectedColumn.querySelector('.add-button-container');
             if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
             const totalsDiv = selectedColumn.querySelector('.selected-totals');
             if (totalsDiv) totalsDiv.outerHTML = createSelectedTotalsHTML(selectedTotals);
         }
     }
+        renderSelectedColumn();
 };
     
     const addSelectedFoods = () => {
@@ -4003,11 +4027,10 @@ deleteRecipe
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar la aplicación
     App.init();
 
     // Sincronizar scroll entre columnas
-    const leftCol = document.querySelector('.container > div:first-child');
+    const leftCol = document.querySelector('.container > div:not(.totals-section):not(aside)');
     const rightCol = document.querySelector('.totals-section');
 
     if (leftCol && rightCol) {
@@ -4017,7 +4040,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         leftCol.addEventListener('wheel', e => {
             const delta = e.deltaY;
-            if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight) {
+            if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight - 1) {
                 syncScroll(delta, rightCol);
                 e.preventDefault();
             } else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
@@ -4027,15 +4050,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
 
         rightCol.addEventListener('wheel', e => {
-            const delta = e.deltaY;
-            if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight) {
-                syncScroll(delta, leftCol);
-                e.preventDefault();
-            } else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
-                syncScroll(delta, leftCol);
-                e.preventDefault();
-            }
-        }, { passive: false });
+    const delta = e.deltaY;
+    // Scroll hacia abajo al final de la derecha → mueve la izquierda
+    if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight - 1) {
+        syncScroll(delta, leftCol);
+        e.preventDefault();
+    }
+    // Scroll hacia arriba al principio de la derecha → mueve la izquierda
+    else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
+        syncScroll(delta, leftCol);
+        e.preventDefault();
+    }
+}, { passive: false });
     } else {
         console.error('No se encontraron los elementos necesarios para sincronizar el scroll.');
     }
