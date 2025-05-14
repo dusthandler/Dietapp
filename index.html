@@ -2441,14 +2441,15 @@
             userData: state.userData,
             userMacros: state.userMacros,
             showMacroResults: state.showMacroResults,
-            currentDietId: state.currentDietId
+            currentDietId: state.currentDietId,
+            recipes: state.recipes
         }));
     };
 
     
     
     const loadState = () => {
-        const saved = localStorage.getItem('dietState');
+    const saved = localStorage.getItem('dietState');
     if (saved) {
         const data = JSON.parse(saved);
         state.savedDiets = data.savedDiets || {};
@@ -2463,16 +2464,19 @@
             goal: 'maintain'
         };
         state.currentDietId = data.currentDietId || Object.keys(state.savedDiets)[0];
+        state.recipes = data.recipes || [];
 
         // Carga la dieta activa correctamente
         if (state.currentDietId && state.savedDiets[state.currentDietId]) {
             state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[state.currentDietId]));
+            state.currentDietIndex = Object.keys(state.savedDiets).indexOf(state.currentDietId);
         } else {
             // Si no existe, crea una nueva dieta
             const newName = 'Nueva Dieta 1';
             state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
             state.currentDietId = newName;
             state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+            state.currentDietIndex = 0;
         }
     } else {
         // Si no hay dietas, crea una nueva dieta
@@ -2481,8 +2485,20 @@
         state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
         state.currentDietId = newName;
         state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
+        state.currentDietIndex = 0;
+        state.recipes = [
+            {
+                name: "Tortilla de Avena",
+                desc: "Mezcla avena, claras y canela. Cocina en sartén antiadherente.",
+                ingredients: [
+                    { food: "Claras", qty: 150 },
+                    { food: "Avena", qty: 40 },
+                    { food: "Canela", qty: 2 }
+                ]
+            }
+        ];
     }
-    };
+};
     
     const saveUserData = () => {
     state.userData = {
@@ -2958,21 +2974,17 @@ const handleFoodSearch = (query) => {
 };
 
 // ===== RECETAS =====
-state.recipes = [
-    {
-        name: "Tortilla de Avena",
-        desc: "Mezcla avena, claras y canela. Cocina en sartén antiadherente.",
-        ingredients: [
-            { food: "Claras", qty: 150 },
-            { food: "Avena", qty: 40 },
-            { food: "Canela", qty: 2 }
-        ]
-    }
-];
+
 
 let editingRecipeIndex = null;
 let tempIngredients = [];
-
+const deleteRecipe = idx => {
+    if (confirm('¿Seguro que quieres eliminar esta receta?')) {
+        state.recipes.splice(idx, 1);
+        saveState();
+        renderRecipesList();
+    }
+};
 const openRecipesModal = () => {
     document.getElementById('recipesModal').style.display = 'flex';
     renderRecipesList();
@@ -2990,24 +3002,52 @@ const renderRecipesList = () => {
         return;
     }
     list.innerHTML = `
-        <div class="category-grid">
-            ${filtered.map((r,i) => `
-                <div class="category-card" onclick="App.openRecipeDetail(${i})">
-                    <div style="font-size:2em">🍽️</div>
-                    ${r.name}
+    <div class="category-grid">
+        ${filtered.map((r,i) => {
+            // Calcular macros totales de la receta
+            const totals = r.ingredients.reduce((acc, ing) => {
+                const f = foodDB[ing.food];
+                if (!f) return acc;
+                acc.calories += (f.calories * ing.qty / 100);
+                acc.protein  += (f.protein  * ing.qty / 100);
+                acc.carbs    += (f.carbs    * ing.qty / 100);
+                acc.fats     += (f.fats     * ing.qty / 100);
+                return acc;
+            }, {calories:0, protein:0, carbs:0, fats:0});
+            return `
+            <div class="category-card" style="position:relative; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; min-height:180px;" onclick="App.openRecipeDetail(${i})">
+                <button class="btn btn-primary" style="position:absolute;top:8px;left:8px;padding:2px 8px;font-size:1em;z-index:2;"
+                    onclick="event.stopPropagation();App.openRecipeEditor(${i})">✏️</button>
+                <button class="btn btn-danger" style="position:absolute;top:8px;right:8px;padding:2px 8px;font-size:1em;z-index:2;"
+                    onclick="event.stopPropagation();App.deleteRecipe(${i})">🗑️</button>
+                <div style="font-size:2em;margin-bottom:4px;">🍽️</div>
+                <div style="font-weight:600;margin-bottom:6px;">${r.name}</div>
+                <div style="display:flex;justify-content:center;gap:10px;font-size:1em;color:#2176ae; margin-top:auto; padding-top:10px;">
+                    <span title="Calorías">🔥${Math.round(totals.calories)}</span>
+                    <span title="Proteína">💪${Math.round(totals.protein)}</span>
+                    <span title="Carbohidratos">🍞${Math.round(totals.carbs)}</span>
+                    <span title="Grasas">🥑${Math.round(totals.fats)}</span>
                 </div>
-            `).join('')}
-        </div>
-    `;
+            </div>
+            `;
+        }).join('')}
+    </div>
+`;
 };
 const openRecipeDetail = idx => {
     const r = state.recipes[idx];
     document.getElementById('recipeDetailModal').style.display = 'flex';
     let meals = Object.keys(state.selectedFoods);
     document.getElementById('recipe-detail-body').innerHTML = `
-    <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-bottom:10px;">
+    <button class="btn" title="Editar" style="background:#f5fafd;border:0px solid #e3f0ff;color:#3498db;padding:6px 10px;border-radius:25%;font-size:1.2em;"
+        onclick="App.openRecipeEditor(${idx})">✏️</button>
+    <button class="btn" title="Eliminar" style="background:#fff0f0;border:0px solid #f8d7da;color:#e74c3c;padding:6px 10px;border-radius:25%;font-size:1.2em;"
+        onclick="App.deleteRecipe(${idx}); App.closeRecipeDetail();">🗑️</button>
+</div>
         <h2 style="margin: 0 auto; text-align: center; width: 100%;">${r.name}</h2>
-        <button class="btn" onclick="App.closeRecipeDetail()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
+        <button class="btn" onclick="App.closeRecipeDetail()" style="margin-left:10px;align-self:flex-start;">✖</button>
     </div>
     <div style="margin-bottom:18px;">
         <div style="font-weight:600;color:#3498db;margin-bottom:6px;">Ingredientes:</div>
@@ -3024,12 +3064,13 @@ const openRecipeDetail = idx => {
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             ${meals.map(meal => `
                 <button class="btn recipe-add-btn recipe-add-btn-${removeDiacritics(meal.toLowerCase())}" onclick="App.addRecipeToMeal(${idx},'${meal}')">
-    ${getMealEmoji(meal)} <span>${meal}</span>
-</button>
+                    ${getMealEmoji(meal)} <span>${meal}</span>
+                </button>
             `).join('')}
         </div>
     </div>
 `;
+
 };
 const closeRecipeDetail = () => {
     document.getElementById('recipeDetailModal').style.display = 'none';
@@ -3058,7 +3099,7 @@ const addRecipeToMeal = (idx, meal) => {
 };
 const openRecipeEditor = (idx = null) => {
     editingRecipeIndex = idx;
-    tempIngredients = idx !== null ? [...state.recipes[idx].ingredients] : [];
+    tempIngredients = idx !== null && state.recipes[idx] ? [...state.recipes[idx].ingredients] : [];
     document.getElementById('recipeEditorModal').style.display = 'flex';
     document.getElementById('recipe-editor-title').textContent = idx !== null ? 'Editar Receta' : 'Crear Receta';
     document.getElementById('recipe-name-input').value = idx !== null ? state.recipes[idx].name : '';
@@ -3096,7 +3137,7 @@ const removeIngredientFromRecipe = idx => {
 const saveRecipe = () => {
     const name = document.getElementById('recipe-name-input').value.trim();
     const desc = document.getElementById('recipe-desc-input').value.trim();
-    if (!name || tempIngredients.length === 0) {
+    if (!name || !Array.isArray(tempIngredients) || tempIngredients.length === 0) {
         alert('Pon un nombre y al menos un ingrediente.');
         return;
     }
@@ -3408,7 +3449,8 @@ const saveRecipe = () => {
 };
     
     const loadDiet = (name) => {
-        if (state.currentDietId && state.savedDiets[state.currentDietId]) {
+    // Guarda la dieta actual antes de cambiar
+    if (state.currentDietId && state.savedDiets[state.currentDietId]) {
         state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
     }
     if (state.savedDiets[name]) {
@@ -3420,21 +3462,21 @@ const saveRecipe = () => {
         generateShoppingList();
         document.getElementById('current-diet-title').textContent = name;
     }
-    };
+};
     
     const loadDietByIndex = (index, skipSaveCurrent = false) => {
     const dietNames = Object.keys(state.savedDiets);
     if (dietNames.length === 0) return;
 
-    // Solo guarda la dieta actual si no se indica lo contrario
-    if (!skipSaveCurrent && state.currentDietIndex !== undefined && dietNames[state.currentDietIndex]) {
-        const currentDietName = dietNames[state.currentDietIndex];
-        state.savedDiets[currentDietName] = JSON.parse(JSON.stringify(state.selectedFoods));
+    // Guarda la dieta actual antes de cambiar, salvo que se indique lo contrario
+    if (!skipSaveCurrent && state.currentDietId && state.savedDiets[state.currentDietId]) {
+        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
     }
 
     state.currentDietIndex = index;
     const dietName = dietNames[state.currentDietIndex];
     state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[dietName]));
+    state.currentDietId = dietName;
     saveState();
     renderMeals();
     updateTotals();
@@ -3937,7 +3979,8 @@ openRecipeEditor,
 closeRecipeEditor,
 addIngredientToRecipe,
 removeIngredientFromRecipe,
-saveRecipe
+saveRecipe,
+deleteRecipe
     };
 })();
 
