@@ -1243,6 +1243,11 @@
     border: 2px solid var(--secondary);
     background: linear-gradient(135deg, #f5f6fa 80%, #eaf6fb 100%);
 }
+
+#recipeEditorModal .modal-content > div > div[style*="display:flex"] > input,
+#recipeEditorModal .modal-content > div > div[style*="display:flex"] > button {
+    margin-bottom: 0 !important;
+}
 #recipesModal .btn,
 #recipeEditorModal .btn,
 #recipeDetailModal .btn {
@@ -1255,6 +1260,20 @@
     color: white;
     margin-bottom: 0;
     align-self: flex-end;
+}
+#recipeEditorModal .btn-mini {
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 1.1em !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    align-self: unset !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 #recipesModal h2,
 #recipeEditorModal h2,
@@ -2764,6 +2783,22 @@ const setTheme = (theme) => {
             </div>
         `;
     };
+
+    // Buscador dinámico para ingredientes en el editor de recetas
+const setupIngredientFoodSearch = () => {
+    const input = document.getElementById('ingredient-food-search');
+    const datalist = document.getElementById('ingredient-food-list');
+    if (!input || !datalist) return;
+
+    input.addEventListener('input', function() {
+        const value = this.value.trim().toLowerCase();
+        datalist.innerHTML = Object.keys(foodDB)
+            .filter(name => name.toLowerCase().includes(value))
+            .slice(0, 20)
+            .map(name => `<option value="${name}">${foodDB[name].emoji} ${name}</option>`)
+            .join('');
+    });
+};
     
     const renderSavedDiets = () => {
         const dietNames = Object.keys(state.savedDiets);
@@ -3070,6 +3105,7 @@ const openRecipeEditor = (idx = null) => {
     document.getElementById('recipe-name-input').value = idx !== null ? state.recipes[idx].name : '';
     document.getElementById('recipe-desc-input').value = idx !== null ? state.recipes[idx].desc : '';
     renderRecipeIngredientsList();
+    setupIngredientFoodSearch();
 };
 const closeRecipeEditor = () => {
     document.getElementById('recipeEditorModal').style.display = 'none';
@@ -3085,17 +3121,18 @@ const renderRecipeIngredientsList = () => {
         `).join('');
 };
 const addIngredientToRecipe = () => {
-    const food = document.getElementById('ingredient-food-select').value;
+    const food = document.getElementById('ingredient-food-search').value;
     const qty = parseInt(document.getElementById('ingredient-qty-input').value);
-    if (!food || !qty || qty <= 0) return;
+    if (!foodDB[food] || !qty || qty <= 0) return;
     tempIngredients.push({ food, qty });
     renderRecipeIngredientsList();
-    document.getElementById('ingredient-food-select').value = '';
+    document.getElementById('ingredient-food-search').value = '';
     document.getElementById('ingredient-qty-input').value = '';
 };
 const removeIngredientFromRecipe = idx => {
     tempIngredients.splice(idx,1);
     renderRecipeIngredientsList();
+    setupIngredientFoodSearch();
 };
 const saveRecipe = () => {
     const name = document.getElementById('recipe-name-input').value.trim();
@@ -3986,6 +4023,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('open-recipes-btn').onclick = App.openRecipesModal;
+
+    // Cerrar modales de recetas al hacer clic fuera del contenido
+    ['recipesModal', 'recipeEditorModal', 'recipeDetailModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('mousedown', e => {
+                if (e.target === modal) {
+                    if (id === 'recipesModal') App.closeRecipesModal();
+                    if (id === 'recipeEditorModal') App.closeRecipeEditor();
+                    if (id === 'recipeDetailModal') App.closeRecipeDetail();
+                }
+            });
+        }
+    });
 });
 </script>
 <!-- Modal de Recetas -->
@@ -4016,13 +4067,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <label><strong>Ingredientes:</strong></label>
             <div id="recipe-ingredients-list"></div>
             <div style="display:flex;gap:5px;margin-top:5px;">
-                <select id="ingredient-food-select" style="flex:2;padding:6px;">
-                    <option value="">Alimento...</option>
-                    ${Object.keys(foodDB).map(name => `<option value="${name}">${foodDB[name].emoji} ${name}</option>`).join('')}
-                </select>
-                <input id="ingredient-qty-input" type="number" min="1" placeholder="g" style="flex:1;padding:6px;">
-                <button class="btn btn-success" onclick="App.addIngredientToRecipe()">Añadir</button>
-            </div>
+    <input id="ingredient-food-search" type="text" placeholder="Buscar alimento..." style="flex:3;padding:6px;" autocomplete="off" list="ingredient-food-list">
+    <datalist id="ingredient-food-list"></datalist>
+    <input id="ingredient-qty-input" type="number" min="1" placeholder="g" style="flex:1;padding:6px;">
+    <button class="btn btn-success btn-mini" type="button" onclick="App.addIngredientToRecipe()">➕</button>
+</div>
         </div>
         <button class="btn btn-primary" onclick="App.saveRecipe()" style="margin-top:10px;">Guardar receta</button>
     </div>
