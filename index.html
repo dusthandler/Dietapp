@@ -1604,12 +1604,18 @@
     <!-- Modal de alimentos -->
     <div class="food-modal" id="foodModal">
         <div class="modal-content" id="modalContent">
-            <button class="btn" onclick="App.goToCategories()"
-    style="margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
-    ← Volver a categorías
-</button>
+    <div class="modal-columns-wrapper" style="display:flex;gap:20px;">
+        <div id="modal-selection-column" class="modal-column selection-column"></div>
+        <div class="modal-column selected-column">
+            <div style="padding: 20px; padding-bottom: 10px;">
+                <h3>🛒 Seleccionados (<span id="selected-count"></span>)</h3>
+                <div id="selected-totals"></div>
+            </div>
+            <div id="modal-selected-list"></div>
+            <div class="add-button-container" id="add-button-container"></div>
         </div>
     </div>
+</div>
 
 
     <script>
@@ -1780,15 +1786,6 @@
                     carbs: 1.9, 
                     fats: 4.8 
                 },
-                'Proteína en polvo': { 
-                    category: 'Proteínas', 
-                    emoji: '🥄', 
-                    price: 3.00, 
-                    calories: 120, 
-                    protein: 24, 
-                    carbs: 3, 
-                    fats: 1 
-                },
                 'Proteína de suero de leche': { 
                     category: 'Proteínas', 
                     emoji: '🥄', 
@@ -1901,15 +1898,6 @@
                 },
                 
                 // Cereales y derivados
-                'Avena': { 
-                    category: 'Cereales', 
-                    emoji: '🌾', 
-                    price: 0.15, 
-                    calories: 389, 
-                    protein: 16.9, 
-                    carbs: 66.3, 
-                    fats: 6.9 
-                },
                 'Copos de avena': { 
                     category: 'Cereales', 
                     emoji: '🌾', 
@@ -2770,70 +2758,65 @@ const setupIngredientFoodSearch = () => {
     // ===== MODAL MANAGEMENT =====
     
     const showFoodModal = () => {
-        state.currentCategoryInModal = null;
-        const modal = document.getElementById('foodModal');
-        const content = document.getElementById('modalContent');
-        updateModalHeights();
-        
-        if (state.currentCategoryInModal) {
-            showFoods(state.currentCategoryInModal);
-        } else {
-            content.innerHTML = createCategorySelectionHTML();
-        }
-        
-        modal.style.display = 'flex';
-    };
-    
-    const createCategorySelectionHTML = () => {
-    const selectedTotals = calculateTotals(state.selectedFoodsInModal);
+    state.currentCategoryInModal = null;
+    const modal = document.getElementById('foodModal');
+    const content = document.getElementById('modalContent');
+    updateModalHeights();
 
-    return `
-        <!-- Columna de selección -->
-        <div class="modal-column selection-column">
-            <div style="display:flex;align-items:center;gap:10px;position:relative;">
-                <h2 style="margin:0;">Selecciona una categoría</h2>
-                <span style="position:relative;flex:1;">
-    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
-    <input 
-        id="food-search-input"
-        type="text"
-        placeholder="Buscar alimento..."
-        style="padding:6px 32px 6px 32px;border-radius:6px;border:1px solid #ccc;font-size:1em;width:100%;"
-        oninput="App.handleFoodSearch(this.value)"
-        autocomplete="off"
-    >
-    <button 
-        id="food-search-clear"
-        style="display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#e74c3c;"
-        onclick="document.getElementById('food-search-input').value='';App.handleFoodSearch('');return false;"
-        tabindex="-1"
-        aria-label="Limpiar búsqueda"
-    >✖</button>
-</span>
-            </div>
-            <div id="food-category-or-search">
-                <div class="category-grid">
-                    ${Object.entries(categories).map(([name, emoji]) => `
-                        <div class="category-card" onclick="App.showFoods('${name}')"
-                            style="background: ${getCategoryColor(name)}">
-                            <div style="font-size: 2em">${emoji}</div>
-                            ${name}
-                        </div>
-                    `).join('')}
+    // Estructura fija de columnas
+    content.innerHTML = `
+        <div class="modal-columns-wrapper" style="display:flex;gap:20px;">
+            <div id="modal-selection-column" class="modal-column selection-column"></div>
+            <div class="modal-column selected-column">
+                <div style="padding: 20px; padding-bottom: 10px;">
+                    <h3>🛒 Seleccionados (<span id="selected-count"></span>)</h3>
+                    <div id="selected-totals"></div>
                 </div>
+                <div id="modal-selected-list"></div>
+                <div class="add-button-container" id="add-button-container"></div>
             </div>
         </div>
-        <!-- Columna de seleccionados -->
-        <div class="modal-column selected-column">
-    <div style="padding: 20px; padding-bottom: 10px;">
-        <h3>🛒 Seleccionados (<span id="selected-count"></span>)</h3>
-        <div id="selected-totals"></div>
-    </div>
-    <div id="modal-selected-list"></div>
-    <div class="add-button-container" id="add-button-container"></div>
-</div>
-            <div class="add-button-container">
-                ${createAddButtonHTML()}
+    `;
+
+    // Renderiza categorías en la columna de selección
+    document.getElementById('modal-selection-column').innerHTML = createCategorySelectionHTML();
+
+    renderSelectedColumn();
+    modal.style.display = 'flex';
+};
+    
+    const createCategorySelectionHTML = () => {
+    return `
+        <div style="display:flex;align-items:center;gap:10px;position:relative;">
+            <h2 style="margin:0;">Selecciona una categoría</h2>
+            <span style="position:relative;flex:1;">
+                <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
+                <input 
+                    id="food-search-input"
+                    type="text"
+                    placeholder="Buscar alimento..."
+                    style="padding:6px 32px 6px 32px;border-radius:6px;border:1px solid #ccc;font-size:1em;width:100%;"
+                    oninput="App.handleFoodSearch(this.value)"
+                    autocomplete="off"
+                >
+                <button 
+                    id="food-search-clear"
+                    style="display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#e74c3c;"
+                    onclick="document.getElementById('food-search-input').value='';App.handleFoodSearch('');return false;"
+                    tabindex="-1"
+                    aria-label="Limpiar búsqueda"
+                >✖</button>
+            </span>
+        </div>
+        <div id="food-category-or-search">
+            <div class="category-grid">
+                ${Object.entries(categories).map(([name, emoji]) => `
+                    <div class="category-card" onclick="App.showFoods('${name}')"
+                        style="background: ${getCategoryColor(name)}">
+                        <div style="font-size: 2em">${emoji}</div>
+                        ${name}
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
@@ -2860,6 +2843,11 @@ const renderSelectedColumn = () => {
     // Actualiza el botón de añadir
     const addBtnContainer = document.getElementById('add-button-container');
     if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
+
+    // Limpia la animación "new-item" después de renderizar
+    setTimeout(() => {
+        state.selectedFoodsInModal.forEach(item => { if (item.isNew) item.isNew = false; });
+    }, 400); // 400ms es igual o mayor que la duración de la animación
 };
     
 const handleFoodSearch = (query) => {
@@ -3108,6 +3096,10 @@ const addRecipeToMeal = (idx, meal) => {
             });
         }
     });
+
+    if (state.currentDietId) {
+        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+    }
     saveState();
     renderMeals();
     updateTotals();
