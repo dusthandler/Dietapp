@@ -1227,11 +1227,12 @@
 #recipesModal .modal-content,
 #recipeEditorModal .modal-content,
 #recipeDetailModal .modal-content {
-    background: var(--surface);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
+    background: #fff;
+    border-radius: 18px;
+    border: 1.5px solid #e3f0ff;
+    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10);
     padding: 32px 24px 24px 24px;
-    max-width: 480px;
+    max-width: 520px;
     width: 95vw;
     min-width: 320px;
     margin: 0 auto;
@@ -1240,144 +1241,97 @@
     gap: 18px;
     position: relative;
     overflow: visible;
-    border: 2px solid var(--secondary);
-    background: linear-gradient(135deg, #f5f6fa 80%, #eaf6fb 100%);
 }
 
-#recipesModal .modal-content > div:first-child h2 {
-    font-size: 1.5em;
-    color: var(--primary);
-    margin: 0;
-}
-
-
-#recipeEditorModal .modal-content > div > div[style*="display:flex"] > input,
-#recipeEditorModal .modal-content > div > div[style*="display:flex"] > button {
-    margin-bottom: 0 !important;
-}
-#recipesModal .btn,
-#recipeEditorModal .btn,
-#recipeDetailModal .btn {
-    min-width: 0;
-    width: auto;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 1em;
-    background: var(--danger);
-    color: white;
-    margin-bottom: 0;
-    align-self: flex-end;
-}
-#recipeEditorModal .btn-mini {
-    width: auto !important;
-    min-width: 0 !important;
-    padding: 6px 10px !important;
-    font-size: 1.1em !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    align-self: unset !important;
-    box-shadow: none !important;
-    border-radius: 8px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+/* Títulos y botones */
 #recipesModal h2,
 #recipeEditorModal h2,
 #recipeDetailModal h2 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--primary);
+    color: #2176ae;
     font-size: 1.5em;
+    font-weight: 700;
+    margin: 0 0 8px 0;
     text-align: center;
+    letter-spacing: 0.5px;
 }
 
-#recipes-list {
-    margin-top: 10px;
+#recipesModal .btn,
+#recipeEditorModal .btn,
+#recipeDetailModal .btn {
+    background: #f5fafd;
+    color: #2176ae;
+    border: none;
+    font-weight: 600;
+    box-shadow: none;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+#recipesModal .btn:hover,
+#recipeEditorModal .btn:hover,
+#recipeDetailModal .btn:hover {
+    background: #e3f0ff;
+    color: #185a9d;
+    transform: translateY(-2px) scale(1.04);
 }
 
-.category-grid {
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 18px;
-    margin-top: 0;
+/* Botón de cerrar */
+#recipesModal .btn[onclick*="close"],
+#recipeEditorModal .btn[onclick*="close"],
+#recipeDetailModal .btn[onclick*="close"] {
+    background: transparent;
+    color: #2176ae;
+    font-size: 1.3em;
+    box-shadow: none;
+    padding: 6px 14px;
+}
+#recipesModal .btn[onclick*="close"]:hover,
+#recipeEditorModal .btn[onclick*="close"]:hover,
+#recipeDetailModal .btn[onclick*="close"]:hover {
+    background: #e3f0ff;
+    color: #185a9d;
 }
 
+/* Tarjetas de receta */
 .category-card {
-    background: linear-gradient(135deg, #f5f6fa 60%, #eaf6fb 100%);
-    border: 1.5px solid var(--secondary);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
-    padding: 18px 10px 14px 10px;
-    font-size: 1.1em;
-    color: var(--primary);
+    background: #fafdff;
+    border: 1.5px solid #e3f0ff;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(33, 118, 174, 0.07);
+    color: #2176ae;
     transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    min-height: 90px;
 }
-
 .category-card:hover {
-    background: linear-gradient(135deg, #eaf6fb 60%, #f5f6fa 100%);
+    background: linear-gradient(135deg, #d2f6ef 60%, #e3f0ff 100%);
     transform: translateY(-4px) scale(1.04);
-    box-shadow: 0 6px 18px rgba(44, 62, 80, 0.13);
+    box-shadow: 0 8px 24px rgba(33, 118, 174, 0.13);
 }
 
-#recipe-search-input {
-    border-radius: 8px;
-    border: 1.5px solid var(--secondary);
-    padding: 10px 14px;
-    font-size: 1em;
-    margin-bottom: 0;
-    background: var(--surface);
-    transition: border 0.2s;
-}
-
-#recipe-search-input:focus {
-    border: 1.5px solid var(--primary);
-    outline: none;
-}
-
-#recipes-list .category-card {
-    font-size: 1.08em;
-    padding: 16px 8px 12px 8px;
-}
-
-#recipes-list .category-card > div:first-child {
-    font-size: 2.2em;
-    margin-bottom: 4px;
-}
-
+/* Inputs y buscadores */
+#recipe-search-input,
+#ingredient-food-search,
 #recipeEditorModal input[type="text"],
 #recipeEditorModal textarea,
 #recipeEditorModal select,
 #recipeEditorModal input[type="number"] {
     border-radius: 8px;
-    border: 1.5px solid var(--secondary);
-    padding: 8px 10px;
+    border: 1.5px solid #e3f0ff;
+    padding: 10px 14px;
     font-size: 1em;
-    background: var(--surface);
-    margin-bottom: 0;
+    background: #fafdff;
     transition: border 0.2s;
 }
-
+#recipe-search-input:focus,
+#ingredient-food-search:focus,
 #recipeEditorModal input[type="text"]:focus,
 #recipeEditorModal textarea:focus,
 #recipeEditorModal select:focus,
 #recipeEditorModal input[type="number"]:focus {
-    border: 1.5px solid var(--primary);
+    border: 1.5px solid #43cea2;
     outline: none;
 }
 
-#recipe-ingredients-list {
-    margin: 10px 0 0 0;
-    min-height: 24px;
-}
-
+/* Lista de ingredientes */
 #recipe-ingredients-list > div {
-    background: rgba(52, 152, 219, 0.07);
+    background: #f5fafd;
     border-radius: 7px;
     padding: 5px 10px;
     margin-bottom: 6px;
@@ -1385,114 +1339,52 @@
     align-items: center;
     gap: 10px;
     font-size: 1em;
+    color: #185a9d;
 }
-
 #recipe-ingredients-list .btn-danger {
+    background: #e74c3c;
+    color: #fff;
     padding: 2px 10px;
     font-size: 1em;
     margin-left: auto;
+    border-radius: 6px;
+}
+#recipe-ingredients-list .btn-danger:hover {
+    background: #c0392b;
 }
 
+/* Botón guardar receta */
+#recipeEditorModal .btn-primary {
+    background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 1.08em;
+    padding: 10px 0;
+    width: 100%;
+}
+#recipeEditorModal .btn-primary:hover {
+    background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
+}
+
+/* Detalle de receta */
+#recipeDetailModal .modal-content {
+    border: 1.5px solid #43cea2;
+    background: linear-gradient(135deg, #fafdff 80%, #d2f6ef 100%);
+}
 #recipeDetailModal ul {
     padding-left: 18px;
     margin: 0 0 10px 0;
 }
-
 #recipeDetailModal li {
     margin-bottom: 4px;
     font-size: 1em;
+    color: #2176ae;
 }
-
-#recipeDetailModal .btn-success {
-    margin-bottom: 6px;
-    font-size: 0.98em;
-    padding: 7px 14px;
-}
-
-#recipeDetailModal .btn-success:not(:last-child) {
-    margin-right: 7px;
-}
-
 #recipeDetailModal strong {
-    color: var(--primary);
-}
-
-#recipesModal .btn-success,
-#recipesModal .btn-primary,
-#recipeEditorModal .btn-success,
-#recipeEditorModal .btn-primary {
-    width: 100%;
-    margin-top: 10px;
-    font-size: 1.08em;
-    padding: 10px 0;
-    border-radius: 8px;
-}
-
-#recipesModal .btn-success {
-    margin-top: 15px;
-}
-
-#recipesModal .btn {
-    margin-bottom: 0;
-}
-
-#recipeEditorModal label {
-    margin-bottom: 4px;
-    font-weight: 500;
-    color: var(--primary);
-}
-
-#recipeEditorModal .modal-content > *:not(:last-child) {
-    margin-bottom: 8px;
-}
-
-.recipe-main-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    padding: 18px 0;
-    font-size: 1.15em;
-    border-radius: 14px;
-    background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
-    color: white;
-    box-shadow: 0 4px 16px rgba(44,62,80,0.10);
-    border: none;
-    margin-bottom: 18px;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-}
-.recipe-main-btn:hover {
-    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 8px 24px rgba(44,62,80,0.13);
-}
-
-.fab-recipes-btn {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--secondary), var(--primary));
-    color: white;
-    font-size: 2em;
-    box-shadow: 0 6px 24px rgba(44,62,80,0.18);
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-}
-.fab-recipes-btn:hover {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    transform: scale(1.08);
-    box-shadow: 0 12px 32px rgba(44,62,80,0.22);
+    color: #185a9d;
 }
 
     </style>
@@ -1536,9 +1428,9 @@
             <aside class="totals-section">
 
                 <!-- Botón de Recetas -->
-<button class="btn btn-primary recipe-main-btn" id="open-recipes-btn">
-    <span style="font-size:1.6em;vertical-align:middle;">📖</span>
-    <span style="font-size:1.1em;font-weight:600;margin-left:8px;vertical-align:middle;">Recetas</span>
+<button class="btn btn-primary recipe-main-btn" id="open-recipes-btn" style="width:100%;padding:18px 0;font-size:1.2em;border-radius:14px;background:linear-gradient(90deg,#43cea2 0%,#185a9d 100%);color:white;box-shadow:0 4px 16px rgba(44,62,80,0.10);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:12px;">
+    <span style="font-size:1.6em;">📖</span>
+    <span style="font-size:1.1em;font-weight:600;">Recetas</span>
 </button>             
 
                 <div class="macro-calculator">
