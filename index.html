@@ -23,7 +23,7 @@
             --secondary: #3498db;
             --background: #f5f6fa;
             --surface: #ffffff;
-            --text: #2c33e50;
+            --text: #2c3e50;
             --border: #ecf0f1;
             --success: #27ae60;
             --danger: #e74c3c;
@@ -883,6 +883,19 @@
     padding: 0 15px; /* Si es necesario */
 }
 
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* más alto que .food-modal */
+}
+
         .progress-fill.calories { background: #ff6b6b; }
         .progress-fill.protein { background: #4da7f7; }
         .progress-fill.carbs { background: #feca57; }
@@ -1437,7 +1450,7 @@
 </head>
 
 <body>
-    <button class="theme-toggle" onclick="App.toggleTheme()">🌓</button>
+<button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Cambiar tema claro/oscuro">🌓</button>
     
     <h1 style="text-align: center;">🍎 Dietapp</h1>
     
@@ -1480,7 +1493,7 @@ style="width:100%;padding:18px 0;font-size:1.2em;border-radius:14px;background:l
     <span style="font-size:1.1em;font-weight:600;">Recetas</span>
 </button>             
 <!-- Modal de Recetas -->
-<div class="food-modal" id="recipesModal" style="display:none;">
+<div class="modal" id="recipesModal" style="display:none;">
     <div class="modal-content" id="recipesModalContent" style="flex-direction:column;max-width:600px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <h2 style="margin:0;">📖 Recetas</h2>
@@ -2494,7 +2507,7 @@ style="width:100%;padding:18px 0;font-size:1.2em;border-radius:14px;background:l
                 desc: "Mezcla avena, claras y canela. Cocina en sartén antiadherente.",
                 ingredients: [
                     { food: "Claras", qty: 150 },
-                    { food: "Avena", qty: 40 },
+                    { food: "Copos de avena", qty: 40 },
                     { food: "Canela", qty: 2 }
                 ]
             }
@@ -3071,7 +3084,6 @@ const renderRecipesList = () => {
 };
 const openRecipeDetail = idx => {
     const r = state.recipes[idx];
-    document.getElementById('recipeDetailModal').style.display = 'flex';
     let meals = Object.keys(state.selectedFoods);
     document.getElementById('recipe-detail-body').innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
@@ -3080,7 +3092,7 @@ const openRecipeDetail = idx => {
         onclick="App.openRecipeEditor(${idx})">✏️</button>
     <button class="btn" title="Eliminar" style="background:#fff0f0;border:0px solid #f8d7da;color:#e74c3c;padding:6px 10px;border-radius:25%;font-size:1.2em;"
         onclick="App.deleteRecipe(${idx}); App.closeRecipeDetail();">🗑️</button>
-</div>
+    </div>
         <h2 style="margin: 0 auto; text-align: center; width: 100%;">${r.name}</h2>
         <button class="btn" onclick="App.closeRecipeDetail()" style="margin-left:10px;align-self:flex-start;">✖</button>
     </div>
@@ -3110,7 +3122,10 @@ const openRecipeDetail = idx => {
         </div>
     </div>
 `;
-};
+const modal = document.getElementById('recipeDetailModal');
+    modal.style.display = 'flex';
+    // Forzar reflow
+    void modal.offsetWidth;};
 const closeRecipeDetail = () => {
     document.getElementById('recipeDetailModal').style.display = 'none';
 };
@@ -3155,12 +3170,14 @@ const addRecipeToMeal = (idx, meal) => {
 const openRecipeEditor = (idx = null) => {
     editingRecipeIndex = idx;
     tempIngredients = idx !== null && state.recipes[idx] ? [...state.recipes[idx].ingredients] : [];
-    document.getElementById('recipeEditorModal').style.display = 'flex';
     document.getElementById('recipe-editor-title').textContent = idx !== null ? 'Editar Receta' : 'Crear Receta';
     document.getElementById('recipe-name-input').value = idx !== null ? state.recipes[idx].name : '';
     document.getElementById('recipe-desc-input').value = idx !== null ? state.recipes[idx].desc : '';
     renderRecipeIngredientsList();
     setupIngredientFoodSearch();
+    setTimeout(() => {
+        document.getElementById('recipeEditorModal').style.display = 'flex';
+    }, 0);
 };
 const closeRecipeEditor = () => {
     document.getElementById('recipeEditorModal').style.display = 'none';
@@ -4123,7 +4140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <!-- Modal de Crear/Editar Receta -->
-<div class="food-modal" id="recipeEditorModal" style="display:none;">
+<div class="modal" id="recipeEditorModal" style="display:none;">
     <div class="modal-content" id="recipeEditorContent" style="flex-direction:column;max-width:600px;">
         <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
             <button class="btn" onclick="App.closeRecipeEditor()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
@@ -4150,7 +4167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- Modal de Detalle de Receta -->
-<div class="food-modal" id="recipeDetailModal" style="display:none;">
+<div class="modal" id="recipeDetailModal" style="display:none;">
     <div class="modal-content" id="recipeDetailContent" style="flex-direction:column;max-width:600px;">
         <div id="recipe-detail-body"></div>
     </div>
