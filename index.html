@@ -1295,7 +1295,7 @@
     background: #fafdff;
     border: 1.5px solid #e3f0ff;
     border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.07);
+    box-shadow: 0 2px 8px rgba(52,152,219,0.07);
     color: #3498db;
     transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
 }
@@ -1474,11 +1474,25 @@
             <aside class="totals-section">
 
                 <!-- Botón de Recetas -->
-<button class="btn btn-primary recipe-main-btn" id="open-recipes-btn" style="width:100%;padding:18px 0;font-size:1.2em;border-radius:14px;background:linear-gradient(90deg,#43cea2 0%,#185a9d 100%);color:white;box-shadow:0 4px 16px rgba(44,62,80,0.10);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:12px;">
+<button class="btn btn-primary recipe-main-btn" id="open-recipes-btn" 
+style="width:100%;padding:18px 0;font-size:1.2em;border-radius:14px;background:linear-gradient(90deg,#43cea2 0%,#185a9d 100%);color:white;box-shadow:0 4px 16px rgba(44,62,80,0.10);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:12px;">
     <span style="font-size:1.6em;">📖</span>
     <span style="font-size:1.1em;font-weight:600;">Recetas</span>
 </button>             
-
+<!-- Modal de Recetas -->
+<div class="food-modal" id="recipesModal" style="display:none;">
+    <div class="modal-content" id="recipesModalContent" style="flex-direction:column;max-width:600px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <h2 style="margin:0;">📖 Recetas</h2>
+            <button class="btn" onclick="App.closeRecipesModal()" style="margin-left:10px;">✖</button>
+        </div>
+        <div style="margin-bottom:10px;">
+            <input id="recipe-search-input" type="text" placeholder="Buscar receta..." style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #ccc;" oninput="App.renderRecipesList()">
+        </div>
+        <div id="recipes-list"></div>
+        <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕ Crear receta</button>
+    </div>
+</div>
                 <div class="macro-calculator">
                     <h2>⚖️ Tus Objetivos</h2>
                     <div class="calculator-form">
@@ -1664,7 +1678,7 @@
                     emoji: '🐟', 
                     price: 2.10, 
                     calories: 208, 
-                    protein: 20, 
+                    protein: 20,
                     carbs: 0, 
                     fats: 13 
                 },
@@ -2693,44 +2707,59 @@ const setTheme = (theme) => {
     };
     
     const createFoodItemHTML = (food, meal) => {
+    const dbFood = foodDB[food.name];
+    if (!dbFood) {
         return `
-            <div class="food-item ${state.lastAddedItems.includes(food.name) ? 'new-item' : ''}">
+            <div class="food-item" style="background:#ffeaea;border:1.5px solid #e74c3c;">
                 <div class="food-info">
                     <button class="delete-btn" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
-                    <div style="font-size: 1.2em">${foodDB[food.name].emoji}</div>
+                    <div style="font-size: 1.2em">❓</div>
                     <div>
-                        <div><strong>${food.name}</strong></div>
-                        <div class="quantity-actions" style="margin-top: 5px;">
-                            <input type="number" value="${food.quantity}" 
-                                class="quantity-input"
-                                onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
-                                min="0" step="1">
-                            <span>g</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-macros-actions">
-                    <div class="macros-cost-container">
-                        <div class="macros-grid">
-                            <div class="macro-badge calories">🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal</div>
-                            <div class="macro-badge protein">💪 ${(food.protein * food.quantity/100).toFixed(1)}g</div>
-                            <div class="macro-badge carbs">🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g</div>
-                            <div class="macro-badge fats">🥑 ${(food.fats * food.quantity/100).toFixed(1)}g</div>
-                        </div>
-                        <div class="cost-badge">
-                            <div>💵</div>
-                            <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="quick-amount-vertical">
-                        <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50 g</button>
-                        <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50 g</button>
+                        <div><strong style="color:#e74c3c;">${food.name}</strong></div>
+                        <div style="color:#e74c3c;font-size:0.95em;">No existe en la base de datos</div>
                     </div>
                 </div>
             </div>
         `;
+    }
+    return `
+        <div class="food-item ${state.lastAddedItems.includes(food.name) ? 'new-item' : ''}">
+            <div class="food-info">
+                <button class="delete-btn" onclick="App.removeFood('${meal}', '${food.name}')">✖</button>
+                <div style="font-size: 1.2em">${dbFood.emoji}</div>
+                <div>
+                    <div><strong>${food.name}</strong></div>
+                    <div class="quantity-actions" style="margin-top: 5px;">
+                        <input type="number" value="${food.quantity}" 
+                            class="quantity-input"
+                            onchange="App.updateQuantity('${meal}', '${food.name}', this.value)"
+                            min="0" step="1">
+                        <span>g</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="food-macros-actions">
+                <div class="macros-cost-container">
+                    <div class="macros-grid">
+                        <div class="macro-badge calories">🔥 ${(food.calories * food.quantity/100).toFixed(1)} kcal</div>
+                        <div class="macro-badge protein">💪 ${(food.protein * food.quantity/100).toFixed(1)}g</div>
+                        <div class="macro-badge carbs">🍞 ${(food.carbs * food.quantity/100).toFixed(1)}g</div>
+                        <div class="macro-badge fats">🥑 ${(food.fats * food.quantity/100).toFixed(1)}g</div>
+                    </div>
+                    <div class="cost-badge">
+                        <div>💵</div>
+                        <div>$${(food.price * food.quantity/100).toFixed(2)}</div>
+                    </div>
+                </div>
+                
+                <div class="quick-amount-vertical">
+                    <button class="quick-amount-btn add" onclick="App.updateQuantity('${meal}', '${food.name}', ${food.quantity + 50})">+50 g</button>
+                    <button class="quick-amount-btn remove" onclick="App.updateQuantity('${meal}', '${food.name}', ${Math.max(0, food.quantity - 50)})">-50 g</button>
+                </div>
+            </div>
+        </div>
+    `;
     };
 
     // Buscador dinámico para ingredientes en el editor de recetas
@@ -3058,7 +3087,12 @@ const openRecipeDetail = idx => {
     <div style="margin-bottom:18px;">
         <div style="font-weight:600;color:#3498db;margin-bottom:6px;">Ingredientes:</div>
         <ul style="margin-bottom:0;padding-left:18px;">
-            ${r.ingredients.map(ing => `<li style="margin-bottom:4px;">${foodDB[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span></li>`).join('')}
+            ${r.ingredients.map(ing => {
+                if (!foodDB[ing.food]) {
+                    return `<li style="margin-bottom:4px;color:#e74c3c;"><b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span> <span style="color:#e74c3c;">(No existe en la base de datos)</span></li>`;
+                }
+                return `${foodDB[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span>`;
+            }).join('')}
         </ul>
     </div>
     <div style="margin-bottom:18px;">
@@ -3076,14 +3110,18 @@ const openRecipeDetail = idx => {
         </div>
     </div>
 `;
-
 };
 const closeRecipeDetail = () => {
     document.getElementById('recipeDetailModal').style.display = 'none';
 };
 const addRecipeToMeal = (idx, meal) => {
     const r = state.recipes[idx];
+    let missingIngredients = [];
     r.ingredients.forEach(ing => {
+        if (!foodDB[ing.food]) {
+            missingIngredients.push(ing.food);
+            return; // No añadir si no existe
+        }
         // Si ya existe el alimento, suma la cantidad
         let exists = state.selectedFoods[meal].find(f => f.name === ing.food);
         if (exists) {
@@ -3096,6 +3134,13 @@ const addRecipeToMeal = (idx, meal) => {
             });
         }
     });
+
+    if (missingIngredients.length > 0) {
+        alert(
+            "Los siguientes ingredientes no existen en la base de datos y no se han añadido:\n\n" +
+            missingIngredients.join(", ")
+        );
+    }
 
     if (state.currentDietId) {
         state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
@@ -4075,23 +4120,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-<!-- Modal de Recetas -->
-<div class="food-modal" id="recipesModal" style="display:none;">
-    <div class="modal-content" id="recipesModalContent" style="flex-direction:column;max-width:600px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <h2 style="margin:0;">📖 Recetas</h2>
-            <button class="btn" onclick="App.closeRecipesModal()" style="margin-left:10px;">✖</button>
-        </div>
-        <div style="margin-bottom:10px;">
-            <input id="recipe-search-input" type="text" placeholder="Buscar receta..." style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #ccc;" oninput="App.renderRecipesList()">
-        </div>
-        <div id="recipes-list"></div>
-        <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕ Crear receta</button>
-    </div>
-</div>
+
 
 <!-- Modal de Crear/Editar Receta -->
-<<div class="food-modal" id="recipeEditorModal" style="display:none;">
+<div class="food-modal" id="recipeEditorModal" style="display:none;">
     <div class="modal-content" id="recipeEditorContent" style="flex-direction:column;max-width:600px;">
         <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
             <button class="btn" onclick="App.closeRecipeEditor()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
