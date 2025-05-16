@@ -1445,6 +1445,56 @@
     background: #f8bbd0 !important;
     color: #ad1457 !important;
 }
+/* Handle */
+.meal-drag-handle {
+    width: 24px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    margin-right: 10px;
+    user-select: none;
+}
+.meal-drag-handle .dots {
+    width: 6px;
+    height: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+}
+.meal-drag-handle .dots span {
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: #bbb;
+    border-radius: 50%;
+}
+.meal-drag-handle {
+    opacity: 0.5;
+}
+
+/* plegar comida durante arrastre */
+.meal-card.collapsed .meal-content,
+.meal-card.collapsed .meal-macros {
+    display: none !important;
+}
+.meal-card.collapsed {
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    transition: min-height 0.2s, padding 0.2s;
+}
+.meal-card.collapsed .meal-header .meal-card.dragging{
+    margin-bottom: 0 !important;
+}
+.meal-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
 
     </style>
 </head>
@@ -2643,33 +2693,78 @@ const setTheme = (theme) => {
     const mealCard = document.createElement('div');
     mealCard.className = 'meal-card';
     mealCard.dataset.meal = meal;
-    mealCard.draggable = true; // Hacer que el elemento sea arrastrable
 
     const emoji = getMealEmoji(meal);
     mealCard.innerHTML = `
         <div class="meal-header">
+            <span class="meal-drag-handle" draggable="true">
+                <span class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </span>
             <h3>${emoji} ${meal}</h3>
             <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
         </div>
         <div class="meal-content" id="${meal}-content"></div>
     `;
 
-    // Asociar el evento onclick al contenedor de la comida
+    // Evento para abrir el modal de alimentos
     mealCard.onclick = (e) => {
-        // Evitar que el clic en el botón de eliminar dispare el modal
         if (
-        e.target.classList.contains('delete-meal-btn') || // Botón de eliminar comida
-        e.target.classList.contains('delete-btn') || // Botón de eliminar ingrediente
-        e.target.classList.contains('quick-amount-btn') || // Botones de sumar/restar gramos
-        e.target.closest('.quantity-input') // Input de cantidad
-    ) {
-        return;
-    }
-
-    state.currentMeal = meal; // Establecer la comida actual
-    showFoodModal(); // Abrir el modal para seleccionar alimentos
+            e.target.classList.contains('delete-meal-btn') ||
+            e.target.classList.contains('delete-btn') ||
+            e.target.classList.contains('quick-amount-btn') ||
+            e.target.closest('.quantity-input') ||
+            e.target.classList.contains('meal-drag-handle') ||
+            e.target.closest('.meal-drag-handle')
+        ) {
+            return;
+        }
+        state.currentMeal = meal;
+        showFoodModal();
     };
 
+        // Drag & drop solo desde el handle
+const handle = mealCard.querySelector('.meal-drag-handle');
+    handle.addEventListener('dragstart', (e) => {
+        e.stopPropagation();
+        mealCard.classList.add('dragging');
+        mealCard.draggable = true;
+        // Colapsar todas
+        document.querySelectorAll('.meal-card').forEach(card => card.classList.add('collapsed'));
+    });
+    handle.addEventListener('dragend', (e) => {
+        e.stopPropagation();
+        mealCard.classList.remove('dragging');
+        mealCard.draggable = false;
+        document.querySelectorAll('.meal-card').forEach(card => card.classList.remove('collapsed'));
+    });
+
+    // Permitir soltar sobre cualquier meal-card
+    mealCard.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+    mealCard.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const dragging = document.querySelector('.meal-card.dragging');
+        if (dragging && dragging !== mealCard) {
+            const container = document.getElementById('meals');
+            container.insertBefore(dragging, mealCard);
+            // Actualizar el orden en el estado
+            const newOrder = Array.from(container.querySelectorAll('.meal-card')).map(card => card.dataset.meal);
+            state.selectedFoods = newOrder.reduce((acc, meal) => {
+                acc[meal] = state.selectedFoods[meal];
+                return acc;
+            }, {});
+            saveState();
+            renderMeals();
+        }
+    });
+
+    return mealCard;
     // Eventos de arrastrar y soltar
     mealCard.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', meal);
@@ -3984,40 +4079,8 @@ const nextDiet = () => {
         return colors[category] || 'rgba(248, 249, 250, 0.3)';
     };
 
-    const enableMealReordering = () => {
-        const mealsContainer = document.getElementById('meals');
-    let draggingCard = null;
+    
 
-    mealsContainer.addEventListener('dragstart', (e) => {
-        draggingCard = e.target.closest('.meal-card');
-        draggingCard.classList.add('dragging');
-    });
-
-    mealsContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(mealsContainer, e.clientY);
-        if (afterElement == null) {
-            mealsContainer.appendChild(draggingCard);
-        } else {
-            mealsContainer.insertBefore(draggingCard, afterElement);
-        }
-    });
-
-    mealsContainer.addEventListener('dragend', () => {
-        draggingCard.classList.remove('dragging');
-        draggingCard = null;
-
-        // Actualizar el estado con el nuevo orden
-        const newOrder = Array.from(mealsContainer.querySelectorAll('.meal-card')).map(
-            (card) => card.dataset.meal
-        );
-        state.selectedFoods = newOrder.reduce((acc, meal) => {
-            acc[meal] = state.selectedFoods[meal];
-            return acc;
-        }, {});
-        saveState();
-    });
-};
 
 const getDragAfterElement = (container, y) => {
     const draggableElements = [...container.querySelectorAll('.meal-card:not(.dragging)')];
