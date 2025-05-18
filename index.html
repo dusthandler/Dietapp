@@ -4564,6 +4564,21 @@
                         document.getElementById('food-editor-carbs').value = f?.carbs || '';
                         document.getElementById('food-editor-fats').value = f?.fats || '';
                         document.getElementById('food-editor-price').value = f?.price || '';
+
+                        // Cargar intolerancias si el alimento existe
+                        const intolerancesContainer = document.getElementById('food-editor-intolerances');
+                        if (foodName && customFoods[foodName]) {
+                            const intolerances = customFoods[foodName].intolerances || [];
+                            intolerancesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                                checkbox.checked = intolerances.includes(checkbox.value);
+                            });
+                        } else {
+                            // Reiniciar en blanco si es nuevo
+                            intolerancesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                                checkbox.checked = false;
+                            });
+                        }
+
                         document.getElementById('foodEditorModal').style.display = 'flex';
                     },
                     closeFoodEditor: () => {
@@ -4579,7 +4594,9 @@
                             protein: Number(document.getElementById('food-editor-protein').value) || 0,
                             carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
-                            price: Number(document.getElementById('food-editor-price').value) || 0
+                            price: Number(document.getElementById('food-editor-price').value) || 0,
+                            intolerances: Array.from(document.querySelectorAll('#food-editor-intolerances input:checked'))
+                                .map(checkbox => checkbox.value)
                         };
                         // Si el nombre cambió y estaba en customFoods, bórralo
                         if (editingFoodName && editingFoodName !== name && customFoods[editingFoodName]) {
@@ -4793,6 +4810,19 @@
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                     <span style="font-size:1.2em;width:28px;text-align:center;">💵</span>
                     <input id="food-editor-price" type="number" placeholder="Precio €/100g" style="flex:1;">
+                </div>
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:0.98em;font-weight:500;">Intolerancias:</label>
+                    <div id="food-editor-intolerances" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                        <label><input type="checkbox" value="gluten"> Gluten</label>
+                        <label><input type="checkbox" value="lactosa"> Lactosa</label>
+                        <label><input type="checkbox" value="frutos secos"> Frutos secos</label>
+                        <label><input type="checkbox" value="huevo"> Huevo</label>
+                        <label><input type="checkbox" value="soja"> Soja</label>
+                        <label><input type="checkbox" value="marisco"> Marisco</label>
+                        <label><input type="checkbox" value="pescado"> Pescado</label>
+                        <!-- Añade más si lo deseas -->
+                    </div>
                 </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
                     <button class="btn" onclick="App.closeFoodEditor()">Cancelar</button>
