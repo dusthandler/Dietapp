@@ -1643,6 +1643,128 @@
         .meal-card.collapsed .meal-macros {
             display: none !important;
         }
+
+        /* Modal para crear/editar alimento personalizado */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            /* más alto que .food-modal */
+        }
+
+        .modal-content {
+            background: transparent;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: none;
+            box-shadow: none;
+            overflow: hidden !important;
+        }
+
+        .modal-column {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            overflow: auto;
+        }
+
+        /* Modal para crear/editar alimento personalizado */
+        #foodEditorModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #foodEditorModal .modal-content {
+            max-width: 400px;
+            flex-direction: column;
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #food-editor-title {
+            margin: 0 0 15px 0;
+            font-size: 1.5em;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        #foodEditorModal input,
+        #foodEditorModal select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1em;
+        }
+
+        #foodEditorModal button.btn {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #foodEditorModal button.btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        #foodEditorModal button.btn-primary:hover {
+            background: var(--primary);
+        }
+
+        #foodEditorModal button.btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        #foodEditorModal button.btn-danger:hover {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        #foodEditorModal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: var(--text);
+        }
+
+        #foodEditorModal .close-btn:hover {
+            color: var(--danger);
+        }
     </style>
 </head>
 
@@ -2622,6 +2744,13 @@
                     }
                 };
 
+                let customFoods = JSON.parse(localStorage.getItem('customFoods') || '{}');
+                let editingFoodName = null;
+
+                function getAllFoods() {
+                    return { ...foodDB, ...customFoods };
+                }
+
                 const categories = {
                     'Proteínas': '🥩',
                     'Lácteos': '🥛',
@@ -3037,7 +3166,7 @@
                 };
 
                 const createFoodItemHTML = (food, meal) => {
-                    const dbFood = foodDB[food.name];
+                    const dbFood = getAllFoods()[food.name];
                     if (!dbFood) {
                         return `
             <div class="food-item" style="background:#ffeaea;border:1.5px solid #e74c3c;">
@@ -3100,10 +3229,11 @@
 
                     input.addEventListener('input', function () {
                         const value = this.value.trim().toLowerCase();
-                        datalist.innerHTML = Object.keys(foodDB)
+                        const allFoods = getAllFoods();
+                        datalist.innerHTML = Object.keys(allFoods)
                             .filter(name => name.toLowerCase().includes(value))
                             .slice(0, 20)
-                            .map(name => `<option value="${name}">${foodDB[name].emoji} ${name}</option>`)
+                            .map(name => `<option value="${name}">${allFoods[name].emoji} ${name}</option>`)
                             .join('');
                     });
                 };
@@ -3146,38 +3276,43 @@
 
                 const createCategorySelectionHTML = () => {
                     return `
-        <div style="display:flex;align-items:center;gap:10px;position:relative;">
-            <h2 style="margin:0;">Selecciona una categoría</h2>
-            <span style="position:relative;flex:1;">
-                <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
-                <input 
-                    id="food-search-input"
-                    type="text"
-                    placeholder="Buscar alimento..."
-                    style="padding:6px 32px 6px 32px;border-radius:6px;border:1px solid #ccc;font-size:1em;width:100%;"
-                    oninput="App.handleFoodSearch(this.value)"
-                    autocomplete="off"
-                >
-                <button 
-                    id="food-search-clear"
-                    style="display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#e74c3c;"
-                    onclick="document.getElementById('food-search-input').value='';App.handleFoodSearch('');return false;"
-                    tabindex="-1"
-                    aria-label="Limpiar búsqueda"
-                >✖</button>
-            </span>
-        </div>
-        <div id="food-category-or-search">
-            <div class="category-grid">
-                ${Object.entries(categories).map(([name, emoji]) => `
-                    <div class="category-card" onclick="App.showFoods('${name}')"
-                        style="background: ${getCategoryColor(name)}">
-                        <div style="font-size: 2em">${emoji}</div>
-                        ${name}
-                    </div>
-                `).join('')}
+    <div style="display:flex;align-items:center;gap:10px;position:relative;">
+        <h2 style="margin:0;">Selecciona una categoría</h2>
+        <span style="position:relative;flex:1;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
+            <input 
+                id="food-search-input"
+                type="text"
+                placeholder="Buscar alimento..."
+                style="padding:6px 32px 6px 32px;border-radius:6px;border:1.5px solid #ccc;font-size:1em;width:100%;"
+                oninput="App.handleFoodSearch(this.value)"
+                autocomplete="off"
+            >
+            <button 
+                id="food-search-clear"
+                style="display:none;position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1em;color:#e74c3c;"
+                onclick="document.getElementById('food-search-input').value='';App.handleFoodSearch('');return false;"
+                tabindex="-1"
+                aria-label="Limpiar búsqueda"
+            >✖</button>
+        </span>
+    </div>
+    <button class="btn btn-success" style="margin:10px 0;width:100%;" onclick="App.openFoodEditor()">➕ Nuevo alimento</button>
+    <div id="food-category-or-search">
+        <div class="category-grid">
+            ${Object.entries(categories).map(([name, emoji]) => `
+                <div class="category-card" onclick="App.showFoods('${name}')"
+                    style="background: ${getCategoryColor(name)}">
+                    <div style="font-size: 2em">${emoji}</div>
+                    ${name}
+                </div>
+            `).join('')}
+            <div class="category-card" onclick="App.showFoods('Personalizados')" style="background:rgba(159,90,253,0.08)">
+                <div style="font-size:2em">📝</div>
+                Personalizados
             </div>
         </div>
+    </div>
     `;
                 };
 
@@ -3230,7 +3365,7 @@
                         // NO return aquí, sigue para mostrar/ocultar la cruz
                     } else {
                         // Filtra alimentos por nombre ignorando tildes
-                        const results = Object.entries(foodDB)
+                        const results = Object.entries(getAllFoods())
                             .filter(([name, data]) => removeDiacritics(name.toLowerCase()).includes(search))
                             .map(([name, data]) => ({ name, ...data }));
 
@@ -3371,7 +3506,7 @@
         ${filtered.map((r, i) => {
                         // Calcular macros totales de la receta
                         const totals = r.ingredients.reduce((acc, ing) => {
-                            const f = foodDB[ing.food];
+                            const f = getAllFoods()[ing.food];
                             if (!f) return acc;
                             acc.calories += (f.calories * ing.qty / 100);
                             acc.protein += (f.protein * ing.qty / 100);
@@ -3417,10 +3552,10 @@
         <div style="font-weight:600;color:#3498db;margin-bottom:6px;">Ingredientes:</div>
         <ul style="margin-bottom:0;padding-left:18px;">
             ${r.ingredients.map(ing => {
-                        if (!foodDB[ing.food]) {
+                        if (!getAllFoods()[ing.food]) {
                             return `<li style="margin-bottom:4px;color:#e74c3c;"><b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span> <span style="color:#e74c3c;">(No existe en la base de datos)</span></li>`;
                         }
-                        return `${foodDB[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span>`;
+                        return `${getAllFoods()[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span>`;
                     }).join('')}
         </ul>
     </div>
@@ -3451,7 +3586,7 @@
                     const r = state.recipes[idx];
                     let missingIngredients = [];
                     r.ingredients.forEach(ing => {
-                        if (!foodDB[ing.food]) {
+                        if (!getAllFoods()[ing.food]) {
                             missingIngredients.push(ing.food);
                             return; // No añadir si no existe
                         }
@@ -3463,7 +3598,7 @@
                             state.selectedFoods[meal].push({
                                 name: ing.food,
                                 quantity: ing.qty,
-                                ...foodDB[ing.food]
+                                ...getAllFoods()[ing.food]
                             });
                         }
                     });
@@ -3505,7 +3640,7 @@
                         ? '<div style="color:#888;">Sin ingredientes</div>'
                         : tempIngredients.map((ing, i) => `
             <div>
-                <span>${foodDB[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span></span>
+                <span>${getAllFoods()[ing.food]?.emoji || ''} <b>${ing.food}</b> <span style="color:#888;">- ${ing.qty}g</span></span>
                 <button class="btn btn-danger" onclick="App.removeIngredientFromRecipe(${i})">✖</button>
             </div>
         `).join('');
@@ -3513,7 +3648,7 @@
                 const addIngredientToRecipe = () => {
                     const food = document.getElementById('ingredient-food-search').value;
                     const qty = parseInt(document.getElementById('ingredient-qty-input').value);
-                    if (!foodDB[food] || !qty || qty <= 0) return;
+                    if (!getAllFoods()[food] || !qty || qty <= 0) return;
                     tempIngredients.push({ food, qty });
                     renderRecipeIngredientsList();
                     document.getElementById('ingredient-food-search').value = '';
@@ -3559,9 +3694,15 @@
                     state.currentCategoryInModal = category;
 
                     // Filtra los alimentos de la categoría
-                    const foodsInCategory = Object.entries(foodDB)
-                        .filter(([name, data]) => data.category === category)
-                        .map(([name, data]) => ({ name, ...data }));
+                    let foodsInCategory;
+                    if (category === 'Personalizados') {
+                        foodsInCategory = Object.entries(customFoods)
+                            .map(([name, data]) => ({ name, ...data }));
+                    } else {
+                        foodsInCategory = Object.entries(getAllFoods())
+                            .filter(([name, data]) => data.category === category)
+                            .map(([name, data]) => ({ name, ...data }));
+                    }
 
                     const selectedTotals = calculateTotals(state.selectedFoodsInModal);
 
@@ -3645,7 +3786,7 @@
                         state.selectedFoodsInModal.push({
                             name: foodName,
                             quantity: 100,
-                            ...foodDB[foodName],
+                            ...getAllFoods()[foodName],
                             isNew: true
                         });
                     }
@@ -3709,7 +3850,7 @@
                             state.selectedFoods[state.currentMeal].push({
                                 name: modalFood.name,
                                 quantity: modalFood.quantity,
-                                ...foodDB[modalFood.name]
+                                ...getAllFoods()[modalFood.name]
                             });
                         }
                     });
@@ -3794,7 +3935,7 @@
             <div class="shopping-list-item">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        ${foodDB[food].emoji} ${food}
+                        ${getAllFoods()[food]?.emoji || '❓'} ${food}
                     </div>
                     <div style="font-weight: bold;">${foodQuantities[food].toFixed(0)}g</div>
                 </div>
@@ -4176,6 +4317,7 @@
                     pdf.text(titleDiet, 15, y);
                     const titleDietWidth = pdf.getTextWidth(titleDiet);
                     pdf.setDrawColor(0, 0, 0);
+
                     pdf.setLineWidth(0.5);
                     pdf.line(15, y + 1.5, 15 + titleDietWidth, y + 1.5);
                     y += 9;
@@ -4341,7 +4483,50 @@
                     addIngredientToRecipe,
                     removeIngredientFromRecipe,
                     saveRecipe,
-                    deleteRecipe
+                    deleteRecipe,
+                    openFoodEditor: (foodName = null) => {
+                        editingFoodName = foodName;
+                        document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
+                        const f = foodName ? customFoods[foodName] : {};
+                        document.getElementById('food-editor-name').value = foodName || '';
+                        document.getElementById('food-editor-emoji').value = f?.emoji || '';
+                        document.getElementById('food-editor-category').value = f?.category || '';
+                        document.getElementById('food-editor-calories').value = f?.calories || '';
+                        document.getElementById('food-editor-protein').value = f?.protein || '';
+                        document.getElementById('food-editor-carbs').value = f?.carbs || '';
+                        document.getElementById('food-editor-fats').value = f?.fats || '';
+                        document.getElementById('food-editor-price').value = f?.price || '';
+                        document.getElementById('foodEditorModal').style.display = 'flex';
+                    },
+                    closeFoodEditor: () => {
+                        document.getElementById('foodEditorModal').style.display = 'none';
+                    },
+                    saveFoodEditor: () => {
+                        const name = document.getElementById('food-editor-name').value.trim();
+                        if (!name) return alert('Pon un nombre');
+                        const food = {
+                            emoji: document.getElementById('food-editor-emoji').value || '🍽️',
+                            category: document.getElementById('food-editor-category').value,
+                            calories: Number(document.getElementById('food-editor-calories').value) || 0,
+                            protein: Number(document.getElementById('food-editor-protein').value) || 0,
+                            carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
+                            fats: Number(document.getElementById('food-editor-fats').value) || 0,
+                            price: Number(document.getElementById('food-editor-price').value) || 0
+                        };
+                        if (editingFoodName && editingFoodName !== name) delete customFoods[editingFoodName];
+                        customFoods[name] = food;
+                        localStorage.setItem('customFoods', JSON.stringify(customFoods));
+                        App.closeFoodEditor();
+                        // Recargar alimentos en el modal
+                        App.showFoodModal();
+                    },
+                    deleteCustomFood: (foodName) => {
+                        if (confirm('¿Eliminar este alimento?')) {
+                            delete customFoods[foodName];
+                            localStorage.setItem('customFoods', JSON.stringify(customFoods));
+                            App.showFoodModal();
+                        }
+                    }
                 };
             })();
 
@@ -4353,38 +4538,34 @@
                 const leftCol = document.querySelector('.container > div:not(.totals-section):not(aside)');
                 const rightCol = document.querySelector('.totals-section');
 
-                if (leftCol && rightCol) {
-                    const syncScroll = (delta, targetCol) => {
-                        targetCol.scrollTop += delta;
-                    };
+                const syncScroll = (delta, targetCol) => {
+                    targetCol.scrollTop += delta;
+                };
 
-                    leftCol.addEventListener('wheel', e => {
-                        const delta = e.deltaY;
-                        if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight - 1) {
-                            syncScroll(delta, rightCol);
-                            e.preventDefault();
-                        } else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
-                            syncScroll(delta, rightCol);
-                            e.preventDefault();
-                        }
-                    }, { passive: false });
+                leftCol.addEventListener('wheel', e => {
+                    const delta = e.deltaY;
+                    if (delta > 0 && leftCol.scrollTop + leftCol.clientHeight >= leftCol.scrollHeight - 1) {
+                        syncScroll(delta, rightCol);
+                        e.preventDefault();
+                    } else if (delta < 0 && leftCol.scrollTop <= 0 && rightCol.scrollTop > 0) {
+                        syncScroll(delta, rightCol);
+                        e.preventDefault();
+                    }
+                }, { passive: false });
 
-                    rightCol.addEventListener('wheel', e => {
-                        const delta = e.deltaY;
-                        // Scroll hacia abajo al final de la derecha → mueve la izquierda
-                        if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight - 1) {
-                            syncScroll(delta, leftCol);
-                            e.preventDefault();
-                        }
-                        // Scroll hacia arriba al principio de la derecha → mueve la izquierda
-                        else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
-                            syncScroll(delta, leftCol);
-                            e.preventDefault();
-                        }
-                    }, { passive: false });
-                } else {
-                    console.error('No se encontraron los elementos necesarios para sincronizar el scroll.');
-                }
+                rightCol.addEventListener('wheel', e => {
+                    const delta = e.deltaY;
+                    // Scroll hacia abajo al final de la derecha → mueve la izquierda
+                    if (delta > 0 && rightCol.scrollTop + rightCol.clientHeight >= rightCol.scrollHeight - 1) {
+                        syncScroll(delta, leftCol);
+                        e.preventDefault();
+                    }
+                    // Scroll hacia arriba al principio de la derecha → mueve la izquierda
+                    else if (delta < 0 && rightCol.scrollTop <= 0 && leftCol.scrollTop > 0) {
+                        syncScroll(delta, leftCol);
+                        e.preventDefault();
+                    }
+                }, { passive: false });
 
                 document.getElementById('open-recipes-btn').onclick = App.openRecipesModal;
 
@@ -4406,11 +4587,52 @@
 
         </script>
 
-
-
-
-
-
+        <!-- Modal para crear/editar alimento personalizado -->
+        <div class="modal" id="foodEditorModal" style="display:none;">
+            <div class="modal-content" style="max-width:400px;flex-direction:column;">
+                <h2 id="food-editor-title">Nuevo alimento</h2>
+                <input id="food-editor-name" type="text" placeholder="Nombre" style="width:100%;margin-bottom:8px;">
+                <div style="margin-bottom:8px;position:relative;">
+                    <label>Emoji:</label>
+                    <button id="food-editor-emoji-btn" type="button" style="font-size:1.5em;width:100%;padding:8px;"
+                        onclick="App.openEmojiPicker()">🍽️</button>
+                    <div id="emoji-picker"
+                        style="display:none;position:absolute;z-index:3000;background:white;border:1px solid #ccc;padding:8px;border-radius:8px;max-width:320px;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                    </div>
+                </div>
+                <input id="food-editor-emoji" type="hidden">
+                <select id="food-editor-category" style="width:100%;margin-bottom:8px;">
+                    <option value="">Categoría</option>
+                    <option value="Proteínas">Proteínas</option>
+                    <option value="Lácteos">Lácteos</option>
+                    <option value="Cereales">Cereales</option>
+                    <option value="Tubérculos">Tubérculos</option>
+                    <option value="Verduras">Verduras</option>
+                    <option value="Frutas">Frutas</option>
+                    <option value="Legumbres">Legumbres</option>
+                    <option value="Grasas">Grasas</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Especias">Especias</option>
+                    <option value="Endulzantes">Endulzantes</option>
+                    <option value="Platos preparados">Platos preparados</option>
+                    <option value="Personalizados">Personalizados</option>
+                </select>
+                <input id="food-editor-calories" type="number" placeholder="Calorías (100g)"
+                    style="width:100%;margin-bottom:8px;">
+                <input id="food-editor-protein" type="number" placeholder="Proteína (g/100g)"
+                    style="width:100%;margin-bottom:8px;">
+                <input id="food-editor-carbs" type="number" placeholder="Carbohidratos (g/100g)"
+                    style="width:100%;margin-bottom:8px;">
+                <input id="food-editor-fats" type="number" placeholder="Grasas (g/100g)"
+                    style="width:100%;margin-bottom:8px;">
+                <input id="food-editor-price" type="number" placeholder="Precio €/100g"
+                    style="width:100%;margin-bottom:8px;">
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button class="btn" onclick="App.closeFoodEditor()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="App.saveFoodEditor()">Guardar</button>
+                </div>
+            </div>
+        </div>
 </body>
 
 </html>
