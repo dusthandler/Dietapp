@@ -1912,6 +1912,13 @@
             /* suficiente para todos los botones */
             padding: 16px 18px 18px 18px;
         }
+
+        .modal-intolerancias-menu {
+            margin-top: 10px;
+            /* Más espacio arriba */
+            margin-bottom: 1px;
+            /* Menos espacio abajo */
+        }
     </style>
 </head>
 
@@ -1954,7 +1961,7 @@
             <!-- Panel para que el usuario marque sus intolerancias -->
             <div class="intolerancias-menu">
                 <div class="intolerancias-header"
-                    onclick="document.querySelector('.intolerancias-menu').classList.toggle('open')">
+                    onclick="if (!event.target.closest('.intolerancia-btn')) this.parentElement.classList.toggle('open')">
                     Intolerancias <span style="font-size:1.2em;">⚠️</span>
                 </div>
                 <div class="intolerancias-content">
@@ -3557,8 +3564,9 @@
     <!-- Panel para que el usuario marque sus intolerancias -->
             <div class="intolerancias-menu modal-intolerancias-menu">
                 <div class="intolerancias-header"
-onclick="if(event.target === this) this.parentElement.classList.toggle('open')">
-    Intolerancias <span style="font-size:1.2em;">⚠️</span>                </div>
+                    onclick="if (!event.target.closest('.intolerancia-btn')) this.parentElement.classList.toggle('open')">
+                    Intolerancias <span style="font-size:1.2em;">⚠️</span>                
+                </div>
                 <div class="intolerancias-content">
                     <div class="intolerancias-btn-group">
                         <!-- Tus botones de intolerancia aquí -->
