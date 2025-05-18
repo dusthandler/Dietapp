@@ -4497,6 +4497,8 @@
                         document.getElementById('food-editor-fats').value = f?.fats || '';
                         document.getElementById('food-editor-price').value = f?.price || '';
                         document.getElementById('foodEditorModal').style.display = 'flex';
+                        document.getElementById('food-editor-emoji').value = f?.emoji || '🍽️';
+                        document.getElementById('food-editor-emoji-btn').textContent = f?.emoji || '🍽️';
                     },
                     closeFoodEditor: () => {
                         document.getElementById('foodEditorModal').style.display = 'none';
@@ -4526,7 +4528,24 @@
                             localStorage.setItem('customFoods', JSON.stringify(customFoods));
                             App.showFoodModal();
                         }
-                    }
+                    },
+                    openEmojiPicker: () => {
+                        const picker = document.getElementById('emoji-picker');
+                        const btn = document.getElementById('food-editor-emoji-btn');
+                        picker.style.display = picker.style.display === 'block' ? 'none' : 'block';
+                        if (!picker.innerHTML) {
+                            const emojis = ['🍗', '🥚', '🐟', '🦃', '🍖', '🧀', '🥛', '🌾', '🍚', '🍞', '🥦', '🥬', '🍅', '🥕', '🍠', '🍎', '🍌', '🥝', '🍓', '🥣', '🥑', '🫒', '🌰', '🌱', '💧', '🌿', '🍯', '🍲', '🍽️', '🍆', '🍅', '🍤', '🍔', '🍟', '🍕', '🥗', '🍳', '🥞', '🍘', '🍩', '🍤', '🍛', '🍜', '🍝', '🥪', '🥙', '🥚', '🥒', '🥔', '🥕', '🍠', '🍇', '🍉', '🍊', '🍋', '🍍', '🥭', '🍑', '🍒', '🍓', '🥥', '🥜', '🌰', '🥯', '🥨', '🥞', '🧇', '🥓', '🥩', '🍖', '🍗', '🍔', '🍟', '🍕', '🌭', '🥪', '🌮', '🌯', '🥙', '🧆', '🥚', '🍳', '🥘', '🍲', '🥣', '🥗', '🍿', '🧈', '🧂', '🥫', '🍱', '🍘', '🍙', '🍚', '🍛', '🍜', '🍝', '🍠', '🍢', '🍣', '🍤', '🍥', '🥮', '🍡', '🥟', '🥠', '🥡', '🦪', '🍦', '🍧', '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🥧', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', '🥛', '☕', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🍾', '🧊', '🥄', '🍴', '🍽️'];
+                            picker.innerHTML = emojis.map(e => `<button style="font-size:1.5em;padding:6px;border:none;background:none;cursor:pointer;" onclick="App.selectEmoji('${e}')">${e}</button>`).join('');
+                        }
+                        // Posiciona el picker debajo del botón
+                        picker.style.left = '0px';
+                        picker.style.top = (btn.offsetHeight + 4) + 'px';
+                    },
+                    selectEmoji: (emoji) => {
+                        document.getElementById('food-editor-emoji').value = emoji;
+                        document.getElementById('food-editor-emoji-btn').textContent = emoji;
+                        document.getElementById('emoji-picker').style.display = 'none';
+                    },
                 };
             })();
 
