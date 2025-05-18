@@ -400,20 +400,18 @@
         }
 
         .selection-column {
-            flex: 3;
+            flex: 4;
             border: 1px solid var(--secondary);
         }
 
         .selected-column {
-            flex: 2;
+            flex: 1.7;
             height: 90vh;
             display: flex;
             flex-direction: column;
             border: 2px solid var(--primary);
             position: relative;
-            /* Añadir esto */
             padding-bottom: 80px;
-            /* Espacio para el botón */
         }
 
         .category-grid {
@@ -451,12 +449,12 @@
 
         .food-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 8px;
         }
 
         .food-item-modal {
-            padding: 15px;
+            padding: 10px;
             border-radius: 10px;
             border: 2px solid transparent;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -3715,19 +3713,38 @@
             <h2>${category}</h2>
             <div class="food-grid">
                 ${foodsInCategory.map(food => `
-                    <div class="food-item-modal 
-                        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
-                        onclick="App.toggleFoodSelection('${food.name}', event)">
-                        <div style="font-size: 1.5em"><span class="food-emoji">${food.emoji}</span></div>
-                        <div><strong>${food.name}</strong></div>
-                        <div class="food-macros">
-                            <div>🔥 ${food.calories}kcal/100g</div>
-                            <div>💪 ${food.protein}g</div>
-                            <div>🍞 ${food.carbs}g</div>
-                            <div>🥑 ${food.fats}g</div>
-                        </div>
-                    </div>
-                `).join('')}
+    <div class="food-item-modal 
+        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+        onclick="App.toggleFoodSelection('${food.name}', event)"
+        style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:90px; padding:8px 4px;">
+        ${category === 'Personalizados' ? `
+            <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+                onclick="event.stopPropagation();App.openFoodEditor('${food.name}')">✏️</button>
+            <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+                onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
+        ` : ''}
+        <div style="font-size:1.5em;margin-bottom:2px;text-align:center;"><span class="food-emoji">${food.emoji}</span></div>
+        <div style="font-weight:500;margin-bottom:2px;text-align:center;font-size:0.95em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${food.name}</div>
+        <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;width:100%;margin-top:2px;">
+            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                <span style="font-size:1.05em;">🔥</span>
+                <span style="font-size:0.90em;color:#e17055;">${food.calories}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                <span style="font-size:1.05em;">💪</span>
+                <span style="font-size:0.90em;color:#0984e3;">${food.protein}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                <span style="font-size:1.05em;">🍞</span>
+                <span style="font-size:0.90em;color:#fdcb6e;">${food.carbs}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                <span style="font-size:1.05em;">🥑</span>
+                <span style="font-size:0.90em;color:#00b894;">${food.fats}</span>
+            </div>
+        </div>
+    </div>
+`).join('')}
             </div>
         </div>
         
@@ -4542,15 +4559,14 @@
                                 '🍗', '🥚', '🐟', '🦃', '🍖', '🧀', '🥛', '🌾', '🍚', '🍞', '🥦', '🥬', '🍅', '🥕', '🍠', '🍎', '🍌', '🥝', '🍓', '🥣', '🥑', '🫒', '🌰', '🌱', '💧', '🌿', '🍯', '🍲', '🍽️',
                                 '🍆', '🍤', '🍔', '🍟', '🍕', '🥗', '🍳', '🥞', '🍘', '🍩', '🍛', '🍜', '🍝', '🥪', '🥙', '🥒', '🥔', '🍇', '🍉', '🍊', '🍋', '🍍', '🥭', '🍑', '🍒', '🥥', '🥜', '🥯', '🥨'
                             ];
-                            picker.innerHTML = emojis.map(e =>
-                                `<button style="font-size:1.3em;padding:6px 8px;border:none;background:none;cursor:pointer;border-radius:6px;" onclick="App.selectEmoji('${e}')" tabindex="0">${e}</button>`
-                            ).join('');
+                            picker.innerHTML = `<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;">${emojis.map(e =>
+                                `<button style="font-size:1.3em;padding:6px 2px;border:none;background:none;cursor:pointer;border-radius:6px;" onclick="App.selectEmoji('${e}')" tabindex="0">${e}</button>`
+                            ).join('')
+                                }</div>`;
                         }
-                        // Mostrar y posicionar el picker
                         picker.style.display = 'block';
-                        // Ajusta el ancho si es necesario
-                        picker.style.minWidth = btn.offsetWidth + 'px';
-                        // Cierra el picker si se hace clic fuera
+                        picker.style.minWidth = '320px';
+                        picker.style.maxWidth = '420px';
                         setTimeout(() => {
                             document.addEventListener('mousedown', closeEmojiPickerOnClickOutside);
                         }, 0);
