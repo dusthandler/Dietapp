@@ -4566,18 +4566,10 @@
                         document.getElementById('food-editor-price').value = f?.price || '';
 
                         // Cargar intolerancias si el alimento existe
-                        const intolerancesContainer = document.getElementById('food-editor-intolerances');
-                        if (foodName && customFoods[foodName]) {
-                            const intolerances = customFoods[foodName].intolerances || [];
-                            intolerancesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                                checkbox.checked = intolerances.includes(checkbox.value);
-                            });
-                        } else {
-                            // Reiniciar en blanco si es nuevo
-                            intolerancesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                                checkbox.checked = false;
-                            });
-                        }
+                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-intolerances input[type="checkbox"]:checked')).map(cb => cb.value);
+                        document.querySelectorAll('#food-editor-intolerances input[type="checkbox"]').forEach(cb => {
+                            cb.checked = intolerancias.includes(cb.value);
+                        });
 
                         document.getElementById('foodEditorModal').style.display = 'flex';
                     },
@@ -4595,8 +4587,7 @@
                             carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0,
-                            intolerances: Array.from(document.querySelectorAll('#food-editor-intolerances input:checked'))
-                                .map(checkbox => checkbox.value)
+                            intolerancias // <--- nuevo campo
                         };
                         // Si el nombre cambió y estaba en customFoods, bórralo
                         if (editingFoodName && editingFoodName !== name && customFoods[editingFoodName]) {
@@ -4821,7 +4812,7 @@
                         <label><input type="checkbox" value="soja"> Soja</label>
                         <label><input type="checkbox" value="marisco"> Marisco</label>
                         <label><input type="checkbox" value="pescado"> Pescado</label>
-                        <!-- Añade más si lo deseas -->
+                        <!-- Añadir más si lo deseas -->
                     </div>
                 </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
