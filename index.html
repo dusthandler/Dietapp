@@ -1786,6 +1786,12 @@
             color: #43aee5 !important;
             transform: translateY(-2px) scale(1.04);
         }
+
+        .intolerant-food {
+            background: #ffeaea !important;
+            border-color: #e74c3c !important;
+            box-shadow: 0 0 0 2px #e74c3c33;
+        }
     </style>
 </head>
 
@@ -1825,6 +1831,24 @@
 
 
         <aside class="totals-section">
+            <!-- Panel para que el usuario marque sus intolerancias -->
+            <div id="user-Intolerancias-panel" style="margin-bottom:12px;">
+                <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                    <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()">
+                        Gluten</label>
+                    <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()">
+                        Lactosa</label>
+                    <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos
+                        secos</label>
+                    <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
+                    <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
+                    <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()">
+                        Marisco</label>
+                    <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()">
+                        Pescado</label>
+                </div>
+            </div>
 
             <!-- Botón de Recetas -->
             <button class="btn btn-primary recipe-main-btn" id="open-recipes-btn"
@@ -2062,7 +2086,8 @@
                         calories: 155,
                         protein: 13,
                         carbs: 1.1,
-                        fats: 11
+                        fats: 11,
+                        intolerancias: ['huevo']
                     },
                     'Claras': {
                         category: 'Proteínas',
@@ -2803,6 +2828,7 @@
                     userMacros: null,
                     lastAddedItems: [],
                     showMacroResults: false,
+                    userIntolerancias: JSON.parse(localStorage.getItem('userIntolerancias') || '[]'),
                     userData: {
                         age: '',
                         weight: '',
@@ -3322,6 +3348,19 @@
             >✖</button>
         </span>
     </div>
+    <!-- Panel para que el usuario marque sus intolerancias -->
+<div id="user-Intolerancias-panel" style="margin-bottom:12px;">
+    <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+        <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()"> Gluten</label>
+        <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()"> Lactosa</label>
+        <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos secos</label>
+        <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
+        <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
+        <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()"> Marisco</label>
+        <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()"> Pescado</label>
+    </div>
+</div>
     <button class="btn btn-success" style="margin:10px 0;width:100%;" onclick="App.openFoodEditor()">➕ Nuevo alimento</button>
     <div id="food-category-or-search">
         <div class="category-grid">
@@ -3739,9 +3778,11 @@
 </button>
             <h2>${category}</h2>
             <div class="food-grid">
-                ${foodsInCategory.map(food => `
+                ${foodsInCategory.map(food => {
+                        const isIntolerant = food.intolerancias && food.intolerancias.some(intol => state.userIntolerancias.includes(intol));
+                        return `
     <div class="food-item-modal 
-        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
+        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''} ${isIntolerant ? 'intolerant-food' : ''}" 
         onclick="App.toggleFoodSelection('${food.name}', event)"
         style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:space-between; min-height:130px; padding:8px 4px;">
         <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
@@ -3749,32 +3790,10 @@
         <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
             onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
         <div style="font-size:1.5em;margin-bottom:2px;text-align:center;"><span class="food-emoji">${food.emoji}</span></div>
-        <div style="
-            font-weight:500;
-            margin-bottom:2px;
-            text-align:center;
-            font-size:0.95em;
-            max-width:100%;
-            overflow:hidden;
-            display:-webkit-box;
-            -webkit-line-clamp:2;
-            -webkit-box-orient:vertical;
-            white-space:normal;
-            text-overflow:ellipsis;
-            min-height:2.6em;
-            line-height:1.3em;
-        ">
+        <div style="font-weight:500;margin-bottom:2px;text-align:center;font-size:0.95em;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;text-overflow:ellipsis;min-height:2.6em;line-height:1.3em;">
             ${food.name}
         </div>
-        <div style="
-            display:flex;
-            justify-content:center;
-            align-items:flex-end;
-            gap:4px;
-            width:100%;
-            margin-top:auto;
-            padding-top:4px;
-        ">
+        <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;width:100%;margin-top:auto;padding-top:4px;">
             <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
                 <span style="font-size:1.05em;">🔥</span>
                 <span style="font-size:0.90em;color:#e17055;">${food.calories}</span>
@@ -3793,7 +3812,8 @@
             </div>
         </div>
     </div>
-`).join('')}
+    `;
+                    }).join('')}
             </div>
         </div>
         
@@ -4550,6 +4570,12 @@
                     removeIngredientFromRecipe,
                     saveRecipe,
                     deleteRecipe,
+                    updateUserIntolerancias: () => {
+                        state.userIntolerancias = Array.from(document.querySelectorAll('#user-Intolerancias-panel input[type="checkbox"]:checked')).map(cb => cb.value);
+                        localStorage.setItem('userIntolerancias', JSON.stringify(state.userIntolerancias));
+                        // Refresca la lista de alimentos si está abierta
+                        if (state.currentCategoryInModal) App.showFoods(state.currentCategoryInModal);
+                    },
                     openFoodEditor: (foodName = null) => {
                         editingFoodName = foodName;
                         document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
@@ -4566,8 +4592,8 @@
                         document.getElementById('food-editor-price').value = f?.price || '';
 
                         // Cargar intolerancias si el alimento existe
-                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-intolerances input[type="checkbox"]:checked')).map(cb => cb.value);
-                        document.querySelectorAll('#food-editor-intolerances input[type="checkbox"]').forEach(cb => {
+                        const intolerancias = f?.intolerancias || [];
+                        document.querySelectorAll('#food-editor-Intolerancias input[type="checkbox"]').forEach(cb => {
                             cb.checked = intolerancias.includes(cb.value);
                         });
 
@@ -4579,6 +4605,8 @@
                     saveFoodEditor: () => {
                         const name = document.getElementById('food-editor-name').value.trim();
                         if (!name) return alert('Pon un nombre');
+                        // Recoge las intolerancias seleccionadas
+                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-Intolerancias input[type="checkbox"]:checked')).map(cb => cb.value);
                         const food = {
                             emoji: document.getElementById('food-editor-emoji').value || '🍽️',
                             category: document.getElementById('food-editor-category').value,
@@ -4587,7 +4615,7 @@
                             carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0,
-                            intolerancias // <--- nuevo campo
+                            intolerancias // <--- ahora sí existe la variable
                         };
                         // Si el nombre cambió y estaba en customFoods, bórralo
                         if (editingFoodName && editingFoodName !== name && customFoods[editingFoodName]) {
@@ -4598,7 +4626,9 @@
                         // Actualiza comidas con el nuevo alimento
                         App.updateFoodInMeals(editingFoodName, name, food);
                         App.closeFoodEditor();
-                        App.showFoodModal();
+                        if (state.currentCategoryInModal) {
+                            App.showFoods(state.currentCategoryInModal);
+                        }
                     },
                     deleteCustomFood: (foodName) => {
                         if (confirm('¿Eliminar este alimento?')) {
@@ -4804,7 +4834,7 @@
                 </div>
                 <div style="margin-bottom:8px;">
                     <label style="font-size:0.98em;font-weight:500;">Intolerancias:</label>
-                    <div id="food-editor-intolerances" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                    <div id="food-editor-Intolerancias" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
                         <label><input type="checkbox" value="gluten"> Gluten</label>
                         <label><input type="checkbox" value="lactosa"> Lactosa</label>
                         <label><input type="checkbox" value="frutos secos"> Frutos secos</label>
