@@ -1793,35 +1793,124 @@
             box-shadow: 0 0 0 2px #e74c3c33;
         }
 
+        .intolerancias-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
         .intolerancia-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             background: #f5fafd;
-            color: #3498db;
-            border: 1.5px solid #e3f0ff;
-            border-radius: 18px;
-            padding: 7px 18px;
-            font-size: 1em;
-            font-weight: 500;
+            border: 2.5px solid #e3f0ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
             cursor: pointer;
-            transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+            transition:
+                background 0.18s,
+                border-color 0.18s,
+                transform 0.15s,
+                box-shadow 0.18s;
+            padding: 0;
             outline: none;
             margin-bottom: 2px;
-            box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+            overflow: visible;
+        }
+
+        .intolerancia-btn .intolerancia-emoji {
+            font-size: 2em;
+            z-index: 2;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            pointer-events: none;
+        }
+
+        .intolerancia-curved-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intolerancia-curved-text text {
+            font-size: 1.4em;
+            fill: #3498db;
+            font-weight: 700;
+            letter-spacing: 1.5px;
         }
 
         .intolerancia-btn.selected,
         .intolerancia-btn.active {
             background: #ffeaea;
-            color: #e74c3c;
             border-color: #e74c3c;
-            transform: scale(1.07);
-            box-shadow: 0 2px 8px #e74c3c22;
+            box-shadow: 0 2px 12px #e74c3c22;
+            transform: scale(1.08);
+        }
+
+        .intolerancia-btn.selected .intolerancia-curved-text text,
+        .intolerancia-btn.active .intolerancia-curved-text text {
+            fill: #e74c3c;
         }
 
         .intolerancia-btn:hover:not(.selected):not(.active) {
             background: #e3f0ff;
-            color: #43aee5;
             border-color: #43aee5;
             transform: scale(1.04);
+        }
+
+        .intolerancias-menu {
+            margin-bottom: 12px;
+            background: #e3f0ff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .intolerancias-header {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 12px 18px;
+            color: #185a9d;
+            background: #e3f0ff;
+            user-select: none;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .intolerancias-header:hover {
+            background: #d2e6fa;
+        }
+
+        .intolerancias-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(.4, 0, .2, 1), padding 0.3s;
+            padding: 0 18px;
+            background: #fafdff;
+        }
+
+        .intolerancias-menu.open .intolerancias-content {
+            max-height: 400px;
+            /* suficiente para todos los botones */
+            padding: 16px 18px 18px 18px;
         }
     </style>
 </head>
@@ -1863,16 +1952,103 @@
 
         <aside class="totals-section">
             <!-- Panel para que el usuario marque sus intolerancias -->
-            <div id="user-Intolerancias-panel" class="intolerancias-btn-group" style="margin-bottom:12px;">
-                <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                    <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
-                    <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
-                    <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
-                    <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
-                    <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
-                    <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
-                    <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
+            <div class="intolerancias-menu">
+                <div class="intolerancias-header"
+                    onclick="document.querySelector('.intolerancias-menu').classList.toggle('open')">
+                    Intolerancias <span style="font-size:1.2em;">⚠️</span>
+                </div>
+                <div class="intolerancias-content">
+                    <div class="intolerancias-btn-group">
+                        <!-- Tus botones de intolerancia aquí -->
+                        <button type="button" class="intolerancia-btn" data-value="gluten">
+                            <span class="intolerancia-emoji">🌾</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-gluten" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-gluten" startOffset="50%" text-anchor="middle">Gluten
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="lactosa">
+                            <span class="intolerancia-emoji">🥛</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-lactosa" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-lactosa" startOffset="50%" text-anchor="middle">
+                                        Lactosa
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="frutos secos">
+                            <span class="intolerancia-emoji">🌰</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-frutossecos" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-frutossecos" startOffset="50%" text-anchor="middle">
+                                        Frutos
+                                        secos</textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="huevo">
+                            <span class="intolerancia-emoji">🥚</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-huevo" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-huevo" startOffset="50%" text-anchor="middle">Huevo
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="soja">
+                            <span class="intolerancia-emoji">🌱</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-soja" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-soja" startOffset="50%" text-anchor="middle">Soja
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="marisco">
+                            <span class="intolerancia-emoji">🦐</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-marisco" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-marisco" startOffset="50%" text-anchor="middle">
+                                        Marisco
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="pescado">
+                            <span class="intolerancia-emoji">🐟</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-pescado" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-pescado" startOffset="50%" text-anchor="middle">
+                                        Pescado
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1895,7 +2071,8 @@
                             oninput="App.renderRecipesList()">
                     </div>
                     <div id="recipes-list"></div>
-                    <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕ Crear
+                    <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕
+                        Crear
                         receta</button>
                 </div>
             </div>
@@ -1906,7 +2083,8 @@
                         style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 18px;">
                         <button class="btn" onclick="App.closeRecipeEditor()"
                             style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">✖</button>
-                        <h2 id="recipe-editor-title" style="margin: 0 auto; text-align: center; width: 100%;">Crear
+                        <h2 id="recipe-editor-title" style="margin: 0 auto; text-align: center; width: 100%;">
+                            Crear
                             Receta</h2>
                     </div>
                     <div style="margin-bottom:10px;">
@@ -2083,6 +2261,7 @@
 
 
         <script>
+
             const App = (() => {
                 // Base de datos de alimentos
                 const foodDB = {
@@ -3355,7 +3534,7 @@
                 const createCategorySelectionHTML = () => {
                     return `
     <div style="display:flex;align-items:center;gap:10px;position:relative;">
-        <h2 style="margin:0;">Selecciona una categoría</h2>
+        <h2 style="margin:0;">Categorías</h2>
         <span style="position:relative;flex:1;">
             <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:1.1em;">🔍</span>
             <input 
@@ -3376,18 +3555,104 @@
         </span>
     </div>
     <!-- Panel para que el usuario marque sus intolerancias -->
-    <div id="user-Intolerancias-panel" class="intolerancias-btn-group" style="margin-bottom:12px;">
-        <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-            <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
-            <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
-            <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
-            <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
-            <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
-            <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
-            <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
-        </div>
-    </div>
+            <div class="intolerancias-menu modal-intolerancias-menu">
+                <div class="intolerancias-header"
+onclick="if(event.target === this) this.parentElement.classList.toggle('open')">
+    Intolerancias <span style="font-size:1.2em;">⚠️</span>                </div>
+                <div class="intolerancias-content">
+                    <div class="intolerancias-btn-group">
+                        <!-- Tus botones de intolerancia aquí -->
+                        <button type="button" class="intolerancia-btn" data-value="gluten">
+                            <span class="intolerancia-emoji">🌾</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-gluten" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-gluten" startOffset="50%" text-anchor="middle">Gluten
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="lactosa">
+                            <span class="intolerancia-emoji">🥛</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-lactosa" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-lactosa" startOffset="50%" text-anchor="middle">
+                                        Lactosa
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="frutos secos">
+                            <span class="intolerancia-emoji">🌰</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-frutossecos" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-frutossecos" startOffset="50%" text-anchor="middle">
+                                        Frutos
+                                        secos</textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="huevo">
+                            <span class="intolerancia-emoji">🥚</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-huevo" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-huevo" startOffset="50%" text-anchor="middle">Huevo
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="soja">
+                            <span class="intolerancia-emoji">🌱</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-soja" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-soja" startOffset="50%" text-anchor="middle">Soja
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="marisco">
+                            <span class="intolerancia-emoji">🦐</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-marisco" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-marisco" startOffset="50%" text-anchor="middle">
+                                        Marisco
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                        <button type="button" class="intolerancia-btn" data-value="pescado">
+                            <span class="intolerancia-emoji">🐟</span>
+                            <svg viewBox="0 0 100 100" class="intolerancia-curved-text">
+                                <defs>
+                                    <path id="circle-pescado" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                                </defs>
+                                <text>
+                                    <textPath xlink:href="#circle-pescado" startOffset="50%" text-anchor="middle">
+                                        Pescado
+                                    </textPath>
+                                </text>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
     <button class="btn btn-success" style="margin:10px 0;width:100%;" onclick="App.openFoodEditor()">➕ Nuevo alimento</button>
     <div id="food-category-or-search">
         <div class="category-grid">
