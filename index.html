@@ -456,7 +456,7 @@
         .food-item-modal {
             padding: 10px;
             border-radius: 10px;
-            border: 2px solid transparent;
+            border: 1.5px solid rgba(44, 62, 80, 0.10);
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 border-color 0.3s ease !important;
             cursor: pointer;
@@ -471,7 +471,7 @@
             transform: translateY(-5px) rotate(-3deg) scale(1.1);
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             will-change: transform;
-            background: rgba(0, 0, 0, 0.05);
+            background: rgb(238, 238, 238);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             z-index: 100;
         }
@@ -1763,6 +1763,29 @@
         #foodEditorModal .close-btn:hover {
             color: var(--danger);
         }
+
+        .food-item-modal .btn.btn-primary,
+        .food-item-modal .btn.btn-danger {
+            background: none !important;
+            color: #3498db !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 2px 2px !important;
+            border-radius: 25% !important;
+            font-size: 1em !important;
+            transition: background 0.18s, color 0.18s, transform 0.15s;
+        }
+
+        .food-item-modal .btn.btn-danger {
+            color: #e74c3c !important;
+        }
+
+        .food-item-modal .btn.btn-primary:hover,
+        .food-item-modal .btn.btn-danger:hover {
+            background: #e3f0ff !important;
+            color: #43aee5 !important;
+            transform: translateY(-2px) scale(1.04);
+        }
     </style>
 </head>
 
@@ -2341,6 +2364,7 @@
                         price: 0.30,
                         calories: 265,
                         protein: 9,
+
                         carbs: 48,
                         fats: 3.2
                     },
@@ -2371,7 +2395,7 @@
                         carbs: 25,
                         fats: 3
                     },
-                    'Tortas de arroz': {
+                    'tortas de arroz': {
                         category: 'Cereales',
                         emoji: '🍘',
                         price: 0.20,
@@ -2746,7 +2770,10 @@
                 let editingFoodName = null;
 
                 function getAllFoods() {
-                    return { ...foodDB, ...customFoods };
+                    const deletedFoods = JSON.parse(localStorage.getItem('deletedFoods') || '[]');
+                    const all = { ...foodDB, ...customFoods };
+                    deletedFoods.forEach(name => { delete all[name]; });
+                    return all;
                 }
 
                 const categories = {
@@ -3514,9 +3541,9 @@
                         }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
                         return `
             <div class="category-card" style="position:relative; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; min-height:180px;" onclick="App.openRecipeDetail(${i})">
-                <button class="btn btn-primary" style="position:absolute;top:8px;left:8px;padding:2px 8px;font-size:1em;z-index:2;"
+                <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
                     onclick="event.stopPropagation();App.openRecipeEditor(${i})">✏️</button>
-                <button class="btn btn-danger" style="position:absolute;top:8px;right:8px;padding:2px 8px;font-size:1em;z-index:2;"
+                <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
                     onclick="event.stopPropagation();App.deleteRecipe(${i})">🗑️</button>
                 <div style="font-size:2em;margin-bottom:4px;">🍽️</div>
                 <div style="font-weight:600;margin-bottom:6px;">${r.name}</div>
@@ -3716,16 +3743,38 @@
     <div class="food-item-modal 
         ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
         onclick="App.toggleFoodSelection('${food.name}', event)"
-        style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:90px; padding:8px 4px;">
-        ${category === 'Personalizados' ? `
-            <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
-                onclick="event.stopPropagation();App.openFoodEditor('${food.name}')">✏️</button>
-            <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
-                onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
-        ` : ''}
+        style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:space-between; min-height:130px; padding:8px 4px;">
+        <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+            onclick="event.stopPropagation();App.openFoodEditor('${food.name}')">✏️</button>
+        <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+            onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
         <div style="font-size:1.5em;margin-bottom:2px;text-align:center;"><span class="food-emoji">${food.emoji}</span></div>
-        <div style="font-weight:500;margin-bottom:2px;text-align:center;font-size:0.95em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${food.name}</div>
-        <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;width:100%;margin-top:2px;">
+        <div style="
+            font-weight:500;
+            margin-bottom:2px;
+            text-align:center;
+            font-size:0.95em;
+            max-width:100%;
+            overflow:hidden;
+            display:-webkit-box;
+            -webkit-line-clamp:2;
+            -webkit-box-orient:vertical;
+            white-space:normal;
+            text-overflow:ellipsis;
+            min-height:2.6em;
+            line-height:1.3em;
+        ">
+            ${food.name}
+        </div>
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:flex-end;
+            gap:4px;
+            width:100%;
+            margin-top:auto;
+            padding-top:4px;
+        ">
             <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
                 <span style="font-size:1.05em;">🔥</span>
                 <span style="font-size:0.90em;color:#e17055;">${food.calories}</span>
@@ -4205,6 +4254,7 @@
 
                     if (goal === "Pérdida de peso") {
                         protein = weight * 2.0; // Proteínas en gramos
+
                         fats = (tdee * 0.25) / 9; // Grasas en gramos
                         carbs = (tdee - (protein * 4) - (fats * 9)) / 4; // Carbohidratos en gramos
                     } else if (goal === "Mantenimiento") {
@@ -4334,7 +4384,6 @@
                     pdf.text(titleDiet, 15, y);
                     const titleDietWidth = pdf.getTextWidth(titleDiet);
                     pdf.setDrawColor(0, 0, 0);
-
                     pdf.setLineWidth(0.5);
                     pdf.line(15, y + 1.5, 15 + titleDietWidth, y + 1.5);
                     y += 9;
@@ -4531,17 +4580,27 @@
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0
                         };
+                        // Siempre guarda en customFoods (sobrescribe si ya existe en foodDB)
                         if (editingFoodName && editingFoodName !== name) delete customFoods[editingFoodName];
                         customFoods[name] = food;
                         localStorage.setItem('customFoods', JSON.stringify(customFoods));
                         App.closeFoodEditor();
-                        // Recargar alimentos en el modal
                         App.showFoodModal();
                     },
                     deleteCustomFood: (foodName) => {
                         if (confirm('¿Eliminar este alimento?')) {
-                            delete customFoods[foodName];
-                            localStorage.setItem('customFoods', JSON.stringify(customFoods));
+                            // Si existe en customFoods, bórralo
+                            if (customFoods[foodName]) {
+                                delete customFoods[foodName];
+                                localStorage.setItem('customFoods', JSON.stringify(customFoods));
+                            } else {
+                                // Si es de base, crea una marca en localStorage para ocultarlo
+                                let deletedFoods = JSON.parse(localStorage.getItem('deletedFoods') || '[]');
+                                if (!deletedFoods.includes(foodName)) {
+                                    deletedFoods.push(foodName);
+                                    localStorage.setItem('deletedFoods', JSON.stringify(deletedFoods));
+                                }
+                            }
                             App.showFoodModal();
                         }
                     },
@@ -4635,6 +4694,14 @@
                                 if (id === 'recipeDetailModal') App.closeRecipeDetail();
                             }
                         });
+                    }
+                });
+
+                document.addEventListener('mousedown', function (e) {
+                    const modal = document.getElementById('foodEditorModal');
+                    if (!modal || modal.style.display === 'none') return;
+                    if (e.target === modal) {
+                        App.closeFoodEditor();
                     }
                 });
             });
