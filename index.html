@@ -1792,6 +1792,37 @@
             border-color: #e74c3c !important;
             box-shadow: 0 0 0 2px #e74c3c33;
         }
+
+        .intolerancia-btn {
+            background: #f5fafd;
+            color: #3498db;
+            border: 1.5px solid #e3f0ff;
+            border-radius: 18px;
+            padding: 7px 18px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+            outline: none;
+            margin-bottom: 2px;
+            box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+        }
+
+        .intolerancia-btn.selected,
+        .intolerancia-btn.active {
+            background: #ffeaea;
+            color: #e74c3c;
+            border-color: #e74c3c;
+            transform: scale(1.07);
+            box-shadow: 0 2px 8px #e74c3c22;
+        }
+
+        .intolerancia-btn:hover:not(.selected):not(.active) {
+            background: #e3f0ff;
+            color: #43aee5;
+            border-color: #43aee5;
+            transform: scale(1.04);
+        }
     </style>
 </head>
 
@@ -1832,21 +1863,16 @@
 
         <aside class="totals-section">
             <!-- Panel para que el usuario marque sus intolerancias -->
-            <div id="user-Intolerancias-panel" style="margin-bottom:12px;">
+            <div id="user-Intolerancias-panel" class="intolerancias-btn-group" style="margin-bottom:12px;">
                 <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                    <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()">
-                        Gluten</label>
-                    <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()">
-                        Lactosa</label>
-                    <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos
-                        secos</label>
-                    <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
-                    <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
-                    <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()">
-                        Marisco</label>
-                    <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()">
-                        Pescado</label>
+                    <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
+                    <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
+                    <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
+                    <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
+                    <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
+                    <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
+                    <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
                 </div>
             </div>
 
@@ -2817,7 +2843,7 @@
                 };
 
                 // Application state
-                let state = {
+                window.state = {
                     currentMeal: null,
                     selectedFoods: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] },
                     savedDiets: {},
@@ -2853,6 +2879,7 @@
                     loadUserData();
                     updatePeriodLabel();
                     highlightActiveTab();
+                    setupUserIntoleranciasBtns();
                 };
 
                 // Modal click outside handler
@@ -3320,7 +3347,7 @@
 
                     // Renderiza categorías en la columna de selección
                     document.getElementById('modal-selection-column').innerHTML = createCategorySelectionHTML();
-
+                    setupUserIntoleranciasBtns();
                     renderSelectedColumn();
                     modal.style.display = 'flex';
                 };
@@ -3349,18 +3376,18 @@
         </span>
     </div>
     <!-- Panel para que el usuario marque sus intolerancias -->
-<div id="user-Intolerancias-panel" style="margin-bottom:12px;">
-    <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-        <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()"> Gluten</label>
-        <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()"> Lactosa</label>
-        <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos secos</label>
-        <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
-        <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
-        <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()"> Marisco</label>
-        <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()"> Pescado</label>
+    <div id="user-Intolerancias-panel" class="intolerancias-btn-group" style="margin-bottom:12px;">
+        <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+            <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
+            <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
+            <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
+            <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
+            <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
+            <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
+            <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
+        </div>
     </div>
-</div>
     <button class="btn btn-success" style="margin:10px 0;width:100%;" onclick="App.openFoodEditor()">➕ Nuevo alimento</button>
     <div id="food-category-or-search">
         <div class="category-grid">
@@ -3447,8 +3474,9 @@
                 <div class="food-grid">
                     ${results.map(food => `
                         <div class="food-item-modal 
-                            ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}" 
-                            onclick="App.toggleFoodSelection('${food.name}', event)">
+    ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''}
+    ${(food.intolerancias && food.intolerancias.some(intol => state.userIntolerancias.includes(intol))) ? 'intolerant-food' : ''}" 
+    onclick="App.toggleFoodSelection('${food.name}', event)">
                             <div style="font-size: 1.5em"><span class="food-emoji">${food.emoji}</span></div>
                             <div><strong>${food.name}</strong></div>
                             <div class="food-macros">
@@ -3781,38 +3809,38 @@
                 ${foodsInCategory.map(food => {
                         const isIntolerant = food.intolerancias && food.intolerancias.some(intol => state.userIntolerancias.includes(intol));
                         return `
-    <div class="food-item-modal 
-        ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''} ${isIntolerant ? 'intolerant-food' : ''}" 
-        onclick="App.toggleFoodSelection('${food.name}', event)"
-        style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:space-between; min-height:130px; padding:8px 4px;">
-        <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
-            onclick="event.stopPropagation();App.openFoodEditor('${food.name}')">✏️</button>
-        <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
-            onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
-        <div style="font-size:1.5em;margin-bottom:2px;text-align:center;"><span class="food-emoji">${food.emoji}</span></div>
-        <div style="font-weight:500;margin-bottom:2px;text-align:center;font-size:0.95em;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;text-overflow:ellipsis;min-height:2.6em;line-height:1.3em;">
-            ${food.name}
-        </div>
-        <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;width:100%;margin-top:auto;padding-top:4px;">
-            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
-                <span style="font-size:1.05em;">🔥</span>
-                <span style="font-size:0.90em;color:#e17055;">${food.calories}</span>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
-                <span style="font-size:1.05em;">💪</span>
-                <span style="font-size:0.90em;color:#0984e3;">${food.protein}</span>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
-                <span style="font-size:1.05em;">🍞</span>
-                <span style="font-size:0.90em;color:#fdcb6e;">${food.carbs}</span>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
-                <span style="font-size:1.05em;">🥑</span>
-                <span style="font-size:0.90em;color:#00b894;">${food.fats}</span>
-            </div>
-        </div>
-    </div>
-    `;
+                <div class="food-item-modal 
+                    ${state.selectedFoodsInModal.some(f => f.name === food.name) ? 'selected' : ''} ${isIntolerant ? 'intolerant-food' : ''}" 
+                    onclick="App.toggleFoodSelection('${food.name}', event)"
+                    style="position:relative; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:space-between; min-height:130px; padding:8px 4px;">
+                    <button class="btn btn-primary" style="position:absolute;top:6px;left:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+                        onclick="event.stopPropagation();App.openFoodEditor('${food.name}')">✏️</button>
+                    <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
+                        onclick="event.stopPropagation();App.deleteCustomFood('${food.name}')">🗑️</button>
+                    <div style="font-size:1.5em;margin-bottom:2px;text-align:center;"><span class="food-emoji">${food.emoji}</span></div>
+                    <div style="font-weight:500;margin-bottom:2px;text-align:center;font-size:0.95em;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;text-overflow:ellipsis;min-height:2.6em;line-height:1.3em;">
+                        ${food.name}
+                    </div>
+                    <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;width:100%;margin-top:auto;padding-top:4px;">
+                        <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                            <span style="font-size:1.05em;">🔥</span>
+                            <span style="font-size:0.90em;color:#e17055;">${food.calories}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                            <span style="font-size:1.05em;">💪</span>
+                            <span style="font-size:0.90em;color:#0984e3;">${food.protein}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                            <span style="font-size:1.05em;">🍞</span>
+                            <span style="font-size:0.90em;color:#fdcb6e;">${food.carbs}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;min-width:24px;">
+                            <span style="font-size:1.05em;">🥑</span>
+                            <span style="font-size:0.90em;color:#00b894;">${food.fats}</span>
+                        </div>
+                    </div>
+                </div>
+                `;
                     }).join('')}
             </div>
         </div>
@@ -4570,12 +4598,7 @@
                     removeIngredientFromRecipe,
                     saveRecipe,
                     deleteRecipe,
-                    updateUserIntolerancias: () => {
-                        state.userIntolerancias = Array.from(document.querySelectorAll('#user-Intolerancias-panel input[type="checkbox"]:checked')).map(cb => cb.value);
-                        localStorage.setItem('userIntolerancias', JSON.stringify(state.userIntolerancias));
-                        // Refresca la lista de alimentos si está abierta
-                        if (state.currentCategoryInModal) App.showFoods(state.currentCategoryInModal);
-                    },
+                    updateUserIntolerancias: setupUserIntoleranciasBtns,
                     openFoodEditor: (foodName = null) => {
                         editingFoodName = foodName;
                         document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
@@ -4714,6 +4737,50 @@
                     },
                 };
             })();
+            function syncUserIntoleranciasBtns() {
+                // Obtiene el array actual de intolerancias del usuario
+                const intolerancias = (window.state?.userIntolerancias) || JSON.parse(localStorage.getItem('userIntolerancias') || '[]');
+                // Marca/desmarca todos los botones en todos los paneles
+                document.querySelectorAll('.intolerancia-btn[data-value]').forEach(btn => {
+                    if (intolerancias.includes(btn.dataset.value)) {
+                        btn.classList.add('selected', 'active');
+                    } else {
+                        btn.classList.remove('selected', 'active');
+                    }
+                });
+            }
+
+            function setupUserIntoleranciasBtns() {
+                document.querySelectorAll('.intolerancia-btn[data-value]').forEach(btn => {
+                    btn.onclick = () => {
+                        // Alterna el estado en el array global
+                        let intolerancias = (window.state?.userIntolerancias) || JSON.parse(localStorage.getItem('userIntolerancias') || '[]');
+                        const value = btn.dataset.value;
+                        if (intolerancias.includes(value)) {
+                            intolerancias = intolerancias.filter(i => i !== value);
+                        } else {
+                            intolerancias.push(value);
+                        }
+                        // Actualiza el estado global y localStorage
+                        if (window.state) state.userIntolerancias = intolerancias;
+                        localStorage.setItem('userIntolerancias', JSON.stringify(intolerancias));
+                        // Sincroniza todos los botones en todos los paneles
+                        syncUserIntoleranciasBtns();
+
+                        // --- NUEVO: recarga el modal completo si está abierto ---
+                        const modal = document.getElementById('foodModal');
+                        if (modal && modal.style.display === 'flex') {
+                            if (state.currentCategoryInModal) {
+                                App.showFoods(state.currentCategoryInModal);
+                            } else {
+                                App.showFoodModal();
+                            }
+                        }
+                    };
+                });
+                // Sincroniza visualmente al iniciar
+                syncUserIntoleranciasBtns();
+            }
 
             // Initialize the app when DOM is loaded
             document.addEventListener('DOMContentLoaded', () => {
