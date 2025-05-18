@@ -1792,6 +1792,69 @@
             border-color: #e74c3c !important;
             box-shadow: 0 0 0 2px #e74c3c33;
         }
+
+        .intolerancias-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .intolerancia-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .intolerancia-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .intolerancia-btn:active {
+            transform: translateY(0);
+        }
+
+        .intolerancia-btn {
+            background: #f5fafd;
+            color: #3498db;
+            border: 1.5px solid #e3f0ff;
+            border-radius: 18px;
+            padding: 7px 18px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition:
+                background 0.18s,
+                color 0.18s,
+                border-color 0.18s,
+                transform 0.15s,
+                box-shadow 0.18s;
+            outline: none;
+            margin-bottom: 2px;
+            box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+        }
+
+        .intolerancia-btn.selected,
+        .intolerancia-btn.active {
+            background: #ffeaea;
+            color: #e74c3c;
+            border-color: #e74c3c;
+            transform: scale(1.07);
+            box-shadow: 0 2px 8px #e74c3c22;
+        }
+
+        .intolerancia-btn:hover:not(.selected):not(.active) {
+            background: #e3f0ff;
+            color: #43aee5;
+            border-color: #43aee5;
+            transform: scale(1.04);
+        }
     </style>
 </head>
 
@@ -1834,19 +1897,14 @@
             <!-- Panel para que el usuario marque sus intolerancias -->
             <div id="user-Intolerancias-panel" style="margin-bottom:12px;">
                 <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                    <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()">
-                        Gluten</label>
-                    <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()">
-                        Lactosa</label>
-                    <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos
-                        secos</label>
-                    <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
-                    <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
-                    <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()">
-                        Marisco</label>
-                    <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()">
-                        Pescado</label>
+                <div class="intolerancias-btn-group" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                    <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
+                    <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
+                    <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
+                    <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
+                    <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
+                    <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
+                    <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
                 </div>
             </div>
 
@@ -3351,14 +3409,14 @@
     <!-- Panel para que el usuario marque sus intolerancias -->
 <div id="user-Intolerancias-panel" style="margin-bottom:12px;">
     <label style="font-size:1em;font-weight:500;">Tus intolerancias:</label>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-        <label><input type="checkbox" value="gluten" onchange="App.updateUserIntolerancias()"> Gluten</label>
-        <label><input type="checkbox" value="lactosa" onchange="App.updateUserIntolerancias()"> Lactosa</label>
-        <label><input type="checkbox" value="frutos secos" onchange="App.updateUserIntolerancias()"> Frutos secos</label>
-        <label><input type="checkbox" value="huevo" onchange="App.updateUserIntolerancias()"> Huevo</label>
-        <label><input type="checkbox" value="soja" onchange="App.updateUserIntolerancias()"> Soja</label>
-        <label><input type="checkbox" value="marisco" onchange="App.updateUserIntolerancias()"> Marisco</label>
-        <label><input type="checkbox" value="pescado" onchange="App.updateUserIntolerancias()"> Pescado</label>
+    <div class="intolerancias-btn-group" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+        <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
+        <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
+        <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
+        <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
+        <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
+        <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
+        <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
     </div>
 </div>
     <button class="btn btn-success" style="margin:10px 0;width:100%;" onclick="App.openFoodEditor()">➕ Nuevo alimento</button>
@@ -4597,6 +4655,16 @@
                             cb.checked = intolerancias.includes(cb.value);
                         });
 
+                        const intoleranciaBtns = document.querySelectorAll('#food-editor-Intolerancias .intolerancia-btn');
+                        intoleranciaBtns.forEach(btn => {
+                            btn.classList.remove('selected', 'active');
+                            if (intolerancias.includes(btn.dataset.value)) btn.classList.add('selected', 'active');
+                            btn.onclick = () => {
+                                btn.classList.toggle('selected');
+                                btn.classList.toggle('active');
+                            };
+                        });
+
                         document.getElementById('foodEditorModal').style.display = 'flex';
                     },
                     closeFoodEditor: () => {
@@ -4606,7 +4674,8 @@
                         const name = document.getElementById('food-editor-name').value.trim();
                         if (!name) return alert('Pon un nombre');
                         // Recoge las intolerancias seleccionadas
-                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-Intolerancias input[type="checkbox"]:checked')).map(cb => cb.value);
+                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-Intolerancias .intolerancia-btn.selected'))
+                            .map(btn => btn.dataset.value);
                         const food = {
                             emoji: document.getElementById('food-editor-emoji').value || '🍽️',
                             category: document.getElementById('food-editor-category').value,
@@ -4834,15 +4903,15 @@
                 </div>
                 <div style="margin-bottom:8px;">
                     <label style="font-size:0.98em;font-weight:500;">Intolerancias:</label>
-                    <div id="food-editor-Intolerancias" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                        <label><input type="checkbox" value="gluten"> Gluten</label>
-                        <label><input type="checkbox" value="lactosa"> Lactosa</label>
-                        <label><input type="checkbox" value="frutos secos"> Frutos secos</label>
-                        <label><input type="checkbox" value="huevo"> Huevo</label>
-                        <label><input type="checkbox" value="soja"> Soja</label>
-                        <label><input type="checkbox" value="marisco"> Marisco</label>
-                        <label><input type="checkbox" value="pescado"> Pescado</label>
-                        <!-- Añadir más si lo deseas -->
+                    <div id="food-editor-Intolerancias" class="intolerancias-btn-group"
+                        style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                        <button type="button" class="intolerancia-btn" data-value="gluten">Gluten</button>
+                        <button type="button" class="intolerancia-btn" data-value="lactosa">Lactosa</button>
+                        <button type="button" class="intolerancia-btn" data-value="frutos secos">Frutos secos</button>
+                        <button type="button" class="intolerancia-btn" data-value="huevo">Huevo</button>
+                        <button type="button" class="intolerancia-btn" data-value="soja">Soja</button>
+                        <button type="button" class="intolerancia-btn" data-value="marisco">Marisco</button>
+                        <button type="button" class="intolerancia-btn" data-value="pescado">Pescado</button>
                     </div>
                 </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
