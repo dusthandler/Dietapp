@@ -2272,15 +2272,16 @@
             const App = (() => {
                 // Base de datos de alimentos
                 const foodDB = {
-                    // Proteínas animales
-                    'Pollo': {
+                    // PROTEÍNAS ANIMALES
+                    'Pollo (muslo)': {
                         category: 'Proteínas',
                         emoji: '🍗',
                         price: 0.70,
                         calories: 239,
                         protein: 27,
                         carbs: 0,
-                        fats: 14
+                        fats: 14,
+                        intolerancias: []
                     },
                     'Pechuga de pollo': {
                         category: 'Proteínas',
@@ -2289,7 +2290,8 @@
                         calories: 165,
                         protein: 31,
                         carbs: 0,
-                        fats: 3.6
+                        fats: 3.6,
+                        intolerancias: []
                     },
                     'Huevo': {
                         category: 'Proteínas',
@@ -2308,34 +2310,28 @@
                         calories: 52,
                         protein: 11,
                         carbs: 0.7,
-                        fats: 0.2
+                        fats: 0.2,
+                        intolerancias: ['huevo']
                     },
-                    'Salmón': {
+                    'Salmón fresco': {
                         category: 'Proteínas',
                         emoji: '🐟',
                         price: 2.10,
                         calories: 208,
                         protein: 20,
                         carbs: 0,
-                        fats: 13
+                        fats: 13,
+                        intolerancias: ['pescado']
                     },
-                    'Atún en agua': {
+                    'Atún en lata (agua)': {
                         category: 'Proteínas',
                         emoji: '🐟',
                         price: 0.90,
                         calories: 116,
                         protein: 25.5,
                         carbs: 0,
-                        fats: 0.8
-                    },
-                    'Atún': {
-                        category: 'Proteínas',
-                        emoji: '🐟',
-                        price: 1.20,
-                        calories: 144,
-                        protein: 23,
-                        carbs: 0,
-                        fats: 5
+                        fats: 0.8,
+                        intolerancias: ['pescado']
                     },
                     'Salmón ahumado': {
                         category: 'Proteínas',
@@ -2344,7 +2340,8 @@
                         calories: 117,
                         protein: 18,
                         carbs: 0,
-                        fats: 4.3
+                        fats: 4.3,
+                        intolerancias: ['pescado']
                     },
                     'Pavo': {
                         category: 'Proteínas',
@@ -2353,25 +2350,8 @@
                         calories: 135,
                         protein: 29,
                         carbs: 0,
-                        fats: 1.7
-                    },
-                    'Pechuga de pavo': {
-                        category: 'Proteínas',
-                        emoji: '🦃',
-                        price: 1.50,
-                        calories: 135,
-                        protein: 29,
-                        carbs: 0,
-                        fats: 1.7
-                    },
-                    'Jamón de pavo': {
-                        category: 'Proteínas',
-                        emoji: '🍖',
-                        price: 1.60,
-                        calories: 125,
-                        protein: 18,
-                        carbs: 2,
-                        fats: 5
+                        fats: 1.7,
+                        intolerancias: []
                     },
                     'Merluza': {
                         category: 'Proteínas',
@@ -2380,7 +2360,8 @@
                         calories: 91,
                         protein: 19,
                         carbs: 0,
-                        fats: 1.5
+                        fats: 1.5,
+                        intolerancias: ['pescado']
                     },
                     'Caballa': {
                         category: 'Proteínas',
@@ -2389,7 +2370,8 @@
                         calories: 205,
                         protein: 19,
                         carbs: 0,
-                        fats: 14
+                        fats: 14,
+                        intolerancias: ['pescado']
                     },
                     'Sardinas en lata': {
                         category: 'Proteínas',
@@ -2398,37 +2380,21 @@
                         calories: 208,
                         protein: 25,
                         carbs: 0,
-                        fats: 11
+                        fats: 11,
+                        intolerancias: ['pescado']
                     },
-                    'Palitos de merluza': {
+                    'Jamón serrano': {
                         category: 'Proteínas',
-                        emoji: '🐟',
-                        price: 1.30,
-                        calories: 120,
-                        protein: 12,
-                        carbs: 10,
-                        fats: 4
-                    },
-                    'Nuggets': {
-                        category: 'Proteínas',
-                        emoji: '🍗',
-                        price: 1.20,
-                        calories: 250,
-                        protein: 14,
-                        carbs: 15,
-                        fats: 15
-                    },
-                    'Tortilla': {
-                        category: 'Proteínas',
-                        emoji: '🍳',
-                        price: 0.80,
-                        calories: 154,
-                        protein: 13,
-                        carbs: 1.1,
-                        fats: 11
+                        emoji: '🍖',
+                        price: 2.50,
+                        calories: 185,
+                        protein: 30,
+                        carbs: 0,
+                        fats: 7,
+                        intolerancias: ['gluten']
                     },
 
-                    // Proteínas vegetales
+                    // PROTEÍNAS VEGETALES
                     'Tofu': {
                         category: 'Proteínas',
                         emoji: '🧈',
@@ -2436,37 +2402,21 @@
                         calories: 76,
                         protein: 8,
                         carbs: 1.9,
-                        fats: 4.8
+                        fats: 4.8,
+                        intolerancias: ['soja']
                     },
-                    'Proteína de suero de leche': {
+                    'Seitán': {
                         category: 'Proteínas',
-                        emoji: '🥄',
-                        price: 3.20,
-                        calories: 120,
-                        protein: 24,
-                        carbs: 3,
-                        fats: 1
-                    },
-                    'Batido de proteínas': {
-                        category: 'Proteínas',
-                        emoji: '🥤',
-                        price: 1.80,
-                        calories: 120,
-                        protein: 24,
-                        carbs: 3,
-                        fats: 1
+                        emoji: '🌾',
+                        price: 2.20,
+                        calories: 370,
+                        protein: 75,
+                        carbs: 14,
+                        fats: 1.2,
+                        intolerancias: ['gluten']
                     },
 
-                    // Lácteos
-                    'Yogur griego': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.45,
-                        calories: 59,
-                        protein: 10,
-                        carbs: 3.6,
-                        fats: 0.4
-                    },
+                    // LÁCTEOS
                     'Yogur griego natural': {
                         category: 'Lácteos',
                         emoji: '🥛',
@@ -2474,25 +2424,8 @@
                         calories: 59,
                         protein: 10,
                         carbs: 3.6,
-                        fats: 0.4
-                    },
-                    'Yogur natural sin azúcar': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.35,
-                        calories: 59,
-                        protein: 3.5,
-                        carbs: 4.7,
-                        fats: 3.3
-                    },
-                    'Yogur': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.35,
-                        calories: 59,
-                        protein: 3.5,
-                        carbs: 4.7,
-                        fats: 3.3
+                        fats: 0.4,
+                        intolerancias: ['lactosa']
                     },
                     'Leche semidesnatada': {
                         category: 'Lácteos',
@@ -2501,34 +2434,8 @@
                         calories: 47,
                         protein: 3.4,
                         carbs: 4.8,
-                        fats: 1.6
-                    },
-                    'Leche entera': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.13,
-                        calories: 61,
-                        protein: 3.2,
-                        carbs: 4.8,
-                        fats: 3.3
-                    },
-                    'Leche desnatada': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.12,
-                        calories: 34,
-                        protein: 3.4,
-                        carbs: 4.8,
-                        fats: 0.1
-                    },
-                    'Leche de avellana': {
-                        category: 'Lácteos',
-                        emoji: '🥛',
-                        price: 0.90,
-                        calories: 29,
-                        protein: 0.4,
-                        carbs: 1.8,
-                        fats: 2.7
+                        fats: 1.6,
+                        intolerancias: ['lactosa']
                     },
                     'Queso burgos desnatado': {
                         category: 'Lácteos',
@@ -2537,19 +2444,11 @@
                         calories: 72,
                         protein: 12,
                         carbs: 2,
-                        fats: 1
-                    },
-                    'Queso tierno light': {
-                        category: 'Lácteos',
-                        emoji: '🧀',
-                        price: 1.50,
-                        calories: 190,
-                        protein: 24,
-                        carbs: 2,
-                        fats: 9
+                        fats: 1,
+                        intolerancias: ['lactosa']
                     },
 
-                    // Cereales y derivados
+                    // CEREALES
                     'Copos de avena': {
                         category: 'Cereales',
                         emoji: '🌾',
@@ -2557,25 +2456,8 @@
                         calories: 389,
                         protein: 16.9,
                         carbs: 66.3,
-                        fats: 6.9
-                    },
-                    'Aros de avena': {
-                        category: 'Cereales',
-                        emoji: '🍩',
-                        price: 0.25,
-                        calories: 375,
-                        protein: 11,
-                        carbs: 69,
-                        fats: 7
-                    },
-                    'Arroz': {
-                        category: 'Cereales',
-                        emoji: '🍚',
-                        price: 0.12,
-                        calories: 130,
-                        protein: 2.7,
-                        carbs: 28,
-                        fats: 0.3
+                        fats: 6.9,
+                        intolerancias: []
                     },
                     'Arroz integral': {
                         category: 'Cereales',
@@ -2584,103 +2466,43 @@
                         calories: 111,
                         protein: 2.6,
                         carbs: 23,
-                        fats: 0.9
+                        fats: 0.9,
+                        intolerancias: []
                     },
-                    'Pan integral': {
-                        category: 'Cereales',
-                        emoji: '🍞',
-                        price: 0.25,
-                        calories: 265,
-                        protein: 9,
-                        carbs: 48,
-                        fats: 3.2
-                    },
-                    'Pan de molde integral': {
-                        category: 'Cereales',
-                        emoji: '🍞',
-                        price: 0.30,
-                        calories: 265,
-                        protein: 9,
-
-                        carbs: 48,
-                        fats: 3.2
-                    },
-                    'Tostada integral': {
-                        category: 'Cereales',
-                        emoji: '🍞',
-                        price: 0.20,
-                        calories: 265,
-                        protein: 9,
-                        carbs: 48,
-                        fats: 3.2
-                    },
-                    'Tostadas de centeno': {
-                        category: 'Cereales',
-                        emoji: '🍞',
-                        price: 0.25,
-                        calories: 391,
-                        protein: 13,
-                        carbs: 60.1,
-                        fats: 7.6
-                    },
-                    'Tortillas de avena': {
-                        category: 'Cereales',
-                        emoji: '🥞',
-                        price: 0.30,
-                        calories: 150,
-                        protein: 5,
-                        carbs: 25,
-                        fats: 3
-                    },
-                    'tortas de arroz': {
-                        category: 'Cereales',
-                        emoji: '🍘',
-                        price: 0.20,
-                        calories: 35,
-                        protein: 0.7,
-                        carbs: 7.3,
-                        fats: 0.3
-                    },
-                    'Mix de cereales sin azúcar': {
+                    'Quinoa': {
                         category: 'Cereales',
                         emoji: '🌾',
-                        price: 0.35,
-                        calories: 389,
-                        protein: 10.1,
-                        carbs: 74.1,
-                        fats: 4.1
-                    },
-                    'Muesli sin azúcar': {
-                        category: 'Cereales',
-                        emoji: '🥣',
-                        price: 0.40,
-                        calories: 164,
-                        protein: 9.3,
-                        carbs: 64,
-                        fats: 13
+                        price: 1.80,
+                        calories: 120,
+                        protein: 4.4,
+                        carbs: 21,
+                        fats: 1.9,
+                        intolerancias: []
                     },
 
-                    // Tubérculos
-                    'Patata cocida': {
+                    // TUBÉRCULOS
+                    'Patata': {
                         category: 'Tubérculos',
                         emoji: '🥔',
                         price: 0.15,
                         calories: 86,
                         protein: 1.7,
                         carbs: 20,
-                        fats: 0.1
+                        fats: 0.1,
+                        intolerancias: []
                     },
                     'Boniato': {
                         category: 'Tubérculos',
                         emoji: '🍠',
-                        price: 0.35,
-                        calories: 86,
-                        protein: 1.6,
-                        carbs: 20,
-                        fats: 0.1
+                        price: 0.40,
+                        calories: 90,
+                        protein: 2.0,
+                        carbs: 21,
+                        fats: 0.3,
+                        intolerancias: []
                     },
 
-                    // Verduras
+                    // VERDURAS
                     'Brócoli': {
                         category: 'Verduras',
                         emoji: '🥦',
@@ -2688,7 +2510,8 @@
                         calories: 34,
                         protein: 2.8,
                         carbs: 6.6,
-                        fats: 0.4
+                        fats: 0.4,
+                        intolerancias: []
                     },
                     'Espinacas crudas': {
                         category: 'Verduras',
@@ -2697,52 +2520,8 @@
                         calories: 23,
                         protein: 2.9,
                         carbs: 3.6,
-                        fats: 0.4
-                    },
-                    'Canónigos': {
-                        category: 'Verduras',
-                        emoji: '🥬',
-                        price: 0.55,
-                        calories: 21,
-                        protein: 2,
-                        carbs: 3.6,
-                        fats: 0.4
-                    },
-                    'Tomate': {
-                        category: 'Verduras',
-                        emoji: '🍅',
-                        price: 0.25,
-                        calories: 18,
-                        protein: 0.9,
-                        carbs: 3.9,
-                        fats: 0.2
-                    },
-                    'Tomate Cherry': {
-                        category: 'Verduras',
-                        emoji: '🍅',
-                        price: 0.55,
-                        calories: 18,
-                        protein: 0.9,
-                        carbs: 3.9,
-                        fats: 0.2
-                    },
-                    'Zanahoria': {
-                        category: 'Verduras',
-                        emoji: '🥕',
-                        price: 0.20,
-                        calories: 41,
-                        protein: 0.9,
-                        carbs: 9.6,
-                        fats: 0.2
-                    },
-                    'Pepino': {
-                        category: 'Verduras',
-                        emoji: '🥒',
-                        price: 0.30,
-                        calories: 16,
-                        protein: 0.7,
-                        carbs: 3.6,
-                        fats: 0.1
+                        fats: 0.4,
+                        intolerancias: []
                     },
                     'Calabacín': {
                         category: 'Verduras',
@@ -2751,46 +2530,11 @@
                         calories: 17,
                         protein: 1.2,
                         carbs: 3.1,
-                        fats: 0.3
-                    },
-                    'Calabaza': {
-                        category: 'Verduras',
-                        emoji: '🎃',
-                        price: 0.40,
-                        calories: 26,
-                        protein: 1,
-                        carbs: 6.5,
-                        fats: 0.1
-                    },
-                    'Hojas verdes': {
-                        category: 'Verduras',
-                        emoji: '🥬',
-                        price: 0.40,
-                        calories: 15,
-                        protein: 1,
-                        carbs: 3,
-                        fats: 0.1
-                    },
-                    'Ensalada': {
-                        category: 'Verduras',
-                        emoji: '🥗',
-                        price: 0.50,
-                        calories: 15,
-                        protein: 1,
-                        carbs: 3,
-                        fats: 0.1
-                    },
-                    'Verduras': {
-                        category: 'Verduras',
-                        emoji: '🥗',
-                        price: 0.35,
-                        calories: 35,
-                        protein: 2,
-                        carbs: 7,
-                        fats: 0.2
+                        fats: 0.3,
+                        intolerancias: []
                     },
 
-                    // Frutas
+                    // FRUTAS
                     'Plátano': {
                         category: 'Frutas',
                         emoji: '🍌',
@@ -2798,25 +2542,8 @@
                         calories: 89,
                         protein: 1.1,
                         carbs: 23,
-                        fats: 0.3
-                    },
-                    'Manzana': {
-                        category: 'Frutas',
-                        emoji: '🍎',
-                        price: 0.30,
-                        calories: 52,
-                        protein: 0.3,
-                        carbs: 14,
-                        fats: 0.2
-                    },
-                    'Kiwi': {
-                        category: 'Frutas',
-                        emoji: '🥝',
-                        price: 0.35,
-                        calories: 61,
-                        protein: 1.1,
-                        carbs: 15,
-                        fats: 0.5
+                        fats: 0.3,
+                        intolerancias: []
                     },
                     'Fresas': {
                         category: 'Frutas',
@@ -2825,37 +2552,21 @@
                         calories: 32,
                         protein: 0.7,
                         carbs: 7.7,
-                        fats: 0.3
+                        fats: 0.3,
+                        intolerancias: []
                     },
-                    'Sandía': {
+                    'Naranja': {
                         category: 'Frutas',
-                        emoji: '🍉',
-                        price: 0.40,
-                        calories: 30,
-                        protein: 0.6,
-                        carbs: 7.6,
-                        fats: 0.2
-                    },
-                    'Melón': {
-                        category: 'Frutas',
-                        emoji: '🍈',
+                        emoji: '🍊',
                         price: 0.35,
-                        calories: 34,
-                        protein: 0.8,
-                        carbs: 8.2,
-                        fats: 0.2
-                    },
-                    'Fruta': {
-                        category: 'Frutas',
-                        emoji: '🍎',
-                        price: 0.30,
-                        calories: 60,
-                        protein: 0.5,
-                        carbs: 15,
-                        fats: 0.2
+                        calories: 47,
+                        protein: 0.9,
+                        carbs: 12,
+                        fats: 0.1,
+                        intolerancias: []
                     },
 
-                    // Legumbres
+                    // LEGUMBRES
                     'Lentejas': {
                         category: 'Legumbres',
                         emoji: '🥣',
@@ -2863,37 +2574,21 @@
                         calories: 116,
                         protein: 9,
                         carbs: 20,
-                        fats: 0.4
+                        fats: 0.4,
+                        intolerancias: []
                     },
-                    'Garbanzos': {
-                        category: 'Legumbres',
-                        emoji: '🥣',
-                        price: 0.28,
-                        calories: 164,
-                        protein: 8.9,
-                        carbs: 27.4,
-                        fats: 2.6
-                    },
-                    'Guisantes': {
+                    'Edamame': {
                         category: 'Legumbres',
                         emoji: '🟢',
-                        price: 0.30,
-                        calories: 81,
-                        protein: 5.4,
-                        carbs: 14.5,
-                        fats: 0.4
-                    },
-                    'Legumbre': {
-                        category: 'Legumbres',
-                        emoji: '🥣',
-                        price: 0.25,
-                        calories: 116,
-                        protein: 9,
-                        carbs: 20,
-                        fats: 0.4
+                        price: 1.80,
+                        calories: 122,
+                        protein: 11,
+                        carbs: 10,
+                        fats: 5.2,
+                        intolerancias: ['soja']
                     },
 
-                    // Grasas
+                    // GRASAS
                     'Aceite de oliva': {
                         category: 'Grasas',
                         emoji: '🫒',
@@ -2901,7 +2596,8 @@
                         calories: 884,
                         protein: 0,
                         carbs: 0,
-                        fats: 100
+                        fats: 100,
+                        intolerancias: []
                     },
                     'Aguacate': {
                         category: 'Grasas',
@@ -2910,68 +2606,11 @@
                         calories: 160,
                         protein: 2,
                         carbs: 9,
-                        fats: 15
-                    },
-                    'Nueces': {
-                        category: 'Grasas',
-                        emoji: '🌰',
-                        price: 1.20,
-                        calories: 654,
-                        protein: 15.2,
-                        carbs: 13.7,
-                        fats: 65.2
-                    },
-                    'Almendras': {
-                        category: 'Grasas',
-                        emoji: '🌰',
-                        price: 1.50,
-                        calories: 579,
-                        protein: 21,
-                        carbs: 21.6,
-                        fats: 49.9
-                    },
-                    'Frutos secos': {
-                        category: 'Grasas',
-                        emoji: '🌰',
-                        price: 1.30,
-                        calories: 607,
-                        protein: 20,
-                        carbs: 21,
-                        fats: 54
-                    },
-                    'Chía': {
-                        category: 'Grasas',
-                        emoji: '🌱',
-                        price: 0.90,
-                        calories: 486,
-                        protein: 16.5,
-                        carbs: 42.1,
-                        fats: 30.7
+                        fats: 15,
+                        intolerancias: []
                     },
 
-                    // Bebidas
-                    'Agua': {
-                        category: 'Bebidas',
-                        emoji: '💧',
-                        price: 0.01,
-                        calories: 0,
-                        protein: 0,
-                        carbs: 0,
-                        fats: 0
-                    },
-
-                    // Especias y condimentos
-                    'Canela': {
-                        category: 'Especias',
-                        emoji: '🌿',
-                        price: 0.50,
-                        calories: 247,
-                        protein: 4,
-                        carbs: 80.6,
-                        fats: 1.2
-                    },
-
-                    // Endulzantes
+                    // ENDULZANTES
                     'Miel': {
                         category: 'Endulzantes',
                         emoji: '🍯',
@@ -2979,7 +2618,8 @@
                         calories: 304,
                         protein: 0.3,
                         carbs: 82.4,
-                        fats: 0
+                        fats: 0,
+                        intolerancias: []
                     },
                     'Mermelada de fresa light': {
                         category: 'Endulzantes',
@@ -2988,19 +2628,117 @@
                         calories: 100,
                         protein: 0.3,
                         carbs: 25,
-                        fats: 0
+                        fats: 0,
+                        intolerancias: []
                     },
 
-                    // Platos preparados
+                    // NUEVOS ALIMENTOS AÑADIDOS
+                    'Alcachofas': {
+                        category: 'Verduras',
+                        emoji: '🌿',
+                        price: 0.80,
+                        calories: 47,
+                        protein: 3.3,
+                        carbs: 10.5,
+                        fats: 0.2,
+                        intolerancias: []
+                    },
+                    'Cuscús integral': {
+                        category: 'Cereales',
+                        emoji: '🌾',
+                        price: 0.95,
+                        calories: 112,
+                        protein: 4.0,
+                        carbs: 23,
+                        fats: 0.6,
+                        intolerancias: ['gluten']
+                    },
+                    'Tortitas de maíz': {
+                        category: 'Cereales',
+                        emoji: '🌽',
+                        price: 0.50,
+                        calories: 387,
+                        protein: 8.0,
+                        carbs: 80,
+                        fats: 2.5,
+                        intolerancias: []
+                    },
+
+                    // BEBIDAS (categoría existente)
+                    'Agua': {
+                        category: 'Bebidas',
+                        emoji: '💧',
+                        price: 0.01,
+                        calories: 0,
+                        protein: 0,
+                        carbs: 0,
+                        fats: 0,
+                        intolerancias: []
+                    },
+                    'Leche de avena': {
+                        category: 'Bebidas',
+                        emoji: '🌾',
+                        price: 0.95,
+                        calories: 47,
+                        protein: 0.3,
+                        carbs: 9.7,
+                        fats: 1.0,
+                        intolerancias: []
+                    },
+                    'Leche de almendras': {
+                        category: 'Bebidas',
+                        emoji: '🥤',
+                        price: 1.10,
+                        calories: 24,
+                        protein: 0.5,
+                        carbs: 3.0,
+                        fats: 1.1,
+                        intolerancias: ['frutos secos']
+                    },
+                    // ESPECIAS (categoría existente)
+                    'Canela': {
+                        category: 'Especias',
+                        emoji: '🌿',
+                        price: 0.50,
+                        calories: 247,
+                        protein: 4,
+                        carbs: 80.6,
+                        fats: 1.2,
+                        intolerancias: []
+                    },
+                    'Curry': {
+                        category: 'Especias',
+                        emoji: '🌿',
+                        price: 0.70,
+                        calories: 325,
+                        protein: 12.7,
+                        carbs: 58.2,
+                        fats: 14.0,
+                        intolerancias: []
+                    },
+
+                    // PLATOS PREPARADOS (categoría existente)
                     'Pisto de verduras': {
                         category: 'Platos preparados',
-                        emoji: '🍆🍅',
+                        emoji: '🍲',
                         price: 0.85,
                         calories: 80,
                         protein: 2.5,
                         carbs: 10,
-                        fats: 4
+                        fats: 4,
+                        intolerancias: []
+                    },
+                    'Gazpacho': {
+                        category: 'Platos preparados',
+                        emoji: '🍲',
+                        price: 1.20,
+                        calories: 55,
+                        protein: 1.2,
+                        carbs: 10,
+                        fats: 1.0,
+                        intolerancias: ['gluten']
                     }
+
                 };
 
                 let customFoods = JSON.parse(localStorage.getItem('customFoods') || '{}');
