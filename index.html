@@ -4553,7 +4553,8 @@
                     openFoodEditor: (foodName = null) => {
                         editingFoodName = foodName;
                         document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
-                        const f = foodName ? customFoods[foodName] : {};
+                        // Busca primero en customFoods, luego en foodDB
+                        const f = foodName ? (customFoods[foodName] || foodDB[foodName]) : {};
                         document.getElementById('food-editor-name').value = foodName || '';
                         document.getElementById('food-editor-emoji').value = f?.emoji || '🍽️';
                         document.getElementById('food-editor-emoji-btn').textContent = f?.emoji || '🍽️';
@@ -4580,10 +4581,14 @@
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0
                         };
-                        // Siempre guarda en customFoods (sobrescribe si ya existe en foodDB)
-                        if (editingFoodName && editingFoodName !== name) delete customFoods[editingFoodName];
+                        // Si el nombre cambió y estaba en customFoods, bórralo
+                        if (editingFoodName && editingFoodName !== name && customFoods[editingFoodName]) {
+                            delete customFoods[editingFoodName];
+                        }
                         customFoods[name] = food;
                         localStorage.setItem('customFoods', JSON.stringify(customFoods));
+                        // Actualiza comidas con el nuevo alimento
+                        App.updateFoodInMeals(editingFoodName, name, food);
                         App.closeFoodEditor();
                         App.showFoodModal();
                     },
@@ -4640,6 +4645,34 @@
                         document.getElementById('food-editor-emoji').value = emoji;
                         document.getElementById('food-editor-emoji-btn').textContent = emoji;
                         document.getElementById('emoji-picker').style.display = 'none';
+                    },
+                    updateFoodInMeals: (oldName, newName, newData) => {
+                        Object.keys(state.selectedFoods).forEach(meal => {
+                            state.selectedFoods[meal] = state.selectedFoods[meal].map(f => {
+                                if (f.name === oldName) {
+                                    return {
+                                        ...f,
+                                        name: newName,
+                                        emoji: newData.emoji,
+                                        category: newData.category,
+                                        calories: newData.calories,
+                                        protein: newData.protein,
+                                        carbs: newData.carbs,
+                                        fats: newData.fats,
+                                        price: newData.price
+                                    };
+                                }
+                                return f;
+                            });
+                        });
+                        // Guarda cambios en la dieta actual
+                        if (state.currentDietId) {
+                            state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+                        }
+                        saveState();
+                        renderMeals();
+                        updateTotals();
+                        generateShoppingList();
                     },
                 };
             })();
@@ -4741,16 +4774,26 @@
                     <option value="Platos preparados">Platos preparados</option>
                     <option value="Personalizados">Personalizados</option>
                 </select>
-                <input id="food-editor-calories" type="number" placeholder="Calorías (100g)"
-                    style="width:100%;margin-bottom:8px;">
-                <input id="food-editor-protein" type="number" placeholder="Proteína (g/100g)"
-                    style="width:100%;margin-bottom:8px;">
-                <input id="food-editor-carbs" type="number" placeholder="Carbohidratos (g/100g)"
-                    style="width:100%;margin-bottom:8px;">
-                <input id="food-editor-fats" type="number" placeholder="Grasas (g/100g)"
-                    style="width:100%;margin-bottom:8px;">
-                <input id="food-editor-price" type="number" placeholder="Precio €/100g"
-                    style="width:100%;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:1.2em;width:28px;text-align:center;">🔥</span>
+                    <input id="food-editor-calories" type="number" placeholder="Calorías (100g)" style="flex:1;">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:1.2em;width:28px;text-align:center;">💪</span>
+                    <input id="food-editor-protein" type="number" placeholder="Proteína (g/100g)" style="flex:1;">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:1.2em;width:28px;text-align:center;">🍞</span>
+                    <input id="food-editor-carbs" type="number" placeholder="Carbohidratos (g/100g)" style="flex:1;">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:1.2em;width:28px;text-align:center;">🥑</span>
+                    <input id="food-editor-fats" type="number" placeholder="Grasas (g/100g)" style="flex:1;">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:1.2em;width:28px;text-align:center;">💵</span>
+                    <input id="food-editor-price" type="number" placeholder="Precio €/100g" style="flex:1;">
+                </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
                     <button class="btn" onclick="App.closeFoodEditor()">Cancelar</button>
                     <button class="btn btn-primary" onclick="App.saveFoodEditor()">Guardar</button>
