@@ -2260,9 +2260,9 @@
                                     <span class="activity-info-icon">❔</span>
                                 </div>
 
-                                <div class="option" data-value="Vigorosa"
+                                <div class="option" data-value="Alta"
                                     data-desc="3 días/semana de 20–30 min de intensidad alta (HIIT) o 6 días/semana 45/60 min de intensidad moderada alta (fútbol, artes marciales).">
-                                    <span class="activity-emoji">🏋️</span> Vigorosa
+                                    <span class="activity-emoji">🏋️</span> Alta
                                     <span class="activity-info-icon">❔</span>
                                 </div>
 
@@ -3046,7 +3046,10 @@
                     if (selected && options) {
                         const opt = options.querySelector(`.option[data-value="${state.userData.activity}"]`);
                         if (opt) {
-                            selected.innerHTML = opt.innerHTML;
+                            selected.innerHTML = `
+                                <span class="activity-emoji">${opt.querySelector('.activity-emoji').textContent}</span>
+                                ${opt.dataset.value}
+                            `;
                         } else {
                             selected.innerHTML = '';
                         }
@@ -4419,7 +4422,7 @@
                         Sedentario: 1.2,
                         Baja: 1.375,
                         Moderada: 1.55,
-                        Vigorosa: 1.725,
+                        Alta: 1.725,
                         Extra: 1.9
                     };
 
@@ -5009,7 +5012,11 @@
                 // Selección de opción
                 options.querySelectorAll('.option').forEach(opt => {
                     opt.onclick = function () {
-                        selected.innerHTML = opt.innerHTML;
+                        // Crea el contenido de la opción seleccionada SIN el interrogante
+                        selected.innerHTML = `
+            <span class="activity-emoji">${opt.querySelector('.activity-emoji').textContent}</span>
+            ${opt.dataset.value}
+        `;
                         hiddenInput.value = opt.dataset.value;
                         options.style.display = 'none';
                         // Actualiza el estado y guarda
@@ -5034,7 +5041,10 @@
                 if (currentValue) {
                     const opt = options.querySelector(`.option[data-value="${currentValue}"]`);
                     if (opt) {
-                        selected.innerHTML = opt.innerHTML;
+                        selected.innerHTML = `
+                            <span class="activity-emoji">${opt.querySelector('.activity-emoji').textContent}</span>
+                            ${opt.dataset.value}
+                        `;
                     }
                 }
             });
