@@ -2037,6 +2037,78 @@
             max-width: 320px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
+
+        .meal-suggestions {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(.4, 0, .2, 1), opacity 0.35s;
+            pointer-events: none;
+        }
+
+        .meal-suggestions.visible {
+            max-height: 120px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .suggestion-btn {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #f5fafd;
+            border: 2.5px solid #43aee5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.18s, border-color 0.18s, transform 0.15s;
+            font-size: 1.1em;
+            position: relative;
+            margin-bottom: 2px;
+            outline: none;
+            overflow: visible;
+            padding: 0;
+        }
+
+        .suggestion-btn .suggestion-emoji {
+            font-size: 1.7em;
+            margin-top: 6px;
+            margin-bottom: -2px;
+            z-index: 2;
+        }
+
+        .suggestion-curved-text {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .suggestion-curved-text text {
+            font-size: 0.85em;
+            fill: #3498db;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .suggestion-btn .edit-icon {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            font-size: 1.1em;
+            background: #fff;
+            border-radius: 50%;
+            padding: 2px 4px;
+            border: 1.5px solid #43aee5;
+            cursor: pointer;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(44, 62, 80, 0.10);
+        }
     </style>
 </head>
 
@@ -2935,7 +3007,24 @@
                         activity: '1.2',
                         goal: 'maintain'
                     },
-                    currentCategoryInModal: null
+                    currentCategoryInModal: null,
+                    mealSuggestions: {
+                        Desayuno: [
+                            { name: "Plátano", emoji: "🍌" },
+                            { name: "Copos de avena", emoji: "🌾" }
+                        ],
+                        Almuerzo: [
+                            { name: "Pechuga de pollo", emoji: "🍗" },
+                            { name: "Arroz integral", emoji: "🍚" }
+                        ],
+                        Cena: [
+                            { name: "Salmón fresco", emoji: "🐟" },
+                            { name: "Brócoli", emoji: "🥦" }
+                        ],
+                        Snacks: [
+                            { name: "Yogur griego natural", emoji: "🥛" }
+                        ]
+                    }
                 };
 
                 // ===== INITIALIZATION =====
@@ -3036,6 +3125,14 @@
                             }
                         ];
                     }
+                };
+
+                saveMealSuggestions: () => {
+                    localStorage.setItem('mealSuggestions', JSON.stringify(state.mealSuggestions));
+                };
+                loadMealSuggestions: () => {
+                    const saved = localStorage.getItem('mealSuggestions');
+                    if (saved) state.mealSuggestions = JSON.parse(saved);
                 };
 
                 const saveUserData = () => {
@@ -3215,11 +3312,21 @@
                     const emoji = getMealEmoji(meal);
                     mealCard.innerHTML = `
                         <div class="meal-header">
-                            <h3>${emoji} ${meal}</h3>
-                            <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
-                        </div>
-                        <div class="meal-content" id="${meal}-content"></div>
-                    `;
+                                <h3>${emoji} ${meal}</h3>
+                                <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
+                            </div>
+                            <div class="meal-content" id="${meal}-content"></div>
+                            <div class="meal-suggestions" id="suggestions-${meal}">
+                                <!-- Aquí irán los botones de sugerencia -->
+                            </div>
+                        `;
+
+                    mealCard.addEventListener('mouseenter', () => {
+                        App.showMealSuggestions(meal);
+                    });
+                    mealCard.addEventListener('mouseleave', () => {
+                        App.hideMealSuggestions(meal);
+                    });
 
 
                     mealCard.onclick = (e) => {
@@ -3227,7 +3334,11 @@
                             e.target.classList.contains('delete-meal-btn') ||
                             e.target.classList.contains('delete-btn') ||
                             e.target.classList.contains('quick-amount-btn') ||
-                            e.target.closest('.quantity-input')
+                            e.target.closest('.quantity-input') ||
+                            e.target.classList.contains('suggestion-btn') ||
+                            e.target.classList.contains('edit-icon') ||
+                            e.target.classList.contains('delete-icon') ||
+                            e.target.closest('.suggestion-btn')
                         ) {
                             return;
                         }
@@ -3237,21 +3348,66 @@
                     return mealCard;
                 };
 
-                function reorderMeals(draggedMeal, targetMeal) {
-                    const meals = Object.keys(state.selectedFoods);
-                    const from = meals.indexOf(draggedMeal);
-                    const to = meals.indexOf(targetMeal);
-                    if (from === -1 || to === -1) return;
+                const showMealSuggestions = (meal) => {
+                    const container = document.getElementById(`suggestions-${meal}`);
+                    if (!container) return;
+                    const suggestions = (state.mealSuggestions[meal] || []);
+                    container.innerHTML = `
+                        <div style="margin-top:10px;margin-bottom:2px;font-weight:600;color:#3498db;font-size:1em;">Añadir rápidamente:</div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            ${suggestions.map((sug, idx) => `
+                                <div class="suggestion-btn" title="${sug.name}"
+                                    onclick="event.stopPropagation(); App.addSuggestionToMeal('${meal}', '${sug.name}', event)">
+                                    <span class="suggestion-emoji">${sug.emoji}</span>
+                                    <svg viewBox="0 0 100 100" class="suggestion-curved-text">
+                                        <defs>
+                                            <path id="curve-${meal}-${idx}" d="M50,18 a32,32 0 1,1 0,64 a32,32 0 1,1 0,-64" />
+                                        </defs>
+                                        <text>
+                                            <textPath xlink:href="#curve-${meal}-${idx}" startOffset="50%" text-anchor="middle">
+                                                ${sug.name}
+                                            </textPath>
+                                        </text>
+                                    </svg>
+                                    <button class="edit-icon" title="Editar" onclick="event.stopPropagation(); App.editSuggestion('${meal}', ${idx}, event)">✏️</button>
+                                    <button class="delete-icon" title="Eliminar" onclick="event.stopPropagation(); App.deleteSuggestion('${meal}', ${idx}, event)">✖</button>
+                                </div>
+                            `).join('')}
+                            <div class="suggestion-btn add-btn" title="Añadir sugerencia" onclick="event.stopPropagation(); App.addNewSuggestion('${meal}', event)">
+                                <svg class="plus-svg" viewBox="0 0 54 54">
+                                    <circle class="circle" cx="27" cy="27" r="23" />
+                                    <line class="plus" x1="27" y1="15" x2="27" y2="39"/>
+                                    <line class="plus" x1="15" y1="27" x2="39" y2="27"/>
+                                </svg>
+                            </div>
+                        </div>
+                    `;
+                    container.classList.add('visible');
+                };
+                const hideMealSuggestions = (meal) => {
+                    const container = document.getElementById(`suggestions-${meal}`);
+                    if (container) container.classList.remove('visible');
+                };
 
-                    // Reordena el array
-                    meals.splice(to, 0, meals.splice(from, 1)[0]);
-
-                    // Reconstruye el objeto en el nuevo orden
-                    const newSelectedFoods = {};
-                    meals.forEach(m => newSelectedFoods[m] = state.selectedFoods[m]);
-                    state.selectedFoods = newSelectedFoods;
-
-                    // Guarda y renderiza
+                const addSuggestionToMeal = (meal, foodName, event) => {
+                    // Si el clic viene del botón de editar o eliminar, no hacer nada
+                    if (event && (event.target.classList.contains('edit-icon') || event.target.classList.contains('delete-icon'))) return;
+                    const allFoods = App.getAllFoods ? App.getAllFoods() : getAllFoods();
+                    const food = allFoods[foodName];
+                    if (!food) {
+                        alert('El alimento no existe en la base de datos.');
+                        return;
+                    }
+                    let exists = state.selectedFoods[meal].find(f => f.name === foodName);
+                    if (exists) {
+                        exists.quantity += 100;
+                    } else {
+                        state.selectedFoods[meal].push({
+                            name: foodName,
+                            quantity: 100,
+                            ...food
+                        });
+                    }
                     if (state.currentDietId) {
                         state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
                     }
@@ -3259,7 +3415,75 @@
                     renderMeals();
                     updateTotals();
                     generateShoppingList();
-                }
+                    App.showMealSuggestions(meal);
+                };
+                const addNewSuggestion = (meal, event) => {
+                    event.stopPropagation();
+                    // Abre el modal de selección de alimentos y al seleccionar uno lo añade como sugerencia
+                    App.showFoodModal();
+                    const originalToggle = App.toggleFoodSelection;
+                    App.toggleFoodSelection = (foodName, event2) => {
+                        const food = App.getAllFoods ? App.getAllFoods()[foodName] : getAllFoods()[foodName];
+                        if (!state.mealSuggestions[meal]) state.mealSuggestions[meal] = [];
+                        state.mealSuggestions[meal].push({ name: foodName, emoji: food?.emoji || "🍽️" });
+                        App.saveMealSuggestions && App.saveMealSuggestions();
+                        App.showMealSuggestions(meal);
+                        App.toggleFoodSelection = originalToggle;
+                        document.getElementById('foodModal').style.display = 'none';
+                    };
+                };
+                const editSuggestion = (meal, idx, event) => {
+                    event.stopPropagation();
+                    // Abre el modal de selección de alimentos
+                    state._editingSuggestion = { meal, idx };
+                    App.openFoodSelectorForSuggestion();
+                };
+                const deleteSuggestion = (meal, idx, event) => {
+                    event.stopPropagation();
+                    if (!state.mealSuggestions[meal]) return;
+                    state.mealSuggestions[meal].splice(idx, 1);
+                    App.saveMealSuggestions && App.saveMealSuggestions();
+                    App.showMealSuggestions(meal);
+                };
+                openFoodSelectorForSuggestion: () => {
+                    // Abre el modal de alimentos y cuando el usuario elija uno, lo pone como sugerencia
+                    App.showFoodModal();
+                    // Sobrescribe el handler de selección temporalmente
+                    const originalToggle = App.toggleFoodSelection;
+                    App.toggleFoodSelection = (foodName, event) => {
+                        const { meal, idx } = state._editingSuggestion;
+                        const food = App.getAllFoods ? App.getAllFoods()[foodName] : getAllFoods()[foodName];
+                        state.mealSuggestions[meal][idx] = { name: foodName, emoji: food?.emoji || "🍽️" };
+                        App.saveMealSuggestions && App.saveMealSuggestions();
+                        App.showMealSuggestions(meal);
+                        // Limpia el handler y cierra el modal
+                        App.toggleFoodSelection = originalToggle;
+                        document.getElementById('foodModal').style.display = 'none';
+                    };
+                },
+                    function reorderMeals(draggedMeal, targetMeal) {
+                        const meals = Object.keys(state.selectedFoods);
+                        const from = meals.indexOf(draggedMeal);
+                        const to = meals.indexOf(targetMeal);
+                        if (from === -1 || to === -1) return;
+
+                        // Reordena el array
+                        meals.splice(to, 0, meals.splice(from, 1)[0]);
+
+                        // Reconstruye el objeto en el nuevo orden
+                        const newSelectedFoods = {};
+                        meals.forEach(m => newSelectedFoods[m] = state.selectedFoods[m]);
+                        state.selectedFoods = newSelectedFoods;
+
+                        // Guarda y renderiza
+                        if (state.currentDietId) {
+                            state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+                        }
+                        saveState();
+                        renderMeals();
+                        updateTotals();
+                        generateShoppingList();
+                    }
 
                 const getMealEmoji = (meal) => {
                     return meal === 'Desayuno' ? '☀️' :
@@ -4178,9 +4402,38 @@
                         }
                         saveState();
                         renderMealContent(meal);
+                        App.showMealSuggestions(meal);
                         updateTotals();
                         generateShoppingList();
                     }
+                };
+
+                addSuggestionToMeal: (meal, foodName, event) => {
+                    // Si el clic viene del botón de editar, no hacer nada
+                    if (event && event.target.classList.contains('edit-icon')) return;
+                    const allFoods = App.getAllFoods ? App.getAllFoods() : getAllFoods();
+                    const food = allFoods[foodName];
+                    if (!food) {
+                        alert('El alimento no existe en la base de datos.');
+                        return;
+                    }
+                    let exists = state.selectedFoods[meal].find(f => f.name === foodName);
+                    if (exists) {
+                        exists.quantity += 100;
+                    } else {
+                        state.selectedFoods[meal].push({
+                            name: foodName,
+                            quantity: 100,
+                            ...food
+                        });
+                    }
+                    if (state.currentDietId) {
+                        state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
+                    }
+                    saveState();
+                    renderMeals();
+                    updateTotals();
+                    generateShoppingList();
                 };
 
                 const removeFood = (meal, food) => {
@@ -4772,6 +5025,28 @@
                     saveRecipe,
                     deleteRecipe,
                     updateUserIntolerancias: setupUserIntoleranciasBtns,
+                    showMealSuggestions,
+                    addSuggestionToMeal,
+                    addNewSuggestion,
+                    hideMealSuggestions,
+                    deleteSuggestion,
+                    editSuggestion,
+                    openFoodSelectorForSuggestion: () => {
+                        // Abre el modal de alimentos y cuando el usuario elija uno, lo pone como sugerencia
+                        App.showFoodModal();
+                        // Sobrescribe el handler de selección temporalmente
+                        const originalToggle = App.toggleFoodSelection;
+                        App.toggleFoodSelection = (foodName, event) => {
+                            const { meal, idx } = state._editingSuggestion;
+                            const food = App.getAllFoods ? App.getAllFoods()[foodName] : getAllFoods()[foodName];
+                            state.mealSuggestions[meal][idx] = { name: foodName, emoji: food?.emoji || "🍽️" };
+                            App.saveMealSuggestions && App.saveMealSuggestions();
+                            App.showMealSuggestions(meal);
+                            // Limpia el handler y cierra el modal
+                            App.toggleFoodSelection = originalToggle;
+                            document.getElementById('foodModal').style.display = 'none';
+                        };
+                    },
                     openFoodEditor: (foodName = null) => {
                         editingFoodName = foodName;
                         document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
@@ -4958,6 +5233,8 @@
             // Initialize the app when DOM is loaded
             document.addEventListener('DOMContentLoaded', () => {
                 App.init();
+
+                App.loadMealSuggestions && App.loadMealSuggestions();
 
                 // Sincronizar scroll entre columnas
                 const leftCol = document.querySelector('.container > div:not(.totals-section):not(aside)');
