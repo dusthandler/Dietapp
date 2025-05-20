@@ -1919,6 +1919,94 @@
             margin-bottom: 1px;
             /* Menos espacio abajo */
         }
+
+        .activity-custom-select {
+            position: relative;
+            width: 100%;
+            user-select: none;
+        }
+
+        .selected-option {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            background: #fafdff;
+            border: 1px solid #e3f0ff;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .options-list {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border: 1px solid #e3f0ff;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+            z-index: 100;
+        }
+
+        .option {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1em;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .option:hover {
+            background: #e3f0ff;
+        }
+
+        .activity-emoji {
+            font-size: 1.2em;
+        }
+
+        .activity-info-icon {
+            margin-left: auto;
+            background: #3498db;
+            color: #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .activity-info-icon:hover::after {
+            content: attr(data-desc);
+            position: absolute;
+            left: 120%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            white-space: pre-line;
+            z-index: 1000;
+            font-size: 0.98em;
+            min-width: 200px;
+            max-width: 320px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 
@@ -2147,15 +2235,45 @@
                             <option value="female">Mujer</option>
                         </select>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group" style="position:relative;">
                         <label>Actividad:</label>
-                        <select id="activity" class="macro-select">
-                            <option value="Sedentario">Sedentario</option>
-                            <option value="Baja">Baja</option>
-                            <option value="Media">Media</option>
-                            <option value="Alta">Alta</option>
-                            <option value="Extra">Extra</option>
-                        </select>
+                        <div id="activity-custom-select" class="activity-custom-select">
+                            <div class="selected-option" id="selected-activity">
+                                <!-- Empieza vacío -->
+                            </div>
+                            <div class="options-list" id="activity-options" style="display:none;">
+                                <div class="option" data-value="Sedentario"
+                                    data-desc="0 días/semana de ejercicio; solo actividad del día a día (oficina, tareas del hogar).">
+                                    <span class="activity-emoji">🛋️</span> Sedentario
+                                    <span class="activity-info-icon">❔</span>
+                                </div>
+
+                                <div class="option" data-value="Baja"
+                                    data-desc="1–2 días/semana de actividad ligera (paseos de 30 min, yoga suave).">
+                                    <span class="activity-emoji">🚶</span> Baja
+                                    <span class="activity-info-icon">❔</span>
+                                </div>
+
+                                <div class="option" data-value="Moderada"
+                                    data-desc="5 días/semana de 30–60 min de intensidad moderada (trote suave, bici, baile).">
+                                    <span class="activity-emoji">🏃</span> Moderada
+                                    <span class="activity-info-icon">❔</span>
+                                </div>
+
+                                <div class="option" data-value="Vigorosa"
+                                    data-desc="3 días/semana de 20–30 min de intensidad alta (HIIT) o 6 días/semana 45/60 min de intensidad moderada alta (fútbol, artes marciales).">
+                                    <span class="activity-emoji">🏋️</span> Vigorosa
+                                    <span class="activity-info-icon">❔</span>
+                                </div>
+
+                                <div class="option" data-value="Extra"
+                                    data-desc="7 días/semana o >1 sesión/día; >300 min/semana moderado o >150 min vigoroso (deportistas, instructores de fitness o artes marciales, obreros de la cosntrucción, repartidores en bici, militares o bomberos).">
+                                    <span class="activity-emoji">🔥</span> Extra
+                                    <span class="activity-info-icon">❔</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="activity" value="">
                     </div>
                     <div class="input-group">
                         <label>Objetivo:</label>
@@ -2922,6 +3040,17 @@
                     document.getElementById('gender').value = state.userData.gender;
                     document.getElementById('activity').value = state.userData.activity;
                     document.getElementById('goal').value = state.userData.goal;
+
+                    const selected = document.getElementById('selected-activity');
+                    const options = document.getElementById('activity-options');
+                    if (selected && options) {
+                        const opt = options.querySelector(`.option[data-value="${state.userData.activity}"]`);
+                        if (opt) {
+                            selected.innerHTML = opt.innerHTML;
+                        } else {
+                            selected.innerHTML = '';
+                        }
+                    }
 
                     const { age, weight, height } = state.userData;
                     if (age && weight && height) {
@@ -4289,8 +4418,8 @@
                     const activityFactors = {
                         Sedentario: 1.2,
                         Baja: 1.375,
-                        Media: 1.55,
-                        Alta: 1.725,
+                        Moderada: 1.55,
+                        Vigorosa: 1.725,
                         Extra: 1.9
                     };
 
@@ -4855,6 +4984,60 @@
                 });
             });
 
+            document.addEventListener('DOMContentLoaded', function () {
+                const select = document.getElementById('activity-custom-select');
+                const selected = document.getElementById('selected-activity');
+                const options = document.getElementById('activity-options');
+                const hiddenInput = document.getElementById('activity');
+
+                // Inicialmente vacío
+                selected.innerHTML = '';
+                selected.style.minHeight = '38px'; // Asegura el alto mínimo
+
+                // Abrir/cerrar menú
+                selected.onclick = function () {
+                    options.style.display = options.style.display === 'block' ? 'none' : 'block';
+                };
+
+                // Cerrar si haces click fuera
+                document.addEventListener('mousedown', function (e) {
+                    if (!select.contains(e.target)) {
+                        options.style.display = 'none';
+                    }
+                });
+
+                // Selección de opción
+                options.querySelectorAll('.option').forEach(opt => {
+                    opt.onclick = function () {
+                        selected.innerHTML = opt.innerHTML;
+                        hiddenInput.value = opt.dataset.value;
+                        options.style.display = 'none';
+                        // Actualiza el estado y guarda
+                        if (window.state) state.userData.activity = opt.dataset.value;
+                        if (typeof saveUserData === 'function') saveUserData();
+                        if (typeof App !== 'undefined' && App.calculateMacros) App.calculateMacros();
+                    };
+                    // Tooltip en icono de info
+                    const infoIcon = opt.querySelector('.activity-info-icon');
+                    if (infoIcon) {
+                        infoIcon.setAttribute('data-desc', opt.dataset.desc);
+                        infoIcon.removeAttribute('title'); // Elimina el tooltip nativo
+                        infoIcon.addEventListener('contextmenu', e => e.preventDefault());
+                    }
+                });
+
+                // Desactiva menú contextual también en el seleccionado
+                selected.addEventListener('contextmenu', e => e.preventDefault());
+
+                // --- NUEVO: al cargar, muestra la opción guardada si existe ---
+                const currentValue = hiddenInput.value || (window.state && state.userData.activity);
+                if (currentValue) {
+                    const opt = options.querySelector(`.option[data-value="${currentValue}"]`);
+                    if (opt) {
+                        selected.innerHTML = opt.innerHTML;
+                    }
+                }
+            });
 
         </script>
 
