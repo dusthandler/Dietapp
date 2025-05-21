@@ -3386,15 +3386,16 @@
 
                     const emoji = getMealEmoji(meal);
                     mealCard.innerHTML = `
-                        <div class="meal-header">
-                                <h3>${emoji} ${meal}</h3>
-                                <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
-                            </div>
-                            <div class="meal-content" id="${meal}-content"></div>
-                            <div class="meal-suggestions" id="suggestions-${meal}">
-                                <!-- Aquí irán los botones de sugerencia -->
-                            </div>
-                        `;
+                        <div class="meal-header" style="display:flex;align-items:center;gap:10px;">
+                            <h3 style="margin:0;">${emoji} ${meal}</h3>
+                            <div class="meal-macros"></div>
+                            <button class="delete-meal-btn" onclick="App.deleteMeal('${meal}')">✖</button>
+                        </div>
+                        <div class="meal-content" id="${meal}-content"></div>
+                        <div class="meal-suggestions" id="suggestions-${meal}">
+                            <!-- Aquí irán los botones de sugerencia -->
+                        </div>
+                    `;
 
                     mealCard.addEventListener('mouseenter', () => {
                         App.showMealSuggestions(meal);
@@ -3599,7 +3600,7 @@
 
                     // Render food items
                     if (state.selectedFoods[meal].length === 0) {
-                        mealContent.innerHTML = '<p style="color: #999;">No hay alimentos añadidos</p>';
+                        mealContent.innerHTML = '<p style="color: #999;">Clica en cualquier lugar para añadir un alimento</p>';
                         return;
                     }
 
