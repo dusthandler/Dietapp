@@ -2047,9 +2047,21 @@
         }
 
         .meal-suggestions.visible {
-            max-height: 120px;
+            max-height: 220px;
+            /* o más, según lo que necesites */
             opacity: 1;
             pointer-events: auto;
+            transition: max-height 0.35s cubic-bezier(.4, 0, .2, 1), opacity 0.35s;
+            overflow-y: auto;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE y Edge */
+        }
+
+        .meal-suggestions.visible::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari y Opera */
         }
 
         .suggestion-btn {
@@ -2074,7 +2086,7 @@
 
         .suggestion-btn .suggestion-emoji {
             font-size: 1.7em;
-            margin-top: 6px;
+            margin-top: -10px;
             margin-bottom: -2px;
             z-index: 2;
         }
@@ -2097,17 +2109,80 @@
         }
 
         .suggestion-btn .edit-icon {
+            background: none !important;
+            border: none !important;
+            color: #888 !important;
+            font-size: 0.85em !important;
+            padding: 2px !important;
+            box-shadow: none !important;
+            top: -5px;
+            left: 30px;
+            /* <-- Cambia de right a left */
+            right: auto;
+            /* <-- Añade esto */
             position: absolute;
-            top: -12px;
-            right: -12px;
-            font-size: 1.1em;
-            background: #fff;
-            border-radius: 50%;
-            padding: 2px 4px;
-            border: 1.5px solid #43aee5;
             cursor: pointer;
             z-index: 3;
-            box-shadow: 0 2px 6px rgba(44, 62, 80, 0.10);
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .suggestion-btn .edit-icon:hover {
+            color: #3498db !important;
+            transform: scale(1.1);
+        }
+
+        .suggestion-btn .delete-icon {
+            background: none !important;
+            border: none !important;
+            color: var(--danger) !important;
+            font-size: 1.1em !important;
+            padding: 2px !important;
+            box-shadow: none !important;
+            top: -9px;
+            right: 31px;
+            /* <-- Cambia de left a right */
+            left: auto;
+            /* <-- Añade esto */
+            position: absolute;
+            cursor: pointer;
+            z-index: 3;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .suggestion-btn .delete-icon:hover {
+            color: #c0392b !important;
+            transform: scale(1.1);
+        }
+
+        /* Botón de añadir sugerencia: fondo transparente, sin borde */
+        .suggestion-btn.add-btn {
+            background: transparent !important;
+            border: 2px dashed #bbb !important;
+            box-shadow: none !important;
+            color: #888 !important;
+            position: relative;
+        }
+
+        .suggestion-btn.add-btn .plus-svg {
+            width: 32px;
+            height: 32px;
+            display: block;
+        }
+
+        .suggestion-btn.add-btn .plus-svg .circle {
+            fill: none;
+            stroke: none;
+        }
+
+        .suggestion-btn.add-btn .plus-svg .plus {
+            stroke: #888;
+            stroke-width: 3.5;
+            stroke-linecap: round;
+        }
+
+        .suggestion-btn.add-btn:hover {
+            background: rgba(67, 174, 229, 0.07) !important;
+            border-color: #888 !important;
         }
     </style>
 </head>
@@ -3127,10 +3202,10 @@
                     }
                 };
 
-                saveMealSuggestions: () => {
+                const saveMealSuggestions = () => {
                     localStorage.setItem('mealSuggestions', JSON.stringify(state.mealSuggestions));
                 };
-                loadMealSuggestions: () => {
+                const loadMealSuggestions = () => {
                     const saved = localStorage.getItem('mealSuggestions');
                     if (saved) state.mealSuggestions = JSON.parse(saved);
                 };
@@ -3353,35 +3428,35 @@
                     if (!container) return;
                     const suggestions = (state.mealSuggestions[meal] || []);
                     container.innerHTML = `
-                        <div style="margin-top:10px;margin-bottom:2px;font-weight:600;color:#3498db;font-size:1em;">Añadir rápidamente:</div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            ${suggestions.map((sug, idx) => `
-                                <div class="suggestion-btn" title="${sug.name}"
-                                    onclick="event.stopPropagation(); App.addSuggestionToMeal('${meal}', '${sug.name}', event)">
-                                    <span class="suggestion-emoji">${sug.emoji}</span>
-                                    <svg viewBox="0 0 100 100" class="suggestion-curved-text">
-                                        <defs>
-                                            <path id="curve-${meal}-${idx}" d="M50,18 a32,32 0 1,1 0,64 a32,32 0 1,1 0,-64" />
-                                        </defs>
-                                        <text>
-                                            <textPath xlink:href="#curve-${meal}-${idx}" startOffset="50%" text-anchor="middle">
-                                                ${sug.name}
-                                            </textPath>
-                                        </text>
-                                    </svg>
-                                    <button class="edit-icon" title="Editar" onclick="event.stopPropagation(); App.editSuggestion('${meal}', ${idx}, event)">✏️</button>
-                                    <button class="delete-icon" title="Eliminar" onclick="event.stopPropagation(); App.deleteSuggestion('${meal}', ${idx}, event)">✖</button>
-                                </div>
-                            `).join('')}
-                            <div class="suggestion-btn add-btn" title="Añadir sugerencia" onclick="event.stopPropagation(); App.addNewSuggestion('${meal}', event)">
-                                <svg class="plus-svg" viewBox="0 0 54 54">
-                                    <circle class="circle" cx="27" cy="27" r="23" />
-                                    <line class="plus" x1="27" y1="15" x2="27" y2="39"/>
-                                    <line class="plus" x1="15" y1="27" x2="39" y2="27"/>
-                                </svg>
-                            </div>
-                        </div>
-                    `;
+    <div style="margin-top:10px;margin-bottom:2px;font-weight:600;color:#3498db;font-size:1em;">Añadir rápidamente:</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        ${suggestions.map((sug, idx) => `
+            <div class="suggestion-btn" title="${sug.name}"
+                onclick="event.stopPropagation(); App.addSuggestionToMeal('${meal}', '${sug.name}', event)">
+                <button class="delete-icon" title="Eliminar" onclick="event.stopPropagation(); App.deleteSuggestion('${meal}', ${idx}, event)">✖</button>
+                <span class="suggestion-emoji">${sug.emoji}</span>
+                <svg viewBox="0 0 100 100" class="suggestion-curved-text">
+                    <defs>
+                        <path id="curve-${meal}-${idx}" d="M50,6 a44,44 0 1,0 0,88 a44,44 0 1,0 0,-88" />
+                    </defs>
+                    <text>
+                        <textPath xlink:href="#curve-${meal}-${idx}" startOffset="50%" text-anchor="middle">
+                            ${sug.name}
+                        </textPath>
+                    </text>
+                </svg>
+                <button class="edit-icon" title="Editar" onclick="event.stopPropagation(); App.editSuggestion('${meal}', ${idx}, event)">✏️</button>
+            </div>
+        `).join('')}
+        <div class="suggestion-btn add-btn" title="Añadir sugerencia" onclick="event.stopPropagation(); App.addNewSuggestion('${meal}', event)">
+            <svg class="plus-svg" viewBox="0 0 54 54">
+                <circle class="circle" cx="27" cy="27" r="23" />
+                <line class="plus" x1="27" y1="15" x2="27" y2="39"/>
+                <line class="plus" x1="15" y1="27" x2="39" y2="27"/>
+            </svg>
+        </div>
+    </div>
+`;
                     container.classList.add('visible');
                 };
                 const hideMealSuggestions = (meal) => {
@@ -5047,6 +5122,8 @@
                             document.getElementById('foodModal').style.display = 'none';
                         };
                     },
+                    saveMealSuggestions,
+                    loadMealSuggestions,
                     openFoodEditor: (foodName = null) => {
                         editingFoodName = foodName;
                         document.getElementById('food-editor-title').textContent = foodName ? 'Editar alimento' : 'Nuevo alimento';
