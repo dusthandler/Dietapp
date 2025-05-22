@@ -2088,6 +2088,22 @@
             padding: 0;
         }
 
+        .suggestion-btn:hover {
+            transform: scale(1.08);
+            border-color: #b3e6ff !important;
+            /* Más claro que #43aee5 */
+            background: #fafdff !important;
+            box-shadow: 0 4px 16px rgba(67, 174, 229, 0.10);
+            z-index: 2;
+        }
+
+        [data-theme="dark"] .suggestion-btn:hover {
+            background: #22324a !important;
+            border-color: #7fd6ff !important;
+            /* Más claro en modo oscuro */
+            box-shadow: 0 4px 16px rgba(67, 174, 229, 0.18);
+        }
+
         .suggestion-btn .suggestion-emoji {
             font-size: 1.7em;
             margin-top: -10px;
@@ -2156,6 +2172,19 @@
         .suggestion-btn .delete-icon:hover {
             color: #c0392b !important;
             transform: scale(1.1);
+        }
+
+        .suggestion-btn .edit-icon,
+        .suggestion-btn .delete-icon {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s;
+        }
+
+        .suggestion-btn:hover .edit-icon,
+        .suggestion-btn:hover .delete-icon {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* Botón de añadir sugerencia: fondo transparente, sin borde */
@@ -5137,6 +5166,8 @@
                     // Calcula la lista de la compra igual que en la app
                     const multiplier = state.currentShoppingList === 'weekly' ? 7 : 30;
                     const allFoods = Object.values(state.selectedFoods).flat();
+                    const foodQuantities = {};
+
                     allFoods.forEach(food => {
                         if (!foodQuantities[food.name]) foodQuantities[food.name] = 0;
                         foodQuantities[food.name] += food.quantity * multiplier;
