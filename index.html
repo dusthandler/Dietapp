@@ -5107,6 +5107,7 @@
                         updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
                         updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
                     }
+
                     // Añadir tooltips a las barras de macros
                     ['calories', 'protein', 'carbs', 'fats'].forEach(macro => {
                         const bar = document.querySelector(`.progress-bar.${macro}`);
@@ -5124,21 +5125,39 @@
                         if (contributors.length === 0) {
                             tooltip.innerHTML = '<span style="color:#888;">No hay alimentos en la dieta</span>';
                         } else {
+                            const max = Math.max(...contributors.map(f => f.value));
+                            const min = Math.min(...contributors.map(f => f.value));
+                            const colorStart = [231, 76, 60];   // Rojo
+                            const colorEnd = [39, 174, 96];     // Verde
+
                             tooltip.innerHTML = `
-            <div style="font-weight:600;color:#3498db;margin-bottom:4px;">
-                Alimentos que aportan ${macro === 'calories' ? 'calorías' : macro === 'protein' ? 'proteína' : macro === 'carbs' ? 'carbohidratos' : 'grasas'}:
-            </div>
-            <ul style="margin:0 0 0 12px;padding:0;">
-                ${contributors.map(f => `
-                    <li style="margin-bottom:2px;">
-                        ${f.emoji} <b>${f.name}</b>: 
-                        <span style="color:#2176ae;">
-                            ${macro === 'calories' ? f.value.toFixed(1) + ' kcal' : f.value.toFixed(1) + 'g'}
-                        </span>
-                    </li>
-                `).join('')}
-            </ul>
-        `;
+    <div style="font-weight:600;color:#3498db;margin-bottom:4px;">
+        Alimentos que aportan ${macro === 'calories' ? 'calorías' : macro === 'protein' ? 'proteína' : macro === 'carbs' ? 'carbohidratos' : 'grasas'}:
+    </div>
+    <ul style="margin:0 0 0 12px;padding:0;">
+        ${contributors.map((f, idx) => {
+                                // Degradado por posición en la lista
+                                let percent;
+                                if (contributors.length === 1) {
+                                    percent = 1;
+                                } else {
+                                    percent = 1 - idx / (contributors.length - 1);
+                                }
+                                const r = Math.round(colorStart[0] + (colorEnd[0] - colorStart[0]) * percent);
+                                const g = Math.round(colorStart[1] + (colorEnd[1] - colorStart[1]) * percent);
+                                const b = Math.round(colorStart[2] + (colorEnd[2] - colorStart[2]) * percent);
+                                const color = `rgb(${r},${g},${b})`;
+                                return `
+                <li style="margin-bottom:2px;">
+                    ${f.emoji} <b>${f.name}</b>: 
+                    <span style="color:${color};font-weight:600;">
+                        ${macro === 'calories' ? f.value.toFixed(1) + ' kcal' : f.value.toFixed(1) + 'g'}
+                    </span>
+                </li>
+            `;
+                            }).join('')}
+    </ul>
+`;
                         }
 
                         // Oculta el tooltip por defecto
