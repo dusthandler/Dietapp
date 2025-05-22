@@ -150,7 +150,7 @@
             max-width: 1200px;
             margin: 0 auto;
             height: 100%;
-            padding: 20px 20px 50px;
+
             /* antes estaba en body */
             overflow: hidden;
         }
@@ -169,6 +169,8 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             padding-right: 15px;
+            padding-top: 30px;
+            padding-bottom: 20px;
         }
 
         .container>div:first-child::-webkit-scrollbar {
@@ -716,6 +718,8 @@
             /* para los scrollBy programáticos */
             scrollbar-width: none;
             -ms-overflow-style: none;
+            padding-bottom: 20px;
+            padding-top: 30px;
         }
 
         .container>.left-column::-webkit-scrollbar,
@@ -2345,9 +2349,6 @@
 
 <body>
     <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Cambiar tema claro/oscuro">🌓</button>
-
-    <h1 style="text-align: center;">🍎 Dietapp</h1>
-
     <div class="container">
         <div>
             <div class="diet-header">
