@@ -927,6 +927,41 @@
             overflow: hidden;
             /* Usa "hidden" si no necesitas "visible" */
             margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar-tooltip {
+            position: absolute;
+            left: 50%;
+            top: -8px;
+            transform: translate(-50%, -100%);
+            background: #fff;
+            color: #222;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.13);
+            padding: 10px 14px;
+            font-size: 0.98em;
+            z-index: 9999;
+            min-width: 180px;
+            max-width: 320px;
+            display: none;
+            pointer-events: none;
+            white-space: normal;
+        }
+
+        [data-theme="dark"] .progress-bar-tooltip {
+            background: #22324a;
+            color: #e3f0ff;
+            border-color: #43aee5;
+        }
+
+        .progress-bar:hover .progress-bar-tooltip {
+            display: block !important;
+        }
+
+        .progress-bar {
+            position: relative;
         }
 
         .progress-bar::after {
@@ -3296,6 +3331,7 @@
                     setupEventListeners();
                     renderMeals();
                     renderSavedDiets();
+                    getMacroContributors();
                     updateTotals();
                     generateShoppingList();
                     loadUserData();
@@ -5029,6 +5065,28 @@
                     updateTotals();
                 };
 
+                function getMacroContributors(macro) {
+                    const foods = Object.values(state.selectedFoods).flat();
+                    const contributors = [];
+                    foods.forEach(food => {
+                        let value = 0;
+                        if (macro === 'calories') value = food.calories * food.quantity / 100;
+                        if (macro === 'protein') value = food.protein * food.quantity / 100;
+                        if (macro === 'carbs') value = food.carbs * food.quantity / 100;
+                        if (macro === 'fats') value = food.fats * food.quantity / 100;
+                        if (value > 0) {
+                            contributors.push({
+                                name: food.name,
+                                emoji: getAllFoods()[food.name]?.emoji || '',
+                                value
+                            });
+                        }
+                    });
+                    contributors.sort((a, b) => b.value - a.value);
+                    return contributors;
+                }
+
+
                 const updateTotals = () => {
                     const totals = calculateTotals(Object.values(state.selectedFoods).flat());
 
@@ -5049,6 +5107,58 @@
                         updateProgress(totals.carbs, state.userMacros.carbs, 'carbs-progress');
                         updateProgress(totals.fats, state.userMacros.fats, 'fats-progress');
                     }
+                    // Añadir tooltips a las barras de macros
+                    ['calories', 'protein', 'carbs', 'fats'].forEach(macro => {
+                        const bar = document.querySelector(`.progress-bar.${macro}`);
+                        if (!bar) return;
+
+                        // Busca el tooltip como hermano, no hijo
+                        let tooltip = bar.parentElement.querySelector(`.progress-bar-tooltip.${macro}`);
+                        if (!tooltip) {
+                            tooltip = document.createElement('div');
+                            tooltip.className = `progress-bar-tooltip ${macro}`;
+                            bar.parentElement.appendChild(tooltip);
+                        }
+
+                        const contributors = getMacroContributors(macro);
+                        if (contributors.length === 0) {
+                            tooltip.innerHTML = '<span style="color:#888;">No hay alimentos en la dieta</span>';
+                        } else {
+                            tooltip.innerHTML = `
+            <div style="font-weight:600;color:#3498db;margin-bottom:4px;">
+                Alimentos que aportan ${macro === 'calories' ? 'calorías' : macro === 'protein' ? 'proteína' : macro === 'carbs' ? 'carbohidratos' : 'grasas'}:
+            </div>
+            <ul style="margin:0 0 0 12px;padding:0;">
+                ${contributors.map(f => `
+                    <li style="margin-bottom:2px;">
+                        ${f.emoji} <b>${f.name}</b>: 
+                        <span style="color:#2176ae;">
+                            ${macro === 'calories' ? f.value.toFixed(1) + ' kcal' : f.value.toFixed(1) + 'g'}
+                        </span>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+                        }
+
+                        // Oculta el tooltip por defecto
+                        tooltip.style.display = 'none';
+
+                        // Muestra el tooltip al pasar el ratón por la barra
+                        bar.onmouseenter = () => {
+                            tooltip.style.display = 'block';
+                            // Posiciónalo justo encima de la barra
+                            const barRect = bar.getBoundingClientRect();
+                            const parentRect = bar.parentElement.getBoundingClientRect();
+                            tooltip.style.position = 'absolute';
+                            tooltip.style.left = (bar.offsetLeft + bar.offsetWidth / 2 - tooltip.offsetWidth / 2) + 'px';
+                            tooltip.style.top = (bar.offsetTop - tooltip.offsetHeight + 230) + 'px';
+                            tooltip.style.zIndex = 9999;
+                        };
+                        bar.onmouseleave = () => {
+                            tooltip.style.display = 'none';
+                        };
+                    });
                 };
 
                 const updateProgress = (current, target, elementId) => {
