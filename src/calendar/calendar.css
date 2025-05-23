@@ -157,5 +157,6 @@
     transition: transform 0.2s;
 }
 .calendar-stats-btn svg {
+    transition: transform 0.2s;
     display: block;
 }

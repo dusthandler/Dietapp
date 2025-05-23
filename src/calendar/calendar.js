@@ -111,8 +111,43 @@ window.Calendar = (() => {
                 dot.style.transform = 'translateX(-50%)';
                 dot.style.width = '8px';
                 dot.style.height = '8px';
-                dot.style.background = '#43cea2';
                 dot.style.borderRadius = '50%';
+
+                // Calcula macros totales del día
+                let macros = { kcal: 0, protein: 0, carbs: 0, fats: 0 };
+                Object.values(savedMeals[dateStr]).forEach(foods => {
+                    foods.forEach(f => {
+                        macros.kcal += (f.calories * f.quantity / 100);
+                        macros.protein += (f.protein * f.quantity / 100);
+                        macros.carbs += (f.carbs * f.quantity / 100);
+                        macros.fats += (f.fats * f.quantity / 100);
+                    });
+                });
+
+                // Usa los objetivos del usuario si existen
+                const targets = window.state?.userMacros || { calories: 2000, protein: 120, carbs: 220, fats: 60 };
+
+                function getDeviation(val, target) {
+                    if (!target) return 0;
+                    return Math.abs((val - target) / target);
+                }
+                const deviations = [
+                    getDeviation(macros.kcal, targets.calories),
+                    getDeviation(macros.protein, targets.protein),
+                    getDeviation(macros.carbs, targets.carbs),
+                    getDeviation(macros.fats, targets.fats)
+                ];
+                const maxDev = Math.max(...deviations);
+
+                // Color según desviación
+                if (maxDev <= 0.10) {
+                    dot.style.background = '#43cea2'; // verde
+                } else if (maxDev <= 0.30) {
+                    dot.style.background = '#ffd600'; // amarillo
+                } else {
+                    dot.style.background = '#e74c3c'; // rojo
+                }
+
                 dayBtn.appendChild(dot);
             }
 
@@ -184,7 +219,7 @@ if (statsPanel && statsPanel.style.display === 'block') {
     } else {
         // Resumen de comidas y macros
         let macros = { calories: 0, protein: 0, carbs: 0, fats: 0 };
-        let html = `<div style="font-weight:600;color:#3498db;margin-bottom:4px;">Resumen del día ${dateStr}:</div>`;
+        let html = `<div style="font-weight:600;color:#3498db;margin-bottom:4px;">Resumen del día ${formatDateSpanish(dateStr)}:</div>`;
         Object.entries(meals).forEach(([meal, foods]) => {
             if (!foods.length) return;
             html += `<div style="margin-bottom:2px;"><b>${meal}:</b> `;

@@ -2685,42 +2685,6 @@
                 </div>
             </div>
 
-            <div class="calendar-container" style="margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <div id="calendar-year-title"
-                        style="text-align:center;font-size:1.1em;font-weight:600;color:#3498db;flex:1;"></div>
-                    <button class="nav-btn calendar-today-btn" onclick="Calendar.goToToday()" title="Ir al mes actual"
-                        style="margin-left:12px;">📆</button>
-                </div>
-                <div class="calendar-header"
-                    style="display: flex; align-items: center; justify-content: space-between;">
-                    <button class="nav-btn prev-month" onclick="Calendar.prevMonth()" title="Mes anterior">❮</button>
-                    <h3 id="current-month-title" style="margin:0; flex:1; text-align:center;"></h3>
-                    <button class="nav-btn next-month" onclick="Calendar.nextMonth()" title="Mes siguiente">❯</button>
-                    <button id="calendar-save-btn" class="btn btn-success"
-                        style="margin-left:12px;white-space:nowrap;display:flex;align-items:center;gap:6px;"
-                        onclick="Calendar.saveMealsForSelectedDay()">
-                        <span style="font-size:1.3em;line-height:1;">📅</span>
-                        <span style="font-size:1.1em;">Guardar comidas</span>
-                        <span style="font-size:0.98em;margin-left:4px;" class="calendar-save-text"></span>
-                    </button>
-                </div>
-                <div class="calendar" id="calendar"></div>
-                <div style="text-align:center; margin-top: 8px;">
-                    <button id="calendar-stats-toggle" class="calendar-stats-btn" title="Ver medias de macros">
-                        <svg width="28" height="28" viewBox="0 0 24 24" style="display:block;margin:auto;">
-                            <circle cx="12" cy="12" r="12" fill="#e3f2fd" />
-                            <path d="M7 10l5 5 5-5" stroke="#3498db" stroke-width="2.2" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </div>
-                <div id="calendar-stats-panel"
-                    style="display:none;max-width:420px;margin:0 auto 12px auto;background:#fafdff;border-radius:12px;box-shadow:0 2px 8px rgba(44,62,80,0.08);padding:18px 16px;">
-                    <!-- Aquí se mostrarán las medias -->
-                </div>
-            </div>
-
             <!-- Resultados (inicialmente ocultos) -->
             <div id="macro-results" style="display: none;">
                 <!-- Sección Calorías y Costo -->
@@ -2776,6 +2740,43 @@
                     </span>
                 </div>
             </div>
+
+            <div class="calendar-container" style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div id="calendar-year-title"
+                        style="text-align:center;font-size:1.1em;font-weight:600;color:#3498db;flex:1;"></div>
+                    <button class="nav-btn calendar-today-btn" onclick="Calendar.goToToday()" title="Ir al mes actual"
+                        style="margin-left:12px;">📆</button>
+                </div>
+                <div class="calendar-header"
+                    style="display: flex; align-items: center; justify-content: space-between;">
+                    <button class="nav-btn prev-month" onclick="Calendar.prevMonth()" title="Mes anterior">❮</button>
+                    <h3 id="current-month-title" style="margin:0; flex:1; text-align:center;"></h3>
+                    <button class="nav-btn next-month" onclick="Calendar.nextMonth()" title="Mes siguiente">❯</button>
+                    <button id="calendar-save-btn" class="btn btn-success"
+                        style="margin-left:12px;white-space:nowrap;display:flex;align-items:center;gap:6px;"
+                        onclick="Calendar.saveMealsForSelectedDay()">
+                        <span style="font-size:1.3em;line-height:1;">📅</span>
+                        <span style="font-size:1.1em;">Guardar comidas</span>
+                        <span style="font-size:0.98em;margin-left:4px;" class="calendar-save-text"></span>
+                    </button>
+                </div>
+                <div class="calendar" id="calendar"></div>
+                <div style="text-align:center; margin-top: 8px;">
+                    <button id="calendar-stats-toggle" class="calendar-stats-btn" title="Ver medias de macros">
+                        <svg width="28" height="28" viewBox="0 0 24 24" style="display:block;margin:auto;">
+                            <circle cx="12" cy="12" r="12" fill="#e3f2fd" />
+                            <path d="M7 10l5 5 5-5" stroke="#3498db" stroke-width="2.2" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="calendar-stats-panel"
+                    style="display:none;max-width:420px;margin:0 auto 12px auto;background:#fafdff;border-radius:12px;box-shadow:0 2px 8px rgba(44,62,80,0.08);padding:18px 16px;">
+                    <!-- Aquí se mostrarán las medias -->
+                </div>
+            </div>
+
             <div class="shopping-list">
                 <h3>🛒 Lista de Compra</h3>
                 <div class="cost-mini-container">
