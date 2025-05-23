@@ -2453,14 +2453,24 @@
                     <button class="btn btn-primary" onclick="App.exportPDF()">📄 Exportar PDF</button>
                 </div>
             </div>
-            <div id="diet-weekdays-selector" style="display:flex;gap:8px;margin:12px 0;">
-                <button class="diet-weekday-btn" data-weekday="L">L</button>
-                <button class="diet-weekday-btn" data-weekday="M">M</button>
-                <button class="diet-weekday-btn" data-weekday="X">X</button>
-                <button class="diet-weekday-btn" data-weekday="J">J</button>
-                <button class="diet-weekday-btn" data-weekday="V">V</button>
-                <button class="diet-weekday-btn" data-weekday="S">S</button>
-                <button class="diet-weekday-btn" data-weekday="D">D</button>
+            <div style="font-size:0.98em;color:#3498db;margin-bottom:4px;">
+                Asigna tu dieta recurrente a los días de la semana:
+            </div>
+            <div>
+                <button class="diet-weekday-btn" data-weekday="L" title="Asignar dieta recurrente a los lunes">
+                    L</button>
+                <button class="diet-weekday-btn" data-weekday="M" title="Asignar dieta recurrente a los martes">
+                    M</button>
+                <button class="diet-weekday-btn" data-weekday="X" title="Asignar dieta recurrente a los miércoles">
+                    X</button>
+                <button class="diet-weekday-btn" data-weekday="J" title="Asignar dieta recurrente a los jueves">
+                    J</button>
+                <button class="diet-weekday-btn" data-weekday="V" title="Asignar dieta recurrente a los viernes">
+                    V</button>
+                <button class="diet-weekday-btn" data-weekday="S" title="Asignar dieta recurrente a los sábados">
+                    S</button>
+                <button class="diet-weekday-btn" data-weekday="D" title="Asignar dieta recurrente a los domingos">
+                    D</button>
             </div>
             <div class="meal-grid" id="meals">
                 <!-- Las comidas se generarán dinámicamente -->
