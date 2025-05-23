@@ -45,6 +45,16 @@
     padding: 0;
     line-height: 1;
 }
+
+.calendar-header .calendar-today-btn {
+    background: #fffbe7;
+    color: #f39c12;
+    border: 1.5px solid #ffe082;
+    margin-right: 6px;
+}
+.calendar-header .calendar-today-btn:hover {
+    background: #ffe082;
+}
 .calendar-header .nav-btn:hover {
     background: #b3e5fc;
 }

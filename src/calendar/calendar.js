@@ -37,7 +37,7 @@ if (yearTitle) {
         const saveBtn = document.getElementById('calendar-save-btn');
         if (saveBtn) {
             const fecha = selectedDay || getLocalDateString(new Date());
-            saveBtn.textContent = `Guardar en (${formatDateSpanish(fecha)})`;
+            saveBtn.textContent = `Guardar (${formatDateSpanish(fecha)})`;
         }
 
         // Días de la semana
@@ -240,7 +240,13 @@ if (yearTitle) {
         render();
     }
 
-    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay };
+    function goToToday() {
+        current = new Date();
+        selectedDay = getLocalDateString(current);
+        render();
+    }
+
+    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay, goToToday };
 })();
 
 document.addEventListener('DOMContentLoaded', () => Calendar.render());
