@@ -9,10 +9,19 @@ window.Calendar = (() => {
         return JSON.parse(localStorage.getItem('calendarMeals') || '{}');
     }
     function saveMealsForDate(dateStr, meals) {
-        const data = getSavedMeals();
+    const data = getSavedMeals();
+
+    // Comprobar si todas las comidas están vacías
+    const isEmpty = Object.values(meals).every(arr => Array.isArray(arr) && arr.length === 0);
+
+    if (isEmpty) {
+        // Elimina el día si está vacío
+        delete data[dateStr];
+    } else {
         data[dateStr] = meals;
-        localStorage.setItem('calendarMeals', JSON.stringify(data));
     }
+    localStorage.setItem('calendarMeals', JSON.stringify(data));
+}
 
     function formatDateSpanish(dateStr) {
         const [year, month, day] = dateStr.split('-');
@@ -77,121 +86,170 @@ window.Calendar = (() => {
 
         // Días del mes
         const savedMeals = getSavedMeals();
-        for (let d = 1; d <= lastDay.getDate(); d++) {
-            const dateObj = new Date(year, month, d);
-            const dateStr = getLocalDateString(dateObj);
-            const dayBtn = document.createElement('button');
-            dayBtn.textContent = d;
-            dayBtn.style.margin = '2px';
-            dayBtn.style.padding = '8px';
-            dayBtn.style.borderRadius = '50%';
-            dayBtn.style.border = 'none';
-            dayBtn.style.background = 'none';
-            dayBtn.style.cursor = 'pointer';
-            dayBtn.style.position = 'relative';
-            dayBtn.style.transition = 'background 0.2s';
+const assignedDiets = getAssignedDiets();
+const todayStr = getLocalDateString(new Date());
 
-            // Día actual: azul pastel
-            if (
-                d === today.getDate() &&
-                month === today.getMonth() &&
-                year === today.getFullYear()
-            ) {
-                dayBtn.style.background = '#b3e5fc';
-                dayBtn.style.color = '#185a9d';
-                dayBtn.style.fontWeight = 'bold';
-            }
+for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateObj = new Date(year, month, d);
+    const dateStr = getLocalDateString(dateObj);
+    const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
+    const weekday = weekdayMap[dateObj.getDay()];
 
-            // Si hay comidas guardadas, muestra un punto
-            if (savedMeals[dateStr]) {
-                const dot = document.createElement('span');
-                dot.style.position = 'absolute';
-                dot.style.bottom = '6px';
-                dot.style.left = '50%';
-                dot.style.transform = 'translateX(-50%)';
-                dot.style.width = '8px';
-                dot.style.height = '8px';
-                dot.style.borderRadius = '50%';
-
-                // Calcula macros totales del día
-                let macros = { kcal: 0, protein: 0, carbs: 0, fats: 0 };
-                Object.values(savedMeals[dateStr]).forEach(foods => {
-                    foods.forEach(f => {
-                        macros.kcal += (f.calories * f.quantity / 100);
-                        macros.protein += (f.protein * f.quantity / 100);
-                        macros.carbs += (f.carbs * f.quantity / 100);
-                        macros.fats += (f.fats * f.quantity / 100);
-                    });
-                });
-
-                // Usa los objetivos del usuario si existen
-                const targets = window.state?.userMacros || { calories: 2000, protein: 120, carbs: 220, fats: 60 };
-
-                function getDeviation(val, target) {
-                    if (!target) return 0;
-                    return Math.abs((val - target) / target);
-                }
-                const deviations = [
-                    getDeviation(macros.kcal, targets.calories),
-                    getDeviation(macros.protein, targets.protein),
-                    getDeviation(macros.carbs, targets.carbs),
-                    getDeviation(macros.fats, targets.fats)
-                ];
-                const maxDev = Math.max(...deviations);
-
-                // Color según desviación
-                if (maxDev <= 0.10) {
-                    dot.style.background = '#43cea2'; // verde
-                } else if (maxDev <= 0.30) {
-                    dot.style.background = '#ffd600'; // amarillo
-                } else {
-                    dot.style.background = '#e74c3c'; // rojo
-                }
-
-                dayBtn.appendChild(dot);
-            }
-
-            // Tooltip al pasar el ratón
-            dayBtn.onmouseenter = (e) => {
-                showTooltip(e.target, dateStr, savedMeals[dateStr]);
-            };
-            dayBtn.onmouseleave = hideTooltip;
-
-            dayBtn.onclick = () => {
-                selectedDay = dateStr;
-                render();
-            };
-
-            // Dentro del bucle de los días, después de marcar el día actual:
-            if (dateStr === selectedDay) {
-                dayBtn.style.outline = '2.5px solid #3498db';
-                dayBtn.style.background = '#e3f2fd';
-            }
-
-            grid.appendChild(dayBtn);
+    // Restaurar dieta recurrente en días pasados (si no hay cambio manual)
+    if (
+        dateStr < todayStr &&
+        assignedDiets[weekday] &&
+        dateStr >= assignedDiets[weekday].from
+    ) {
+        if (savedMeals[dateStr]) {
+            delete savedMeals[dateStr];
+            localStorage.setItem('calendarMeals', JSON.stringify(savedMeals));
         }
-        calendarEl.appendChild(grid);
+    }
 
-        // ...al final de render()...
-const statsToggle = document.getElementById('calendar-stats-toggle');
-const statsPanel = document.getElementById('calendar-stats-panel');
-if (statsToggle && !statsToggle.dataset.listener) {
-    statsToggle.addEventListener('click', function() {
-        this.classList.toggle('rotated');
-        if (statsPanel.style.display === 'none' || !statsPanel.style.display) {
-            renderCalendarStats();
-            statsPanel.style.display = 'block';
+    // Decide qué comidas mostrar: primero las guardadas, si no, la dieta recurrente
+    let mealsToShow = savedMeals[dateStr];
+    if (
+        !mealsToShow &&
+        assignedDiets[weekday] &&
+        dateStr >= assignedDiets[weekday].from
+    ) {
+        mealsToShow = assignedDiets[weekday].meals;
+    }
+
+    const dayBtn = document.createElement('button');
+    dayBtn.textContent = d;
+    dayBtn.style.margin = '2px';
+    dayBtn.style.padding = '8px';
+    dayBtn.style.borderRadius = '50%';
+    dayBtn.style.border = 'none';
+    dayBtn.style.background = 'none';
+    dayBtn.style.cursor = 'pointer';
+    dayBtn.style.position = 'relative';
+    dayBtn.style.transition = 'background 0.2s';
+
+    // Día actual: azul pastel
+    if (
+        d === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear()
+    ) {
+        dayBtn.style.background = '#b3e5fc';
+        dayBtn.style.color = '#185a9d';
+        dayBtn.style.fontWeight = 'bold';
+    }
+
+    // Muestra el punto si hay comidas (manual o recurrente)
+    if (mealsToShow) {
+        const dot = document.createElement('span');
+        dot.style.position = 'absolute';
+        dot.style.bottom = '6px';
+        dot.style.left = '50%';
+        dot.style.transform = 'translateX(-50%)';
+        dot.style.width = '8px';
+        dot.style.height = '8px';
+        dot.style.borderRadius = '50%';
+
+        // Calcula macros totales del día
+        let macros = { kcal: 0, protein: 0, carbs: 0, fats: 0 };
+        Object.values(mealsToShow).forEach(foods => {
+            foods.forEach(f => {
+                macros.kcal += (f.calories * f.quantity / 100);
+                macros.protein += (f.protein * f.quantity / 100);
+                macros.carbs += (f.carbs * f.quantity / 100);
+                macros.fats += (f.fats * f.quantity / 100);
+            });
+        });
+
+        // Usa los objetivos del usuario si existen
+        const targets = window.state?.userMacros || { calories: 2000, protein: 120, carbs: 220, fats: 60 };
+
+        function getDeviation(val, target) {
+            if (!target) return 0;
+            return Math.abs((val - target) / target);
+        }
+        const deviations = [
+            getDeviation(macros.kcal, targets.calories),
+            getDeviation(macros.protein, targets.protein),
+            getDeviation(macros.carbs, targets.carbs),
+            getDeviation(macros.fats, targets.fats)
+        ];
+        const maxDev = Math.max(...deviations);
+
+        // Color según desviación
+        if (maxDev <= 0.10) {
+            dot.style.background = '#43cea2'; // verde
+        } else if (maxDev <= 0.30) {
+            dot.style.background = '#ffd600'; // amarillo
         } else {
-            statsPanel.style.display = 'none';
+            dot.style.background = '#e74c3c'; // rojo
         }
-    });
-    statsToggle.dataset.listener = "true";
-}
 
-// ACTUALIZA EL PANEL SI ESTÁ ABIERTO
-if (statsPanel && statsPanel.style.display === 'block') {
-    renderCalendarStats();
+        dayBtn.appendChild(dot);
+    }
+
+    // Tooltip al pasar el ratón
+    dayBtn.onmouseenter = (e) => {
+        let tooltipMeals = savedMeals[dateStr];
+        if (
+            !tooltipMeals &&
+            assignedDiets[weekday] &&
+            dateStr >= assignedDiets[weekday].from
+        ) {
+            tooltipMeals = assignedDiets[weekday].meals;
+        }
+        showTooltip(e.target, dateStr, tooltipMeals);
+    };
+    dayBtn.onmouseleave = hideTooltip;
+
+    dayBtn.onclick = () => {
+        selectedDay = dateStr;
+        render();
+    };
+
+    // Día seleccionado
+    if (dateStr === selectedDay) {
+        dayBtn.style.outline = '2.5px solid #3498db';
+        dayBtn.style.background = '#e3f2fd';
+    }
+
+    // Asignación de dieta recurrente: resaltar días correspondientes
+    if (
+        assignedDiets[weekday] &&
+        dateStr >= assignedDiets[weekday].from &&
+        dateStr !== selectedDay &&
+        !(d === today.getDate() && month === today.getMonth() && year === today.getFullYear())
+    ) {
+        dayBtn.style.background = '#e3f2fd';
+        dayBtn.style.boxShadow = '0 0 0 2px #90caf9 inset';
+    }
+
+    grid.appendChild(dayBtn);
 }
+calendarEl.appendChild(grid);
+
+        // Esto NO debe estar fuera de render ni del bucle:
+        
+
+        const statsToggle = document.getElementById('calendar-stats-toggle');
+        const statsPanel = document.getElementById('calendar-stats-panel');
+        if (statsToggle && !statsToggle.dataset.listener) {
+            statsToggle.addEventListener('click', function() {
+                this.classList.toggle('rotated');
+                if (statsPanel.style.display === 'none' || !statsPanel.style.display) {
+                    renderCalendarStats();
+                    statsPanel.style.display = 'block';
+                } else {
+                    statsPanel.style.display = 'none';
+                }
+            });
+            statsToggle.dataset.listener = "true";
+        }
+
+        // ACTUALIZA EL PANEL SI ESTÁ ABIERTO
+        if (statsPanel && statsPanel.style.display === 'block') {
+            renderCalendarStats();
+        }
     }
 
     function showTooltip(target, dateStr, meals) {
@@ -408,7 +466,44 @@ if (statsPanel && statsPanel.style.display === 'block') {
         };
     }
 
-    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay, goToToday };
+    function assignDietToDay() {
+        const selected = window.selectedDay; // día concreto
+        const selectedWeekdays = window.selectedWeekdays || []; // array de días de la semana
+        const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        const assignedDiets = getAssignedDiets();
+
+        if (selectedWeekdays.length > 0) {
+            const from = getLocalDateString(new Date());
+            selectedWeekdays.forEach(day => {
+                assignedDiets[day] = { from, meals: currentDiet };
+            });
+            alert('Dieta asignada a: ' + selectedWeekdays.join(', '));
+        } else if (selected) {
+            assignedDiets[selected] = { meals: currentDiet };
+            alert('Dieta asignada al día ' + formatDateSpanish(selected));
+        }
+        saveAssignedDiets(assignedDiets);
+        render();
+    }
+
+    function getAssignedDiets() {
+        return JSON.parse(localStorage.getItem('assignedDiets') || '{}');
+    }
+
+    function saveAssignedDiets(data) {
+    localStorage.setItem('assignedDiets', JSON.stringify(data));
+}
+
+    return { 
+        render, 
+        prevMonth, 
+        nextMonth, 
+        saveMealsForToday: saveMealsForSelectedDay, 
+        selectDay, 
+        saveMealsForSelectedDay, 
+        goToToday,
+        assignDietToDay
+    };
 })();
 
 document.addEventListener('DOMContentLoaded', () => Calendar.render());
@@ -419,3 +514,22 @@ function getLocalDateString(dateObj) {
     const day = String(dateObj.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+// Almacena los días seleccionados para la dieta recurrente
+window.selectedWeekdays = []; // Ejemplo: ['L', 'X']
+
+// Inicializa los botones
+document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
+    btn.onclick = function() {
+        const day = this.dataset.weekday;
+        if (window.selectedWeekdays.includes(day)) {
+            window.selectedWeekdays = window.selectedWeekdays.filter(d => d !== day);
+            this.classList.remove('selected');
+        } else {
+            window.selectedWeekdays.push(day);
+            this.classList.add('selected');
+        }
+        // Asignar dieta recurrente automáticamente al clicar
+        Calendar.assignDietToDay();
+    };
+});
