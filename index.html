@@ -2409,6 +2409,24 @@
             color: #e3f0ff !important;
             border-color: #185a9d !important;
         }
+
+        .diet-weekday-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: #f3f6fa;
+            color: #3498db;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .diet-weekday-btn.selected {
+            background: #3498db;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -2434,6 +2452,15 @@
                     <button class="btn btn-danger" onclick="App.deleteCurrentDiet()">🗑 Eliminar</button>
                     <button class="btn btn-primary" onclick="App.exportPDF()">📄 Exportar PDF</button>
                 </div>
+            </div>
+            <div id="diet-weekdays-selector" style="display:flex;gap:8px;margin:12px 0;">
+                <button class="diet-weekday-btn" data-weekday="L">L</button>
+                <button class="diet-weekday-btn" data-weekday="M">M</button>
+                <button class="diet-weekday-btn" data-weekday="X">X</button>
+                <button class="diet-weekday-btn" data-weekday="J">J</button>
+                <button class="diet-weekday-btn" data-weekday="V">V</button>
+                <button class="diet-weekday-btn" data-weekday="S">S</button>
+                <button class="diet-weekday-btn" data-weekday="D">D</button>
             </div>
             <div class="meal-grid" id="meals">
                 <!-- Las comidas se generarán dinámicamente -->
