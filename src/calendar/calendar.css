@@ -10,7 +10,7 @@
 
 /* Cabecera del calendario */
 .calendar-header {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .calendar-header h3 {
@@ -20,8 +20,19 @@
     letter-spacing: 1px;
     text-transform: capitalize;
 }
+#calendar-year-title {
+    text-align: center;
+    font-size: 1.15em;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #3498db;
+    letter-spacing: 1px;
+}
 
 .calendar-header .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #e3f2fd;
     border: none;
     border-radius: 50%;
@@ -31,6 +42,8 @@
     color: #3498db;
     cursor: pointer;
     transition: background 0.2s;
+    padding: 0;
+    line-height: 1;
 }
 .calendar-header .nav-btn:hover {
     background: #b3e5fc;

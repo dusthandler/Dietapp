@@ -28,7 +28,11 @@ window.Calendar = (() => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
 
-        monthTitle.textContent = current.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+        monthTitle.textContent = current.toLocaleString('es-ES', { month: 'long' });
+const yearTitle = document.getElementById('calendar-year-title');
+if (yearTitle) {
+    yearTitle.textContent = current.getFullYear();
+}
 
         const saveBtn = document.getElementById('calendar-save-btn');
         if (saveBtn) {
