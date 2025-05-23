@@ -249,6 +249,7 @@ calendarEl.appendChild(grid);
         if (statsPanel && statsPanel.style.display === 'block') {
             renderCalendarStats();
         }
+        updateDietWeekdayButtons();
     }
 
     function showTooltip(target, dateStr, meals) {
@@ -562,33 +563,6 @@ document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
 
 function updateDietWeekdayButtons() {
     const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
-    const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
-    const currentDietId = getDietId(currentDiet);
-
-    document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
-        const day = btn.dataset.weekday;
-        btn.classList.remove('selected', 'assigned-other');
-        btn.style.background = '';
-        btn.style.color = '';
-        btn.style.border = '';
-        btn.style.opacity = '';
-
-        if (assignedDiets[day]) {
-            if (assignedDiets[day].dietId === currentDietId) {
-                btn.classList.add('selected');
-                btn.classList.remove('assigned-other');
-                btn.style.background = '#3498db';
-                btn.style.color = '#fff';
-            } else {
-                btn.classList.remove('selected');
-                btn.classList.add('assigned-other');
-                // El CSS se encarga del estilo
-            }
-        }
-    });
-}
-
-const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
 const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
 const currentDietId = getDietId(currentDiet);
 
@@ -615,3 +589,5 @@ document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
         }
     }
 });
+}
+
