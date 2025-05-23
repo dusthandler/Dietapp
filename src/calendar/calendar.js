@@ -10,15 +10,12 @@ window.Calendar = (() => {
     }
     function saveMealsForDate(dateStr, meals) {
     const data = getSavedMeals();
-
-    // Comprobar si todas las comidas están vacías
     const isEmpty = Object.values(meals).every(arr => Array.isArray(arr) && arr.length === 0);
 
     if (isEmpty) {
-        // Elimina el día si está vacío
         delete data[dateStr];
     } else {
-        data[dateStr] = meals;
+        data[dateStr] = { ...meals, _manual: true }; // <-- Marca manual
     }
     localStorage.setItem('calendarMeals', JSON.stringify(data));
 }
@@ -152,7 +149,9 @@ for (let d = 1; d <= lastDay.getDate(); d++) {
 
         // Calcula macros totales del día
         let macros = { kcal: 0, protein: 0, carbs: 0, fats: 0 };
-        Object.values(mealsToShow).forEach(foods => {
+        Object.values(mealsToShow)
+        .filter(foods => Array.isArray(foods))
+        .forEach(foods => {
             foods.forEach(f => {
                 macros.kcal += (f.calories * f.quantity / 100);
                 macros.protein += (f.protein * f.quantity / 100);
@@ -384,13 +383,15 @@ calendarEl.appendChild(grid);
         // Agrupa comidas por semana
         const weeks = {};
         Object.keys(savedMeals).forEach(dateStr => {
-            const [y, m, d] = dateStr.split('-').map(Number);
-            if (y === year && m - 1 === month) {
-                const date = new Date(y, m - 1, d);
-                // Semana del mes (1-based, lunes a domingo)
-                const week = Math.ceil((d + (new Date(y, m - 1, 1).getDay() || 7) - 1) / 7);
-                if (!weeks[week]) weeks[week] = [];
-                weeks[week].push(savedMeals[dateStr]);
+            const dateObj = new Date(dateStr);
+            const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
+            const weekday = weekdayMap[dateObj.getDay()];
+            if (
+                weekday === day &&
+                dateStr >= todayStr && // solo futuros y hoy
+                !savedMeals[dateStr]._manual // <-- Solo si NO es manual
+            ) {
+                delete savedMeals[dateStr];
             }
         });
 
@@ -444,12 +445,14 @@ calendarEl.appendChild(grid);
         let totalKcal = 0, totalP = 0, totalC = 0, totalF = 0, days = 0;
         mealsArr.forEach(meals => {
             let kcal = 0, p = 0, c = 0, f = 0;
-            Object.values(meals).forEach(foods => {
-                foods.forEach(food => {
-                    kcal += (food.calories * food.quantity / 100);
-                    p += (food.protein * food.quantity / 100);
-                    c += (food.carbs * food.quantity / 100);
-                    f += (food.fats * food.quantity / 100);
+            Object.values(mealsToShow)
+            .filter(foods => Array.isArray(foods))
+            .forEach(foods => {
+                foods.forEach(f => {
+                    macros.kcal += (f.calories * f.quantity / 100);
+                    macros.protein += (f.protein * f.quantity / 100);
+                    macros.carbs += (f.carbs * f.quantity / 100);
+                    macros.fats += (f.fats * f.quantity / 100);
                 });
             });
             totalKcal += kcal;
@@ -541,8 +544,9 @@ document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
                 const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
                 const weekday = weekdayMap[dateObj.getDay()];
                 if (
-                    weekday === day &&
-                    dateStr >= todayStr // solo futuros y hoy
+                    weekday === day && // <-- aquí
+                    dateStr >= todayStr &&
+                    !savedMeals[dateStr]._manual
                 ) {
                     delete savedMeals[dateStr];
                 }
