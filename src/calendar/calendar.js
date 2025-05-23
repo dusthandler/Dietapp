@@ -477,10 +477,10 @@ calendarEl.appendChild(grid);
             selectedWeekdays.forEach(day => {
                 assignedDiets[day] = { from, meals: currentDiet };
             });
-            alert('Dieta asignada a: ' + selectedWeekdays.join(', '));
+           
         } else if (selected) {
             assignedDiets[selected] = { meals: currentDiet };
-            alert('Dieta asignada al día ' + formatDateSpanish(selected));
+            
         }
         saveAssignedDiets(assignedDiets);
         render();
@@ -502,7 +502,8 @@ calendarEl.appendChild(grid);
         selectDay, 
         saveMealsForSelectedDay, 
         goToToday,
-        assignDietToDay
+        assignDietToDay,
+        getAssignedDiets
     };
 })();
 
@@ -522,14 +523,38 @@ window.selectedWeekdays = []; // Ejemplo: ['L', 'X']
 document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
     btn.onclick = function() {
         const day = this.dataset.weekday;
+        const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
+        const todayStr = getLocalDateString(new Date());
+
         if (window.selectedWeekdays.includes(day)) {
+            // Desmarcar: quitar de seleccionados y eliminar dieta recurrente futura
             window.selectedWeekdays = window.selectedWeekdays.filter(d => d !== day);
             this.classList.remove('selected');
+
+            // Elimina la dieta recurrente de ese día
+            delete assignedDiets[day];
+
+            // Limpia los días futuros de esa dieta recurrente
+            const savedMeals = JSON.parse(localStorage.getItem('calendarMeals') || '{}');
+            Object.keys(savedMeals).forEach(dateStr => {
+                const dateObj = new Date(dateStr);
+                const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
+                const weekday = weekdayMap[dateObj.getDay()];
+                if (
+                    weekday === day &&
+                    dateStr >= todayStr // solo futuros y hoy
+                ) {
+                    delete savedMeals[dateStr];
+                }
+            });
+            localStorage.setItem('calendarMeals', JSON.stringify(savedMeals));
+            localStorage.setItem('assignedDiets', JSON.stringify(assignedDiets));
+            Calendar.render();
         } else {
+            // Marcar: añadir a seleccionados y asignar dieta
             window.selectedWeekdays.push(day);
             this.classList.add('selected');
+            Calendar.assignDietToDay();
         }
-        // Asignar dieta recurrente automáticamente al clicar
-        Calendar.assignDietToDay();
     };
 });
