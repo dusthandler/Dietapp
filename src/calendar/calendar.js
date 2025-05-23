@@ -32,6 +32,20 @@ window.Calendar = (() => {
 const yearTitle = document.getElementById('calendar-year-title');
 if (yearTitle) {
     yearTitle.textContent = current.getFullYear();
+    const statsToggle = document.getElementById('calendar-stats-toggle');
+    if (statsToggle && !statsToggle.dataset.listener) {
+        statsToggle.addEventListener('click', function() {
+            const panel = document.getElementById('calendar-stats-panel');
+            this.classList.toggle('rotated');
+            if (panel.style.display === 'none' || !panel.style.display) {
+                renderCalendarStats();
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        });
+        statsToggle.dataset.listener = "true";
+    }
 }
 
         const saveBtn = document.getElementById('calendar-save-btn');
@@ -244,6 +258,98 @@ if (yearTitle) {
         current = new Date();
         selectedDay = getLocalDateString(current);
         render();
+    }
+
+    function renderCalendarStats() {
+        const panel = document.getElementById('calendar-stats-panel');
+        if (!panel) return;
+        const year = current.getFullYear();
+        const month = current.getMonth();
+        const savedMeals = getSavedMeals();
+
+        // Agrupa comidas por semana
+        const weeks = {};
+        Object.keys(savedMeals).forEach(dateStr => {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            if (y === year && m - 1 === month) {
+                const date = new Date(y, m - 1, d);
+                // Semana del mes (1-based, lunes a domingo)
+                const week = Math.ceil((d + (new Date(y, m - 1, 1).getDay() || 7) - 1) / 7);
+                if (!weeks[week]) weeks[week] = [];
+                weeks[week].push(savedMeals[dateStr]);
+            }
+        });
+
+        // Calcula medias semanales
+        let html = '<div style="font-weight:600;color:#3498db;margin-bottom:8px;">Medias semanales</div>';
+        let anyWeek = false;
+        Object.keys(weeks).sort((a, b) => a - b).forEach(weekNum => {
+            const weekMeals = weeks[weekNum];
+            if (!weekMeals.length) return;
+            anyWeek = true;
+            const stats = calcAverages(weekMeals);
+            html += `
+                <div style="margin-bottom:6px; display: flex; align-items: center;">
+                    <b style="min-width: 90px;">Semana ${weekNum}:</b>
+                    <span style="display: inline-flex; flex: 1; justify-content: space-between;">
+                        <span>🔥${stats.kcal}</span>
+                        <span>💪${stats.protein}</span>
+                        <span>🍞${stats.carbs}</span>
+                        <span>🥑${stats.fats}</span>
+                    </span>
+                </div>
+            `;
+        });
+        if (!anyWeek) html += '<div style="color:#888;">No hay datos guardados este mes</div>';
+
+        // Calcula medias mensuales
+        const monthMeals = [];
+        Object.keys(savedMeals).forEach(dateStr => {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            if (y === year && m - 1 === month) {
+                monthMeals.push(savedMeals[dateStr]);
+            }
+        });
+        if (monthMeals.length) {
+    const stats = calcAverages(monthMeals);
+    html += `<div style="font-weight:600;color:#3498db;margin:12px 0 4px 0;">Media mensual</div>
+        <div style="display: flex; align-items: center;">
+            <span style="display: inline-flex; flex: 1; justify-content: space-between;">
+                <span>🔥${stats.kcal}</span>
+                <span>💪${stats.protein}</span>
+                <span>🍞${stats.carbs}</span>
+                <span>🥑${stats.fats}</span>
+            </span>
+        </div>`;
+}
+
+        panel.innerHTML = html;
+    }
+
+    function calcAverages(mealsArr) {
+        let totalKcal = 0, totalP = 0, totalC = 0, totalF = 0, days = 0;
+        mealsArr.forEach(meals => {
+            let kcal = 0, p = 0, c = 0, f = 0;
+            Object.values(meals).forEach(foods => {
+                foods.forEach(food => {
+                    kcal += (food.calories * food.quantity / 100);
+                    p += (food.protein * food.quantity / 100);
+                    c += (food.carbs * food.quantity / 100);
+                    f += (food.fats * food.quantity / 100);
+                });
+            });
+            totalKcal += kcal;
+            totalP += p;
+            totalC += c;
+            totalF += f;
+            days++;
+        });
+        return {
+            kcal: days ? Math.round(totalKcal / days) : 0,
+            protein: days ? Math.round(totalP / days) : 0,
+            carbs: days ? Math.round(totalC / days) : 0,
+            fats: days ? Math.round(totalF / days) : 0
+        };
     }
 
     return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay, goToToday };

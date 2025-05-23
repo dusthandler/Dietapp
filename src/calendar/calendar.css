@@ -134,3 +134,28 @@
     pointer-events: none;
     transition: opacity 0.15s;
 }
+
+.calendar-stats-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2px auto;
+    padding: 0;
+}
+.calendar-stats-btn:hover {
+    background: #e3f2fd;
+}
+.calendar-stats-btn.rotated svg {
+    transform: rotate(180deg);
+    transition: transform 0.2s;
+}
+.calendar-stats-btn svg {
+    display: block;
+}
