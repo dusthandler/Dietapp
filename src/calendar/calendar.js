@@ -380,18 +380,16 @@ calendarEl.appendChild(grid);
         const month = current.getMonth();
         const savedMeals = getSavedMeals();
 
-        // Agrupa comidas por semana
+        // Agrupa comidas por semana del mes actual
         const weeks = {};
         Object.keys(savedMeals).forEach(dateStr => {
-            const dateObj = new Date(dateStr);
-            const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
-            const weekday = weekdayMap[dateObj.getDay()];
-            if (
-                weekday === day &&
-                dateStr >= todayStr && // solo futuros y hoy
-                !savedMeals[dateStr]._manual // <-- Solo si NO es manual
-            ) {
-                delete savedMeals[dateStr];
+            const [y, m, d] = dateStr.split('-').map(Number);
+            if (y === year && m - 1 === month) {
+                const dateObj = new Date(dateStr);
+                // Número de semana del mes (1-5)
+                const weekNum = Math.ceil((dateObj.getDate() + (dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1)) / 7);
+                if (!weeks[weekNum]) weeks[weekNum] = [];
+                weeks[weekNum].push(savedMeals[dateStr]);
             }
         });
 
@@ -426,16 +424,16 @@ calendarEl.appendChild(grid);
             }
         });
         if (monthMeals.length) {
-    const stats = calcAverages(monthMeals);
-    html += `<div style="font-weight:600;color:#3498db;margin:12px 0 4px 0;">Media mensual</div>
-        <div style="display: flex; align-items: center;">
-            <span style="display: inline-flex; flex: 1; justify-content: space-between;">
-                <span>🔥${stats.kcal}</span>
-                <span>💪${stats.protein}</span>
-                <span>🍞${stats.carbs}</span>
-                <span>🥑${stats.fats}</span>
-            </span>
-        </div>`;
+        const stats = calcAverages(monthMeals);
+        html += `<div style="font-weight:600;color:#3498db;margin:12px 0 4px 0;">Media mensual</div>
+            <div style="display: flex; align-items: center;">
+                <span style="display: inline-flex; flex: 1; justify-content: space-between;">
+                    <span>🔥${stats.kcal}</span>
+                    <span>💪${stats.protein}</span>
+                    <span>🍞${stats.carbs}</span>
+                    <span>🥑${stats.fats}</span>
+                </span>
+            </div>`;
 }
 
         panel.innerHTML = html;
@@ -444,21 +442,21 @@ calendarEl.appendChild(grid);
     function calcAverages(mealsArr) {
         let totalKcal = 0, totalP = 0, totalC = 0, totalF = 0, days = 0;
         mealsArr.forEach(meals => {
-            let kcal = 0, p = 0, c = 0, f = 0;
-            Object.values(mealsToShow)
+            let kcal = 0, p = 0, c = 0, fat = 0;
+            Object.values(meals)
             .filter(foods => Array.isArray(foods))
             .forEach(foods => {
                 foods.forEach(f => {
-                    macros.kcal += (f.calories * f.quantity / 100);
-                    macros.protein += (f.protein * f.quantity / 100);
-                    macros.carbs += (f.carbs * f.quantity / 100);
-                    macros.fats += (f.fats * f.quantity / 100);
+                    kcal += (f.calories * f.quantity / 100);
+                    p += (f.protein * f.quantity / 100);
+                    c += (f.carbs * f.quantity / 100);
+                    fat += (f.fats * f.quantity / 100);
                 });
             });
             totalKcal += kcal;
             totalP += p;
             totalC += c;
-            totalF += f;
+            totalF += fat;
             days++;
         });
         return {
