@@ -517,6 +517,12 @@ function getLocalDateString(dateObj) {
     return `${year}-${month}-${day}`;
 }
 
+// Mueve esta función fuera del IIFE:
+function getDietId(diet) {
+    // Puedes usar un hash simple, por ejemplo, JSON.stringify ordenado
+    return JSON.stringify(Object.entries(diet).sort());
+}
+
 // Almacena los días seleccionados para la dieta recurrente
 window.selectedWeekdays = []; // Ejemplo: ['L', 'X']
 
@@ -525,38 +531,87 @@ document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
     btn.onclick = function() {
         const day = this.dataset.weekday;
         const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
-        const todayStr = getLocalDateString(new Date());
+        const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        const currentDietId = getDietId(currentDiet);
 
-        if (window.selectedWeekdays.includes(day)) {
-            // Desmarcar: quitar de seleccionados y eliminar dieta recurrente futura
-            window.selectedWeekdays = window.selectedWeekdays.filter(d => d !== day);
-            this.classList.remove('selected');
-
-            // Elimina la dieta recurrente de ese día
+        // Si ya está asignado a la dieta actual, desasigna
+        if (assignedDiets[day] && assignedDiets[day].dietId === currentDietId) {
             delete assignedDiets[day];
-
-            // Limpia los días futuros de esa dieta recurrente
-            const savedMeals = JSON.parse(localStorage.getItem('calendarMeals') || '{}');
-            Object.keys(savedMeals).forEach(dateStr => {
-                const dateObj = new Date(dateStr);
-                const weekdayMap = [ 'D', 'L', 'M', 'X', 'J', 'V', 'S' ];
-                const weekday = weekdayMap[dateObj.getDay()];
-                if (
-                    weekday === day && // <-- aquí
-                    dateStr >= todayStr &&
-                    !savedMeals[dateStr]._manual
-                ) {
-                    delete savedMeals[dateStr];
-                }
-            });
-            localStorage.setItem('calendarMeals', JSON.stringify(savedMeals));
-            localStorage.setItem('assignedDiets', JSON.stringify(assignedDiets));
-            Calendar.render();
+        } else if (assignedDiets[day] && assignedDiets[day].dietId !== currentDietId) {
+            // Si ya está asignado a otra dieta, pregunta antes de sobrescribir
+            if (confirm('Este día ya tiene asignada otra dieta recurrente. ¿Quieres sobrescribirla?')) {
+                assignedDiets[day] = {
+                    from: getLocalDateString(new Date()),
+                    meals: currentDiet,
+                    dietId: currentDietId
+                };
+            } // Si cancela, no hace nada
         } else {
-            // Marcar: añadir a seleccionados y asignar dieta
-            window.selectedWeekdays.push(day);
-            this.classList.add('selected');
-            Calendar.assignDietToDay();
+            // Asigna la dieta actual a ese día
+            assignedDiets[day] = {
+                from: getLocalDateString(new Date()),
+                meals: currentDiet,
+                dietId: currentDietId
+            };
         }
+        localStorage.setItem('assignedDiets', JSON.stringify(assignedDiets));
+        updateDietWeekdayButtons();
+        Calendar.render(); // <-- Añade esta línea
     };
+});
+
+function updateDietWeekdayButtons() {
+    const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
+    const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
+    const currentDietId = getDietId(currentDiet);
+
+    document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
+        const day = btn.dataset.weekday;
+        btn.classList.remove('selected', 'assigned-other');
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.border = '';
+        btn.style.opacity = '';
+
+        if (assignedDiets[day]) {
+            if (assignedDiets[day].dietId === currentDietId) {
+                btn.classList.add('selected');
+                btn.classList.remove('assigned-other');
+                btn.style.background = '#3498db';
+                btn.style.color = '#fff';
+            } else {
+                btn.classList.remove('selected');
+                btn.classList.add('assigned-other');
+                // El CSS se encarga del estilo
+            }
+        }
+    });
+}
+
+const assignedDiets = Calendar.getAssignedDiets ? Calendar.getAssignedDiets() : getAssignedDiets();
+const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
+const currentDietId = getDietId(currentDiet);
+
+document.querySelectorAll('.diet-weekday-btn').forEach(btn => {
+    const day = btn.dataset.weekday;
+    btn.classList.remove('selected', 'assigned-other');
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.border = '';
+    btn.style.opacity = '';
+
+    if (assignedDiets[day]) {
+        if (assignedDiets[day].dietId === currentDietId) {
+            btn.classList.add('selected');
+            btn.classList.remove('assigned-other');
+            btn.style.background = '#3498db';
+            btn.style.color = '#fff';
+            btn.style.border = '';
+            btn.style.opacity = '';
+        } else {
+            btn.classList.remove('selected');
+            btn.classList.add('assigned-other');
+            // No pongas estilos inline aquí, deja que el CSS actúe
+        }
+    }
 });

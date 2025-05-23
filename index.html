@@ -4962,6 +4962,7 @@
 
                     const newIndex = (state.currentDietIndex - 1 + dietNames.length) % dietNames.length;
                     loadDietByIndex(newIndex);
+                    if (typeof updateDietWeekdayButtons === 'function') updateDietWeekdayButtons();
                 };
 
                 const nextDiet = () => {
@@ -4970,6 +4971,7 @@
 
                     const newIndex = (state.currentDietIndex + 1) % dietNames.length;
                     loadDietByIndex(newIndex);
+                    if (typeof updateDietWeekdayButtons === 'function') updateDietWeekdayButtons();
                 };
 
                 const editDietName = () => {

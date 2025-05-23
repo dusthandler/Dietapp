@@ -160,3 +160,19 @@
     transition: transform 0.2s;
     display: block;
 }
+
+.diet-weekday-btn.assigned-other {
+    border: 2px dashed #90caf9 !important;
+    background: #e3f2fd !important;
+    color: #3498db !important;
+    opacity: 0.7 !important;
+    position: relative;
+}
+.diet-weekday-btn.assigned-other::after {
+    content: "🔒";
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    font-size: 1em;
+    opacity: 0.8;
+}
