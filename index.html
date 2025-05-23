@@ -4905,6 +4905,7 @@
                     loadDietByIndex(newIndex, true); // <--- NO guardar el estado actual
                     saveState();
                     renderSavedDiets();
+                    if (typeof updateDietWeekdayButtons === 'function') updateDietWeekdayButtons();
                 };
 
                 const loadDiet = (name) => {
@@ -4961,6 +4962,7 @@
                     loadDietByIndex(newIndex);
                     saveState();
                     renderSavedDiets();
+                    if (typeof updateDietWeekdayButtons === 'function') updateDietWeekdayButtons();
                 };
 
                 const prevDiet = () => {
