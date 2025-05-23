@@ -1,0 +1,113 @@
+/* Contenedor del calendario */
+.calendar-container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(44,62,80,0.08);
+    padding: 18px 18px 12px 18px;
+    margin: 18px 0;
+    border: 1.5px solid #e3eaf2;
+}
+
+/* Cabecera del calendario */
+.calendar-header {
+    margin-bottom: 10px;
+}
+
+.calendar-header h3 {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #3498db;
+    letter-spacing: 1px;
+    text-transform: capitalize;
+}
+
+.calendar-header .nav-btn {
+    background: #e3f2fd;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2em;
+    color: #3498db;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.calendar-header .nav-btn:hover {
+    background: #b3e5fc;
+}
+
+/* Días de la semana */
+.calendar > div:first-child > div {
+    color: #888;
+    font-size: 1em;
+    padding: 4px 0 8px 0;
+    letter-spacing: 1px;
+}
+
+/* Días del mes */
+.calendar button {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    margin: 2px auto;
+    font-size: 1em;
+    color: #2c3e50;
+    font-weight: 500;
+    transition: background 0.18s, color 0.18s, outline 0.18s;
+    position: relative;
+    outline: none;
+}
+.calendar button:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+    z-index: 1;
+}
+
+/* Día actual */
+.calendar button[style*="background: #b3e5fc"] {
+    box-shadow: 0 0 0 2px #b3e5fc;
+    border: 1.5px solid #90caf9;
+}
+
+/* Día seleccionado */
+.calendar button[style*="outline: 2.5px solid #3498db"] {
+    box-shadow: 0 0 0 2px #3498db;
+    border: 1.5px solid #3498db;
+    background: #e3f2fd !important;
+    color: #1976d2 !important;
+}
+
+/* Punto verde de comidas guardadas */
+.calendar button span {
+    display: block;
+    margin: 0 auto;
+    margin-top: 2px;
+    width: 8px;
+    height: 8px;
+    background: #43cea2;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    border: 1.5px solid #fff;
+    box-shadow: 0 1px 3px rgba(67,206,162,0.12);
+}
+
+/* Tooltip */
+#calendar-tooltip {
+    font-size: 1em;
+    background: #fff;
+    border: 1.5px solid #3498db;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.13);
+    padding: 14px 18px;
+    color: #222;
+    z-index: 9999;
+    min-width: 220px;
+    max-width: 350px;
+    pointer-events: none;
+    transition: opacity 0.15s;
+}
