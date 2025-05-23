@@ -2697,8 +2697,8 @@
                 </div>
                 <div class="calendar" id="calendar"></div>
                 <div style="display:flex;gap:10px;margin-top:10px;">
-                    <button class="btn btn-success" style="flex:1;" onclick="Calendar.saveMealsForToday()">Guardar
-                        comidas de hoy</button>
+                    <button id="calendar-save-btn" class="btn btn-success" style="flex:1;"
+                        onclick="Calendar.saveMealsForSelectedDay()">Guardar en (fecha)</button>
                     <button class="btn btn-primary" style="flex:1;" onclick="Calendar.selectDay()">Seleccionar
                         día</button>
                 </div>

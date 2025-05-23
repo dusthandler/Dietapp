@@ -14,6 +14,11 @@ window.Calendar = (() => {
         localStorage.setItem('calendarMeals', JSON.stringify(data));
     }
 
+    function formatDateSpanish(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
     function render() {
         if (!calendarEl || !monthTitle) return;
         calendarEl.innerHTML = '';
@@ -24,6 +29,12 @@ window.Calendar = (() => {
         const lastDay = new Date(year, month + 1, 0);
 
         monthTitle.textContent = current.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+        const saveBtn = document.getElementById('calendar-save-btn');
+        if (saveBtn) {
+            const fecha = selectedDay || getLocalDateString(new Date());
+            saveBtn.textContent = `Guardar en (${formatDateSpanish(fecha)})`;
+        }
 
         // Días de la semana
         const daysRow = document.createElement('div');
@@ -50,7 +61,7 @@ window.Calendar = (() => {
         const savedMeals = getSavedMeals();
         for (let d = 1; d <= lastDay.getDate(); d++) {
             const dateObj = new Date(year, month, d);
-            const dateStr = dateObj.toISOString().slice(0, 10);
+            const dateStr = getLocalDateString(dateObj);
             const dayBtn = document.createElement('button');
             dayBtn.textContent = d;
             dayBtn.style.margin = '2px';
@@ -95,7 +106,7 @@ window.Calendar = (() => {
 
             dayBtn.onclick = () => {
                 selectedDay = dateStr;
-                alert('Seleccionaste el día: ' + dateStr);
+                render();
             };
 
             // Dentro del bucle de los días, después de marcar el día actual:
@@ -207,7 +218,6 @@ window.Calendar = (() => {
         const meals = JSON.parse(JSON.stringify(window.state.selectedFoods));
         saveMealsForDate(dateStr, meals);
         render();
-        alert('Comidas guardadas para hoy.');
     }
 
     function selectDay() {
@@ -217,10 +227,23 @@ window.Calendar = (() => {
         const meals = JSON.parse(JSON.stringify(window.state.selectedFoods));
         saveMealsForDate(dateStr, meals);
         render();
-        alert('Comidas guardadas para ' + dateStr);
     }
 
-    return { render, prevMonth, nextMonth, saveMealsForToday, selectDay };
+    function saveMealsForSelectedDay() {
+        const dateStr = selectedDay || getLocalDateString(new Date());
+        const meals = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        saveMealsForDate(dateStr, meals);
+        render();
+    }
+
+    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay };
 })();
 
 document.addEventListener('DOMContentLoaded', () => Calendar.render());
+
+function getLocalDateString(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
