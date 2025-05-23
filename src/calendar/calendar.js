@@ -76,10 +76,20 @@ window.Calendar = (() => {
         }
 
         // Días del mes
-        const savedMeals = getSavedMeals();
+        const assignedDiets = getAssignedDiets();
+        let savedMeals = getSavedMeals();
         for (let d = 1; d <= lastDay.getDate(); d++) {
             const dateObj = new Date(year, month, d);
             const dateStr = getLocalDateString(dateObj);
+
+            // Restaurar dieta asignada si es un día pasado
+            restoreAssignedDietIfNeeded(dateStr);
+
+            // Recarga comidas por si han cambiado tras restaurar
+            savedMeals = getSavedMeals();
+
+            const weekday = dateObj.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0); // 'L', 'M', etc.
+
             const dayBtn = document.createElement('button');
             dayBtn.textContent = d;
             dayBtn.style.margin = '2px';
@@ -173,104 +183,104 @@ window.Calendar = (() => {
         calendarEl.appendChild(grid);
 
         // ...al final de render()...
-const statsToggle = document.getElementById('calendar-stats-toggle');
-const statsPanel = document.getElementById('calendar-stats-panel');
-if (statsToggle && !statsToggle.dataset.listener) {
-    statsToggle.addEventListener('click', function() {
-        this.classList.toggle('rotated');
-        if (statsPanel.style.display === 'none' || !statsPanel.style.display) {
-            renderCalendarStats();
-            statsPanel.style.display = 'block';
-        } else {
-            statsPanel.style.display = 'none';
+        const statsToggle = document.getElementById('calendar-stats-toggle');
+        const statsPanel = document.getElementById('calendar-stats-panel');
+        if (statsToggle && !statsToggle.dataset.listener) {
+            statsToggle.addEventListener('click', function() {
+                this.classList.toggle('rotated');
+                if (statsPanel.style.display === 'none' || !statsPanel.style.display) {
+                    renderCalendarStats();
+                    statsPanel.style.display = 'block';
+                } else {
+                    statsPanel.style.display = 'none';
+                }
+            });
+            statsToggle.dataset.listener = "true";
         }
-    });
-    statsToggle.dataset.listener = "true";
-}
 
-// ACTUALIZA EL PANEL SI ESTÁ ABIERTO
-if (statsPanel && statsPanel.style.display === 'block') {
-    renderCalendarStats();
-}
+        // ACTUALIZA EL PANEL SI ESTÁ ABIERTO
+        if (statsPanel && statsPanel.style.display === 'block') {
+            renderCalendarStats();
+        }
     }
 
     function showTooltip(target, dateStr, meals) {
-    let tooltip = document.getElementById('calendar-tooltip');
-    if (!tooltip) {
-        tooltip = document.createElement('div');
-        tooltip.id = 'calendar-tooltip';
-        tooltip.style.position = 'absolute';
-        tooltip.style.background = '#fff';
-        tooltip.style.color = '#222';
-        tooltip.style.border = '1px solid #3498db';
-        tooltip.style.borderRadius = '8px';
-        tooltip.style.boxShadow = '0 2px 8px rgba(44,62,80,0.13)';
-        tooltip.style.padding = '12px 16px';
-        tooltip.style.fontSize = '1em';
-        tooltip.style.zIndex = 9999;
-        tooltip.style.minWidth = '200px';
-        tooltip.style.maxWidth = '350px';
-        tooltip.style.pointerEvents = 'none';
-        tooltip.style.display = 'block';
-        document.body.appendChild(tooltip);
-    }
-    if (!meals) {
-        tooltip.innerHTML = '<span style="color:#888;">No hay comidas guardadas para este día</span>';
-    } else {
-        // Resumen de comidas y macros
-        let macros = { calories: 0, protein: 0, carbs: 0, fats: 0 };
-        let html = `<div style="font-weight:600;color:#3498db;margin-bottom:4px;">Resumen del día ${formatDateSpanish(dateStr)}:</div>`;
-        Object.entries(meals).forEach(([meal, foods]) => {
-            if (!foods.length) return;
-            html += `<div style="margin-bottom:2px;"><b>${meal}:</b> `;
-            html += foods.map(f => `${f.emoji || ''} ${f.name} (${f.quantity}g)`).join(', ');
-            html += `</div>`;
-            foods.forEach(f => {
-                macros.calories += (f.calories * f.quantity / 100);
-                macros.protein += (f.protein * f.quantity / 100);
-                macros.carbs += (f.carbs * f.quantity / 100);
-                macros.fats += (f.fats * f.quantity / 100);
+        let tooltip = document.getElementById('calendar-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'calendar-tooltip';
+            tooltip.style.position = 'absolute';
+            tooltip.style.background = '#fff';
+            tooltip.style.color = '#222';
+            tooltip.style.border = '1px solid #3498db';
+            tooltip.style.borderRadius = '8px';
+            tooltip.style.boxShadow = '0 2px 8px rgba(44,62,80,0.13)';
+            tooltip.style.padding = '12px 16px';
+            tooltip.style.fontSize = '1em';
+            tooltip.style.zIndex = 9999;
+            tooltip.style.minWidth = '200px';
+            tooltip.style.maxWidth = '350px';
+            tooltip.style.pointerEvents = 'none';
+            tooltip.style.display = 'block';
+            document.body.appendChild(tooltip);
+        }
+        if (!meals) {
+            tooltip.innerHTML = '<span style="color:#888;">No hay comidas guardadas para este día</span>';
+        } else {
+            // Resumen de comidas y macros
+            let macros = { calories: 0, protein: 0, carbs: 0, fats: 0 };
+            let html = `<div style="font-weight:600;color:#3498db;margin-bottom:4px;">Resumen del día ${formatDateSpanish(dateStr)}:</div>`;
+            Object.entries(meals).forEach(([meal, foods]) => {
+                if (!foods.length) return;
+                html += `<div style="margin-bottom:2px;"><b>${meal}:</b> `;
+                html += foods.map(f => `${f.emoji || ''} ${f.name} (${f.quantity}g)`).join(', ');
+                html += `</div>`;
+                foods.forEach(f => {
+                    macros.calories += (f.calories * f.quantity / 100);
+                    macros.protein += (f.protein * f.quantity / 100);
+                    macros.carbs += (f.carbs * f.quantity / 100);
+                    macros.fats += (f.fats * f.quantity / 100);
+                });
             });
-        });
-        html += `<div style="margin-top:6px;font-size:0.98em;">
-            <b>Macros:</b>
-            🔥 ${macros.calories.toFixed(1)} kcal,
-            💪 ${macros.protein.toFixed(1)}g,
-            🍞 ${macros.carbs.toFixed(1)}g,
-            🥑 ${macros.fats.toFixed(1)}g
-        </div>`;
-        tooltip.innerHTML = html;
-    }
-    // Mejor posicionamiento: a la derecha, si no cabe a la izquierda, si no debajo
-    const rect = target.getBoundingClientRect();
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
-    const scrollX = window.scrollX || document.documentElement.scrollLeft;
-    const tooltipWidth = tooltip.offsetWidth || 220;
-    const tooltipHeight = tooltip.offsetHeight || 120;
+            html += `<div style="margin-top:6px;font-size:0.98em;">
+                <b>Macros:</b>
+                🔥 ${macros.calories.toFixed(1)} kcal,
+                💪 ${macros.protein.toFixed(1)}g,
+                🍞 ${macros.carbs.toFixed(1)}g,
+                🥑 ${macros.fats.toFixed(1)}g
+            </div>`;
+            tooltip.innerHTML = html;
+        }
+        // Mejor posicionamiento: a la derecha, si no cabe a la izquierda, si no debajo
+        const rect = target.getBoundingClientRect();
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const scrollX = window.scrollX || document.documentElement.scrollLeft;
+        const tooltipWidth = tooltip.offsetWidth || 220;
+        const tooltipHeight = tooltip.offsetHeight || 120;
 
-    let left = rect.right + 10 + scrollX;
-    let top = rect.top + scrollY + rect.height / 2 - tooltipHeight / 2;
+        let left = rect.right + 10 + scrollX;
+        let top = rect.top + scrollY + rect.height / 2 - tooltipHeight / 2;
 
-    // Si no cabe a la derecha, prueba a la izquierda
-    if (left + tooltipWidth > scrollX + window.innerWidth) {
-        left = rect.left - tooltipWidth - 10 + scrollX;
-    }
-    // Si tampoco cabe a la izquierda, ponlo debajo
-    if (left < scrollX) {
-        left = rect.left + scrollX + rect.width / 2 - tooltipWidth / 2;
-        top = rect.bottom + 10 + scrollY;
-    }
-    // Si se sale por arriba, ajústalo
-    if (top < scrollY) top = scrollY + 8;
-    // Si se sale por abajo, ajústalo
-    if (top + tooltipHeight > scrollY + window.innerHeight) {
-        top = scrollY + window.innerHeight - tooltipHeight - 8;
-    }
+        // Si no cabe a la derecha, prueba a la izquierda
+        if (left + tooltipWidth > scrollX + window.innerWidth) {
+            left = rect.left - tooltipWidth - 10 + scrollX;
+        }
+        // Si tampoco cabe a la izquierda, ponlo debajo
+        if (left < scrollX) {
+            left = rect.left + scrollX + rect.width / 2 - tooltipWidth / 2;
+            top = rect.bottom + 10 + scrollY;
+        }
+        // Si se sale por arriba, ajústalo
+        if (top < scrollY) top = scrollY + 8;
+        // Si se sale por abajo, ajústalo
+        if (top + tooltipHeight > scrollY + window.innerHeight) {
+            top = scrollY + window.innerHeight - tooltipHeight - 8;
+        }
 
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-    tooltip.style.display = 'block';
-}
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+        tooltip.style.display = 'block';
+    }
     function hideTooltip() {
         const tooltip = document.getElementById('calendar-tooltip');
         if (tooltip) tooltip.style.display = 'none';
@@ -367,17 +377,17 @@ if (statsPanel && statsPanel.style.display === 'block') {
             }
         });
         if (monthMeals.length) {
-    const stats = calcAverages(monthMeals);
-    html += `<div style="font-weight:600;color:#3498db;margin:12px 0 4px 0;">Media mensual</div>
-        <div style="display: flex; align-items: center;">
-            <span style="display: inline-flex; flex: 1; justify-content: space-between;">
-                <span>🔥${stats.kcal}</span>
-                <span>💪${stats.protein}</span>
-                <span>🍞${stats.carbs}</span>
-                <span>🥑${stats.fats}</span>
-            </span>
-        </div>`;
-}
+            const stats = calcAverages(monthMeals);
+            html += `<div style="font-weight:600;color:#3498db;margin:12px 0 4px 0;">Media mensual</div>
+                <div style="display: flex; align-items: center;">
+                    <span style="display: inline-flex; flex: 1; justify-content: space-between;">
+                        <span>🔥${stats.kcal}</span>
+                        <span>💪${stats.protein}</span>
+                        <span>🍞${stats.carbs}</span>
+                        <span>🥑${stats.fats}</span>
+                    </span>
+                </div>`;
+        }
 
         panel.innerHTML = html;
     }
@@ -408,7 +418,50 @@ if (statsPanel && statsPanel.style.display === 'block') {
         };
     }
 
-    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay, goToToday };
+    function getAssignedDiets() {
+        return JSON.parse(localStorage.getItem('assignedDiets') || '{}');
+    }
+    function saveAssignedDiets(data) {
+        localStorage.setItem('assignedDiets', JSON.stringify(data));
+    }
+
+    function assignDietToDay() {
+        const selected = selectedDay; // formato YYYY-MM-DD
+        const selectedWeekday = getSelectedWeekday && getSelectedWeekday(); // función que devuelve 'L' si está seleccionada la L de lunes, etc.
+        const currentDiet = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        const assignedDiets = getAssignedDiets();
+
+        if (selectedWeekday) {
+            // Asignar a todos los lunes a partir de hoy
+            assignedDiets[selectedWeekday] = {
+                from: getLocalDateString(new Date()),
+                meals: currentDiet
+            };
+            alert('Dieta asignada a todos los ' + weekdayName(selectedWeekday) + ' a partir de hoy.');
+        } else if (selected) {
+            // Asignar solo al día seleccionado
+            assignedDiets[selected] = {
+                meals: currentDiet
+            };
+            alert('Dieta asignada al día ' + formatDateSpanish(selected));
+        }
+        saveAssignedDiets(assignedDiets);
+    }
+
+    function restoreAssignedDietIfNeeded(dateStr) {
+        const todayStr = getLocalDateString(new Date());
+        if (dateStr < todayStr) {
+            const assignedDiets = getAssignedDiets();
+            const weekday = new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().charAt(0);
+            if (assignedDiets[dateStr]) {
+                saveMealsForDate(dateStr, assignedDiets[dateStr].meals);
+            } else if (assignedDiets[weekday] && dateStr >= assignedDiets[weekday].from) {
+                saveMealsForDate(dateStr, assignedDiets[weekday].meals);
+            }
+        }
+    }
+
+    return { render, prevMonth, nextMonth, saveMealsForToday: saveMealsForSelectedDay, selectDay, saveMealsForSelectedDay, goToToday, assignDietToDay };
 })();
 
 document.addEventListener('DOMContentLoaded', () => Calendar.render());
