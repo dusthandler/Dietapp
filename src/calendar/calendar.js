@@ -29,24 +29,24 @@ window.Calendar = (() => {
         const lastDay = new Date(year, month + 1, 0);
 
         monthTitle.textContent = current.toLocaleString('es-ES', { month: 'long' });
-const yearTitle = document.getElementById('calendar-year-title');
-if (yearTitle) {
-    yearTitle.textContent = current.getFullYear();
-    const statsToggle = document.getElementById('calendar-stats-toggle');
-    if (statsToggle && !statsToggle.dataset.listener) {
-        statsToggle.addEventListener('click', function() {
-            const panel = document.getElementById('calendar-stats-panel');
-            this.classList.toggle('rotated');
-            if (panel.style.display === 'none' || !panel.style.display) {
-                renderCalendarStats();
-                panel.style.display = 'block';
-            } else {
-                panel.style.display = 'none';
+        const yearTitle = document.getElementById('calendar-year-title');
+        if (yearTitle) {
+            yearTitle.textContent = current.getFullYear();
+            const statsToggle = document.getElementById('calendar-stats-toggle');
+            if (statsToggle && !statsToggle.dataset.listener) {
+                statsToggle.addEventListener('click', function() {
+                    const panel = document.getElementById('calendar-stats-panel');
+                    this.classList.toggle('rotated');
+                    if (panel.style.display === 'none' || !panel.style.display) {
+                        renderCalendarStats();
+                        panel.style.display = 'block';
+                    } else {
+                        panel.style.display = 'none';
+                    }
+                });
+                statsToggle.dataset.listener = "true";
             }
-        });
-        statsToggle.dataset.listener = "true";
-    }
-}
+        }
 
         const saveBtn = document.getElementById('calendar-save-btn');
         if (saveBtn) {
@@ -136,6 +136,27 @@ if (yearTitle) {
             grid.appendChild(dayBtn);
         }
         calendarEl.appendChild(grid);
+
+        // ...al final de render()...
+const statsToggle = document.getElementById('calendar-stats-toggle');
+const statsPanel = document.getElementById('calendar-stats-panel');
+if (statsToggle && !statsToggle.dataset.listener) {
+    statsToggle.addEventListener('click', function() {
+        this.classList.toggle('rotated');
+        if (statsPanel.style.display === 'none' || !statsPanel.style.display) {
+            renderCalendarStats();
+            statsPanel.style.display = 'block';
+        } else {
+            statsPanel.style.display = 'none';
+        }
+    });
+    statsToggle.dataset.listener = "true";
+}
+
+// ACTUALIZA EL PANEL SI ESTÁ ABIERTO
+if (statsPanel && statsPanel.style.display === 'block') {
+    renderCalendarStats();
+}
     }
 
     function showTooltip(target, dateStr, meals) {
