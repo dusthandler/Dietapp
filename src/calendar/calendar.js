@@ -1,0 +1,226 @@
+window.Calendar = (() => {
+    const calendarEl = document.getElementById('calendar');
+    const monthTitle = document.getElementById('current-month-title');
+    let current = new Date();
+    let selectedDay = null;
+
+    // Cargar y guardar comidas por fecha
+    function getSavedMeals() {
+        return JSON.parse(localStorage.getItem('calendarMeals') || '{}');
+    }
+    function saveMealsForDate(dateStr, meals) {
+        const data = getSavedMeals();
+        data[dateStr] = meals;
+        localStorage.setItem('calendarMeals', JSON.stringify(data));
+    }
+
+    function render() {
+        if (!calendarEl || !monthTitle) return;
+        calendarEl.innerHTML = '';
+        const year = current.getFullYear();
+        const month = current.getMonth();
+        const today = new Date();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        monthTitle.textContent = current.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+        // Días de la semana
+        const daysRow = document.createElement('div');
+        daysRow.style.display = 'grid';
+        daysRow.style.gridTemplateColumns = 'repeat(7,1fr)';
+        ['L', 'M', 'X', 'J', 'V', 'S', 'D'].forEach(d => {
+            const el = document.createElement('div');
+            el.style.fontWeight = 'bold';
+            el.style.textAlign = 'center';
+            el.textContent = d;
+            daysRow.appendChild(el);
+        });
+        calendarEl.appendChild(daysRow);
+
+        // Celdas vacías antes del primer día
+        let grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(7,1fr)';
+        for (let i = 0; i < (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1); i++) {
+            grid.appendChild(document.createElement('div'));
+        }
+
+        // Días del mes
+        const savedMeals = getSavedMeals();
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const dateObj = new Date(year, month, d);
+            const dateStr = dateObj.toISOString().slice(0, 10);
+            const dayBtn = document.createElement('button');
+            dayBtn.textContent = d;
+            dayBtn.style.margin = '2px';
+            dayBtn.style.padding = '8px';
+            dayBtn.style.borderRadius = '50%';
+            dayBtn.style.border = 'none';
+            dayBtn.style.background = 'none';
+            dayBtn.style.cursor = 'pointer';
+            dayBtn.style.position = 'relative';
+            dayBtn.style.transition = 'background 0.2s';
+
+            // Día actual: azul pastel
+            if (
+                d === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear()
+            ) {
+                dayBtn.style.background = '#b3e5fc';
+                dayBtn.style.color = '#185a9d';
+                dayBtn.style.fontWeight = 'bold';
+            }
+
+            // Si hay comidas guardadas, muestra un punto
+            if (savedMeals[dateStr]) {
+                const dot = document.createElement('span');
+                dot.style.position = 'absolute';
+                dot.style.bottom = '6px';
+                dot.style.left = '50%';
+                dot.style.transform = 'translateX(-50%)';
+                dot.style.width = '8px';
+                dot.style.height = '8px';
+                dot.style.background = '#43cea2';
+                dot.style.borderRadius = '50%';
+                dayBtn.appendChild(dot);
+            }
+
+            // Tooltip al pasar el ratón
+            dayBtn.onmouseenter = (e) => {
+                showTooltip(e.target, dateStr, savedMeals[dateStr]);
+            };
+            dayBtn.onmouseleave = hideTooltip;
+
+            dayBtn.onclick = () => {
+                selectedDay = dateStr;
+                alert('Seleccionaste el día: ' + dateStr);
+            };
+
+            // Dentro del bucle de los días, después de marcar el día actual:
+            if (dateStr === selectedDay) {
+                dayBtn.style.outline = '2.5px solid #3498db';
+                dayBtn.style.background = '#e3f2fd';
+            }
+
+            grid.appendChild(dayBtn);
+        }
+        calendarEl.appendChild(grid);
+    }
+
+    function showTooltip(target, dateStr, meals) {
+    let tooltip = document.getElementById('calendar-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'calendar-tooltip';
+        tooltip.style.position = 'absolute';
+        tooltip.style.background = '#fff';
+        tooltip.style.color = '#222';
+        tooltip.style.border = '1px solid #3498db';
+        tooltip.style.borderRadius = '8px';
+        tooltip.style.boxShadow = '0 2px 8px rgba(44,62,80,0.13)';
+        tooltip.style.padding = '12px 16px';
+        tooltip.style.fontSize = '1em';
+        tooltip.style.zIndex = 9999;
+        tooltip.style.minWidth = '200px';
+        tooltip.style.maxWidth = '350px';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.display = 'block';
+        document.body.appendChild(tooltip);
+    }
+    if (!meals) {
+        tooltip.innerHTML = '<span style="color:#888;">No hay comidas guardadas para este día</span>';
+    } else {
+        // Resumen de comidas y macros
+        let macros = { calories: 0, protein: 0, carbs: 0, fats: 0 };
+        let html = `<div style="font-weight:600;color:#3498db;margin-bottom:4px;">Resumen del día ${dateStr}:</div>`;
+        Object.entries(meals).forEach(([meal, foods]) => {
+            if (!foods.length) return;
+            html += `<div style="margin-bottom:2px;"><b>${meal}:</b> `;
+            html += foods.map(f => `${f.emoji || ''} ${f.name} (${f.quantity}g)`).join(', ');
+            html += `</div>`;
+            foods.forEach(f => {
+                macros.calories += (f.calories * f.quantity / 100);
+                macros.protein += (f.protein * f.quantity / 100);
+                macros.carbs += (f.carbs * f.quantity / 100);
+                macros.fats += (f.fats * f.quantity / 100);
+            });
+        });
+        html += `<div style="margin-top:6px;font-size:0.98em;">
+            <b>Macros:</b>
+            🔥 ${macros.calories.toFixed(1)} kcal,
+            💪 ${macros.protein.toFixed(1)}g,
+            🍞 ${macros.carbs.toFixed(1)}g,
+            🥑 ${macros.fats.toFixed(1)}g
+        </div>`;
+        tooltip.innerHTML = html;
+    }
+    // Mejor posicionamiento: a la derecha, si no cabe a la izquierda, si no debajo
+    const rect = target.getBoundingClientRect();
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollX = window.scrollX || document.documentElement.scrollLeft;
+    const tooltipWidth = tooltip.offsetWidth || 220;
+    const tooltipHeight = tooltip.offsetHeight || 120;
+
+    let left = rect.right + 10 + scrollX;
+    let top = rect.top + scrollY + rect.height / 2 - tooltipHeight / 2;
+
+    // Si no cabe a la derecha, prueba a la izquierda
+    if (left + tooltipWidth > scrollX + window.innerWidth) {
+        left = rect.left - tooltipWidth - 10 + scrollX;
+    }
+    // Si tampoco cabe a la izquierda, ponlo debajo
+    if (left < scrollX) {
+        left = rect.left + scrollX + rect.width / 2 - tooltipWidth / 2;
+        top = rect.bottom + 10 + scrollY;
+    }
+    // Si se sale por arriba, ajústalo
+    if (top < scrollY) top = scrollY + 8;
+    // Si se sale por abajo, ajústalo
+    if (top + tooltipHeight > scrollY + window.innerHeight) {
+        top = scrollY + window.innerHeight - tooltipHeight - 8;
+    }
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    tooltip.style.display = 'block';
+}
+    function hideTooltip() {
+        const tooltip = document.getElementById('calendar-tooltip');
+        if (tooltip) tooltip.style.display = 'none';
+    }
+
+    function prevMonth() {
+        current.setMonth(current.getMonth() - 1);
+        render();
+    }
+    function nextMonth() {
+        current.setMonth(current.getMonth() + 1);
+        render();
+    }
+
+    function saveMealsForToday() {
+        const today = new Date();
+        const dateStr = today.toISOString().slice(0, 10);
+        // Copia profunda de las comidas actuales
+        const meals = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        saveMealsForDate(dateStr, meals);
+        render();
+        alert('Comidas guardadas para hoy.');
+    }
+
+    function selectDay() {
+        const dateStr = prompt('Introduce la fecha (YYYY-MM-DD):');
+        if (!dateStr) return;
+        // Copia profunda de las comidas actuales
+        const meals = JSON.parse(JSON.stringify(window.state.selectedFoods));
+        saveMealsForDate(dateStr, meals);
+        render();
+        alert('Comidas guardadas para ' + dateStr);
+    }
+
+    return { render, prevMonth, nextMonth, saveMealsForToday, selectDay };
+})();
+
+document.addEventListener('DOMContentLoaded', () => Calendar.render());

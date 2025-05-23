@@ -2684,6 +2684,26 @@
                 </div>
             </div>
 
+            <div class="calendar-container" style="margin-bottom: 20px;">
+                <div class="calendar-header"
+                    style="display: flex; align-items: center; justify-content: space-between;">
+                    <h3 id="current-month-title" style="margin:0;"></h3>
+                    <div>
+                        <button class="nav-btn prev-month" onclick="Calendar.prevMonth()"
+                            title="Mes anterior">❮</button>
+                        <button class="nav-btn next-month" onclick="Calendar.nextMonth()"
+                            title="Mes siguiente">❯</button>
+                    </div>
+                </div>
+                <div class="calendar" id="calendar"></div>
+                <div style="display:flex;gap:10px;margin-top:10px;">
+                    <button class="btn btn-success" style="flex:1;" onclick="Calendar.saveMealsForToday()">Guardar
+                        comidas de hoy</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="Calendar.selectDay()">Seleccionar
+                        día</button>
+                </div>
+            </div>
+
             <!-- Resultados (inicialmente ocultos) -->
             <div id="macro-results" style="display: none;">
                 <!-- Sección Calorías y Costo -->
@@ -5825,6 +5845,7 @@
                 </div>
             </div>
         </div>
+        <script src="src/calendar/calendar.js"></script>
 </body>
 
 </html>
