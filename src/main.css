@@ -2387,3 +2387,33 @@
             color: #c0392b;
             transform: scale(1.2);
         }
+
+        #foodEditorModal .intolerancias-content,
+#foodEditorModal .intolerancias-btn-group {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+#foodEditorModal .intolerancia-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fafdff;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 6px 8px 2px 8px;
+    min-width: 56px;
+    min-height: 56px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 1em;
+}
+
+#foodEditorModal .intolerancia-btn.selected,
+#foodEditorModal .intolerancia-btn.active {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    background: #e3f2fd;
+}
