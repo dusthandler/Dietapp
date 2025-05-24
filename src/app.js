@@ -2198,20 +2198,6 @@ const App = (() => {
                             cb.checked = intolerancias.includes(cb.value);
                         });
 
-                        // --- NUEVO: Cargar tipo y peso de unidad si existen ---
-                        const unitTypeSelect = document.getElementById('food-editor-unit-type');
-                        const unitWeightInput = document.getElementById('food-editor-unit-weight');
-                        if (f?.unitType) {
-                            unitTypeSelect.value = f.unitType;
-                        } else {
-                            unitTypeSelect.value = '';
-                        }
-                        if (f?.unitWeight) {
-                            unitWeightInput.value = f.unitWeight;
-                        } else {
-                            unitWeightInput.value = '';
-                        }
-
                         document.getElementById('foodEditorModal').style.display = 'flex';
                     },
                     closeFoodEditor: () => {
@@ -2230,9 +2216,7 @@ const App = (() => {
                             carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0,
-                            intolerancias, // <--- ahora sí existe la variable
-                            unitType: document.getElementById('food-editor-unit-type').value,
-                            unitWeight: Number(document.getElementById('food-editor-unit-weight').value) || null,
+                            intolerancias // <--- ahora sí existe la variable
                         };
                         // Si el nombre cambió y estaba en customFoods, bórralo
                         if (editingFoodName && editingFoodName !== name && customFoods[editingFoodName]) {
@@ -2505,3 +2489,4 @@ const App = (() => {
                     }
                 }
             });
+window.App = App;
