@@ -2454,14 +2454,16 @@ const App = (() => {
                     opt.onclick = function () {
                         // Crea el contenido de la opción seleccionada SIN el interrogante
                         selected.innerHTML = `
-            <span class="activity-emoji">${opt.querySelector('.activity-emoji').textContent}</span>
-            ${opt.dataset.value}
-        `;
+                        <span class="activity-emoji">${opt.querySelector('.activity-emoji').textContent}</span>
+                        ${opt.dataset.value}
+                    `;
                         hiddenInput.value = opt.dataset.value;
                         options.style.display = 'none';
                         // Actualiza el estado y guarda
                         if (window.state) state.userData.activity = opt.dataset.value;
                         if (typeof saveUserData === 'function') saveUserData();
+                        if (window.App && typeof App.calculateMacros === 'function') App.calculateMacros();
+                        if (window.App && typeof App.updateTotals === 'function') App.updateTotals();
                     };
                     // Tooltip en icono de info
                     const infoIcon = opt.querySelector('.activity-info-icon');
