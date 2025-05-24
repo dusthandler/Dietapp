@@ -2100,10 +2100,10 @@ const App = (() => {
 
                 const calculateTotals = (foods) => {
                     return foods.reduce((acc, food) => ({
-                        calories: acc.calories + (food.calories * food.quantity / 1000),
-                        protein: acc.protein + (food.protein * food.quantity / 1000),
-                        carbs: acc.carbs + (food.carbs * food.quantity / 1000),
-                        fats: acc.fats + (food.fats * food.quantity / 1000),
+                        calories: acc.calories + (food.calories * food.quantity / 100),
+                        protein: acc.protein + (food.protein * food.quantity / 100),
+                        carbs: acc.carbs + (food.carbs * food.quantity / 100),
+                        fats: acc.fats + (food.fats * food.quantity / 100),
                         cost: acc.cost + (food.price * food.quantity / 1000)
                     }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
                 };

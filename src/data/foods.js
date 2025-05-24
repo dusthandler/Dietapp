@@ -23,7 +23,7 @@ export const foodDB = {
     'Huevo': {
         category: 'Proteínas',
         emoji: '🥚',
-        price: 2.50,
+        price: 4.15,
         calories: 155,
         protein: 13,
         carbs: 1.1,
