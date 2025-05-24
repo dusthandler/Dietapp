@@ -464,5 +464,17 @@ export const foodDB = {
         carbs: 10,
         fats: 1.0,
         intolerancias: ['gluten']
-    }
+    },
+
+    // SUPLEMENTOS (categoría existente)
+    'Proteína de suero': {
+        category: 'Suplementos',
+        emoji: '🥤',
+        price: 27.86, // Precio por kg
+        calories: 383,
+        protein: 70,
+        carbs: 9.7,
+        fats: 6.8,
+        intolerancias: ['lactosa']
+    },
 };

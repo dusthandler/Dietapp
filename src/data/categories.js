@@ -10,5 +10,6 @@ export const categories = {
     'Bebidas': '💧',
     'Especias': '🌿',
     'Endulzantes': '🍯',
-    'Platos preparados': '🍲'
+    'Platos preparados': '🍲',
+    'Suplementos': '💊',
 };
