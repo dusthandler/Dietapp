@@ -437,7 +437,11 @@
         <!-- Modal para crear/editar alimento personalizado -->
         <div class="modal" id="foodEditorModal" style="display:none;">
             <div class="modal-content" style="max-width:400px;flex-direction:column;">
-                <h2 id="food-editor-title">Nuevo alimento</h2>
+                <div class="food-editor-header">
+                    <button class="btn btn-primary" onclick="App.saveFoodEditor()">Guardar</button>
+                    <h2 id="food-editor-title">Nuevo alimento</h2>
+                    <button class="delete-btn" onclick="App.closeFoodEditor()" title="Cancelar">&times;</button>
+                </div>
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                     <div style="position:relative;">
                         <button id="food-editor-emoji-btn" type="button"
@@ -468,19 +472,17 @@
                 </select>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                     <span style="font-size:1.2em;width:28px;text-align:center;">🔥</span>
-                    <input id="food-editor-calories" type="number" placeholder="Calorías (100g)" style="flex:1;">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <input id="food-editor-calories" type="number" placeholder="kcal/100g" style="flex:1;">
+
                     <span style="font-size:1.2em;width:28px;text-align:center;">💪</span>
-                    <input id="food-editor-protein" type="number" placeholder="Proteína (g/100g)" style="flex:1;">
+                    <input id="food-editor-protein" type="number" placeholder="Prot/100g" style="flex:1;">
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                     <span style="font-size:1.2em;width:28px;text-align:center;">🍞</span>
-                    <input id="food-editor-carbs" type="number" placeholder="Carbohidratos (g/100g)" style="flex:1;">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <input id="food-editor-carbs" type="number" placeholder="Carb/100g" style="flex:1;">
+
                     <span style="font-size:1.2em;width:28px;text-align:center;">🥑</span>
-                    <input id="food-editor-fats" type="number" placeholder="Grasas (g/100g)" style="flex:1;">
+                    <input id="food-editor-fats" type="number" placeholder="Grasas/100g" style="flex:1;">
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                     <span style="font-size:1.2em;width:28px;text-align:center;">💵</span>
@@ -498,10 +500,6 @@
                         <label><input type="checkbox" value="pescado"> Pescado</label>
                         <!-- Añadir más si lo deseas -->
                     </div>
-                </div>
-                <div style="display:flex;gap:10px;justify-content:flex-end;">
-                    <button class="btn" onclick="App.closeFoodEditor()">Cancelar</button>
-                    <button class="btn btn-primary" onclick="App.saveFoodEditor()">Guardar</button>
                 </div>
             </div>
         </div>
