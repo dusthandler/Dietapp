@@ -488,17 +488,37 @@
                     <span style="font-size:1.2em;width:28px;text-align:center;">💵</span>
                     <input id="food-editor-price" type="number" placeholder="Precio €/kg" style="flex:1;">
                 </div>
-                <div style="margin-bottom:8px;">
-                    <label style="font-size:0.98em;font-weight:500;">Intolerancias:</label>
-                    <div id="food-editor-Intolerancias" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                        <label><input type="checkbox" value="gluten"> Gluten</label>
-                        <label><input type="checkbox" value="lactosa"> Lactosa</label>
-                        <label><input type="checkbox" value="frutos secos"> Frutos secos</label>
-                        <label><input type="checkbox" value="huevo"> Huevo</label>
-                        <label><input type="checkbox" value="soja"> Soja</label>
-                        <label><input type="checkbox" value="marisco"> Marisco</label>
-                        <label><input type="checkbox" value="pescado"> Pescado</label>
-                        <!-- Añadir más si lo deseas -->
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:1em;font-weight:600;display:block;margin-bottom:6px;">Intolerancias:</label>
+                    <div id="food-editor-Intolerancias" style="display:flex;flex-wrap:wrap;gap:10px;">
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="gluten">
+                            <span class="chip-emoji">🌾</span> Gluten
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="lactosa">
+                            <span class="chip-emoji">🥛</span> Lactosa
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="frutos secos">
+                            <span class="chip-emoji">🌰</span> Frutos secos
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="huevo">
+                            <span class="chip-emoji">🥚</span> Huevo
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="soja">
+                            <span class="chip-emoji">🌱</span> Soja
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="marisco">
+                            <span class="chip-emoji">🦐</span> Marisco
+                        </label>
+                        <label class="intolerance-chip">
+                            <input type="checkbox" value="pescado">
+                            <span class="chip-emoji">🐟</span> Pescado
+                        </label>
                     </div>
                 </div>
             </div>
