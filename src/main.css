@@ -25,15 +25,6 @@
             --meal-gap: 7px;
         }
 
-        [data-theme="dark"] {
-            --primary: #3498db;
-            --secondary: #2c3e50;
-            --background: #2c3e50;
-            --surface: #34495e;
-            --text: #ecf0f1;
-            --border: #2c3e50;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -941,12 +932,6 @@
             white-space: normal;
         }
 
-        [data-theme="dark"] .progress-bar-tooltip {
-            background: #22324a;
-            color: #e3f0ff;
-            border-color: #43aee5;
-        }
-
         .progress-bar:hover .progress-bar-tooltip {
             display: block !important;
         }
@@ -1016,6 +1001,7 @@
             /* Si es necesario */
         }
 
+        /* Modal para crear/editar alimento personalizado */
         .modal {
             position: fixed;
             top: 0;
@@ -1028,22 +1014,6 @@
             align-items: center;
             z-index: 2000;
             /* más alto que .food-modal */
-        }
-
-        .progress-fill.calories {
-            background: #ff6b6b;
-        }
-
-        .progress-fill.protein {
-            background: #4da7f7;
-        }
-
-        .progress-fill.carbs {
-            background: #feca57;
-        }
-
-        .progress-fill.fats {
-            background: #78e08f;
         }
 
         .macro-info {
@@ -1672,44 +1642,6 @@
         }
 
         /* Modal para crear/editar alimento personalizado */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            /* más alto que .food-modal */
-        }
-
-        .modal-content {
-            background: transparent;
-            padding: 0;
-            display: flex;
-            gap: 20px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: none;
-            box-shadow: none;
-            overflow: hidden !important;
-        }
-
-        .modal-column {
-            background: var(--surface);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            flex: 1;
-            overflow: auto;
-        }
-
-        /* Modal para crear/editar alimento personalizado */
         #foodEditorModal {
             display: none;
             position: fixed;
@@ -2123,13 +2055,6 @@
             z-index: 2;
         }
 
-        [data-theme="dark"] .suggestion-btn:hover {
-            background: #22324a !important;
-            border-color: #7fd6ff !important;
-            /* Más claro en modo oscuro */
-            box-shadow: 0 4px 16px rgba(67, 174, 229, 0.18);
-        }
-
         .suggestion-btn .suggestion-emoji {
             font-size: 1.7em;
             margin-top: -10px;
@@ -2242,6 +2167,24 @@
         .suggestion-btn.add-btn:hover {
             background: rgba(67, 174, 229, 0.07) !important;
             border-color: #888 !important;
+        }
+
+        .diet-weekday-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: #f3f6fa;
+            color: #3498db;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .diet-weekday-btn.selected {
+            background: #3498db;
+            color: #fff;
         }
 
         /* Añade esto al final de tu <style> principal */
@@ -2400,20 +2343,24 @@
             border-color: #185a9d !important;
         }
 
-        .diet-weekday-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: #f3f6fa;
-            color: #3498db;
-            font-weight: bold;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+        [data-theme="dark"] {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --background: #2c3e50;
+            --surface: #34495e;
+            --text: #ecf0f1;
+            --border: #2c3e50;
         }
 
-        .diet-weekday-btn.selected {
-            background: #3498db;
-            color: #fff;
+        [data-theme="dark"] .progress-bar-tooltip {
+            background: #22324a;
+            color: #e3f0ff;
+            border-color: #43aee5;
+        }
+
+        [data-theme="dark"] .suggestion-btn:hover {
+            background: #22324a !important;
+            border-color: #7fd6ff !important;
+            /* Más claro en modo oscuro */
+            box-shadow: 0 4px 16px rgba(67, 174, 229, 0.18);
         }
