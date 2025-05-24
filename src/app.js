@@ -2193,21 +2193,12 @@ const App = (() => {
                         document.getElementById('food-editor-price').value = f?.price || '';
 
                         // Cargar intolerancias si el alimento existe
-                        document.querySelectorAll('#food-editor-Intolerancias .intolerancia-btn').forEach(btn => {
-                            if (intolerancias.includes(btn.getAttribute('data-value'))) {
-                                btn.classList.add('selected');
-                            } else {
-                                btn.classList.remove('selected');
-                            }
+                        const intolerancias = f?.intolerancias || [];
+                        document.querySelectorAll('#food-editor-Intolerancias input[type="checkbox"]').forEach(cb => {
+                            cb.checked = intolerancias.includes(cb.value);
                         });
 
                         document.getElementById('foodEditorModal').style.display = 'flex';
-
-                        document.querySelectorAll('#food-editor-Intolerancias .intolerancia-btn').forEach(btn => {
-                        btn.onclick = function () {
-                            btn.classList.toggle('selected');
-                        };
-                    });
                     },
                     closeFoodEditor: () => {
                         document.getElementById('foodEditorModal').style.display = 'none';
@@ -2216,7 +2207,7 @@ const App = (() => {
                         const name = document.getElementById('food-editor-name').value.trim();
                         if (!name) return alert('Pon un nombre');
                         // Recoge las intolerancias seleccionadas
-                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-Intolerancias .intolerancia-btn.selected')).map(btn => btn.getAttribute('data-value'));
+                        const intolerancias = Array.from(document.querySelectorAll('#food-editor-Intolerancias input[type="checkbox"]:checked')).map(cb => cb.value);
                         const food = {
                             emoji: document.getElementById('food-editor-emoji').value || '🍽️',
                             category: document.getElementById('food-editor-category').value,
