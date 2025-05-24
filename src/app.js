@@ -626,7 +626,7 @@ const App = (() => {
                     </div>
                     <div class="cost-badge">
                         <div>💵</div>
-                        <div>$${(food.price * food.quantity / 100).toFixed(2)}</div>
+                        <div>$${(food.price * food.quantity / 1000).toFixed(2)}</div>
                     </div>
                 </div>
                 
@@ -969,7 +969,7 @@ const App = (() => {
                     ${food.name}
                 </span>
                 <span class="macro-badge cost" style="background:none;margin-left:8px; display:flex; align-items:center;">
-                    <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity / 100).toFixed(2)}€</span>
+                    <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity / 1000).toFixed(2)}€</span>
                 </span>
             </div>
             <!-- Fila 2: Macros a la izquierda, gramos a la derecha -->
@@ -2100,11 +2100,11 @@ const App = (() => {
 
                 const calculateTotals = (foods) => {
                     return foods.reduce((acc, food) => ({
-                        calories: acc.calories + (food.calories * food.quantity / 100),
-                        protein: acc.protein + (food.protein * food.quantity / 100),
-                        carbs: acc.carbs + (food.carbs * food.quantity / 100),
-                        fats: acc.fats + (food.fats * food.quantity / 100),
-                        cost: acc.cost + (food.price * food.quantity / 100)
+                        calories: acc.calories + (food.calories * food.quantity / 1000),
+                        protein: acc.protein + (food.protein * food.quantity / 1000),
+                        carbs: acc.carbs + (food.carbs * food.quantity / 1000),
+                        fats: acc.fats + (food.fats * food.quantity / 1000),
+                        cost: acc.cost + (food.price * food.quantity / 1000)
                     }), { calories: 0, protein: 0, carbs: 0, fats: 0, cost: 0 });
                 };
 

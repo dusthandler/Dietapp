@@ -3,7 +3,7 @@ export const foodDB = {
     'Pollo (muslo)': {
         category: 'Proteínas',
         emoji: '🍗',
-        price: 0.70,
+        price: 7.00,
         calories: 239,
         protein: 27,
         carbs: 0,
@@ -13,7 +13,7 @@ export const foodDB = {
     'Pechuga de pollo': {
         category: 'Proteínas',
         emoji: '🍗',
-        price: 0.75,
+        price: 7.50,
         calories: 165,
         protein: 31,
         carbs: 0,
@@ -23,7 +23,7 @@ export const foodDB = {
     'Huevo': {
         category: 'Proteínas',
         emoji: '🥚',
-        price: 0.25,
+        price: 2.50,
         calories: 155,
         protein: 13,
         carbs: 1.1,
@@ -33,7 +33,7 @@ export const foodDB = {
     'Claras': {
         category: 'Proteínas',
         emoji: '🥚',
-        price: 0.40,
+        price: 4.00,
         calories: 52,
         protein: 11,
         carbs: 0.7,
@@ -43,7 +43,7 @@ export const foodDB = {
     'Salmón fresco': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 2.10,
+        price: 21.00,
         calories: 208,
         protein: 20,
         carbs: 0,
@@ -53,7 +53,7 @@ export const foodDB = {
     'Atún en lata (agua)': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 0.90,
+        price: 9.00,
         calories: 116,
         protein: 25.5,
         carbs: 0,
@@ -63,7 +63,7 @@ export const foodDB = {
     'Salmón ahumado': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 2.50,
+        price: 25.00,
         calories: 117,
         protein: 18,
         carbs: 0,
@@ -73,7 +73,7 @@ export const foodDB = {
     'Pavo': {
         category: 'Proteínas',
         emoji: '🦃',
-        price: 1.40,
+        price: 14.00,
         calories: 135,
         protein: 29,
         carbs: 0,
@@ -83,7 +83,7 @@ export const foodDB = {
     'Merluza': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 1.80,
+        price: 18.00,
         calories: 91,
         protein: 19,
         carbs: 0,
@@ -93,7 +93,7 @@ export const foodDB = {
     'Caballa': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 1.50,
+        price: 15.00,
         calories: 205,
         protein: 19,
         carbs: 0,
@@ -103,7 +103,7 @@ export const foodDB = {
     'Sardinas en lata': {
         category: 'Proteínas',
         emoji: '🐟',
-        price: 0.90,
+        price: 9.00,
         calories: 208,
         protein: 25,
         carbs: 0,
@@ -113,7 +113,7 @@ export const foodDB = {
     'Jamón serrano': {
         category: 'Proteínas',
         emoji: '🍖',
-        price: 2.50,
+        price: 25.00,
         calories: 185,
         protein: 30,
         carbs: 0,
@@ -125,7 +125,7 @@ export const foodDB = {
     'Tofu': {
         category: 'Proteínas',
         emoji: '🧈',
-        price: 1.50,
+        price: 15.00,
         calories: 76,
         protein: 8,
         carbs: 1.9,
@@ -135,7 +135,7 @@ export const foodDB = {
     'Seitán': {
         category: 'Proteínas',
         emoji: '🌾',
-        price: 2.20,
+        price: 22.00,
         calories: 370,
         protein: 75,
         carbs: 14,
@@ -147,7 +147,7 @@ export const foodDB = {
     'Yogur griego natural': {
         category: 'Lácteos',
         emoji: '🥛',
-        price: 0.45,
+        price: 4.50,
         calories: 59,
         protein: 10,
         carbs: 3.6,
@@ -157,7 +157,7 @@ export const foodDB = {
     'Leche semidesnatada': {
         category: 'Lácteos',
         emoji: '🥛',
-        price: 0.12,
+        price: 1.20,
         calories: 47,
         protein: 3.4,
         carbs: 4.8,
@@ -167,7 +167,7 @@ export const foodDB = {
     'Queso burgos desnatado': {
         category: 'Lácteos',
         emoji: '🧀',
-        price: 1.20,
+        price: 12.00,
         calories: 72,
         protein: 12,
         carbs: 2,
@@ -179,7 +179,7 @@ export const foodDB = {
     'Copos de avena': {
         category: 'Cereales',
         emoji: '🌾',
-        price: 0.15,
+        price: 1.50,
         calories: 389,
         protein: 16.9,
         carbs: 66.3,
@@ -189,7 +189,7 @@ export const foodDB = {
     'Arroz integral': {
         category: 'Cereales',
         emoji: '🍚',
-        price: 0.18,
+        price: 1.80,
         calories: 111,
         protein: 2.6,
         carbs: 23,
@@ -199,7 +199,7 @@ export const foodDB = {
     'Quinoa': {
         category: 'Cereales',
         emoji: '🌾',
-        price: 1.80,
+        price: 18.00,
         calories: 120,
         protein: 4.4,
         carbs: 21,
@@ -211,7 +211,7 @@ export const foodDB = {
     'Patata': {
         category: 'Tubérculos',
         emoji: '🥔',
-        price: 0.15,
+        price: 1.50,
         calories: 86,
         protein: 1.7,
         carbs: 20,
@@ -221,7 +221,7 @@ export const foodDB = {
     'Boniato': {
         category: 'Tubérculos',
         emoji: '🍠',
-        price: 0.40,
+        price: 4.00,
         calories: 90,
         protein: 2.0,
         carbs: 21,
@@ -233,7 +233,7 @@ export const foodDB = {
     'Brócoli': {
         category: 'Verduras',
         emoji: '🥦',
-        price: 0.35,
+        price: 3.50,
         calories: 34,
         protein: 2.8,
         carbs: 6.6,
@@ -243,7 +243,7 @@ export const foodDB = {
     'Espinacas crudas': {
         category: 'Verduras',
         emoji: '🥬',
-        price: 0.45,
+        price: 4.50,
         calories: 23,
         protein: 2.9,
         carbs: 3.6,
@@ -253,7 +253,7 @@ export const foodDB = {
     'Calabacín': {
         category: 'Verduras',
         emoji: '🥒',
-        price: 0.35,
+        price: 3.50,
         calories: 17,
         protein: 1.2,
         carbs: 3.1,
@@ -265,7 +265,7 @@ export const foodDB = {
     'Plátano': {
         category: 'Frutas',
         emoji: '🍌',
-        price: 0.25,
+        price: 2.50,
         calories: 89,
         protein: 1.1,
         carbs: 23,
@@ -275,7 +275,7 @@ export const foodDB = {
     'Fresas': {
         category: 'Frutas',
         emoji: '🍓',
-        price: 0.65,
+        price: 6.50,
         calories: 32,
         protein: 0.7,
         carbs: 7.7,
@@ -285,7 +285,7 @@ export const foodDB = {
     'Naranja': {
         category: 'Frutas',
         emoji: '🍊',
-        price: 0.35,
+        price: 3.50,
         calories: 47,
         protein: 0.9,
         carbs: 12,
@@ -297,7 +297,7 @@ export const foodDB = {
     'Lentejas': {
         category: 'Legumbres',
         emoji: '🥣',
-        price: 0.25,
+        price: 2.50,
         calories: 116,
         protein: 9,
         carbs: 20,
@@ -307,7 +307,7 @@ export const foodDB = {
     'Edamame': {
         category: 'Legumbres',
         emoji: '🟢',
-        price: 1.80,
+        price: 18.00,
         calories: 122,
         protein: 11,
         carbs: 10,
@@ -319,7 +319,7 @@ export const foodDB = {
     'Aceite de oliva': {
         category: 'Grasas',
         emoji: '🫒',
-        price: 0.85,
+        price: 8.50,
         calories: 884,
         protein: 0,
         carbs: 0,
@@ -329,11 +329,21 @@ export const foodDB = {
     'Aguacate': {
         category: 'Grasas',
         emoji: '🥑',
-        price: 0.95,
+        price: 9.50,
         calories: 160,
         protein: 2,
         carbs: 9,
         fats: 15,
+        intolerancias: []
+    },
+    'Semillas de chía': {
+        category: 'Grasas',
+        emoji: '🌱',
+        price: 8.60,
+        calories: 458,
+        protein: 21,
+        carbs: 4.6,
+        fats: 32,
         intolerancias: []
     },
 
@@ -341,7 +351,7 @@ export const foodDB = {
     'Miel': {
         category: 'Endulzantes',
         emoji: '🍯',
-        price: 0.70,
+        price: 7.00,
         calories: 304,
         protein: 0.3,
         carbs: 82.4,
@@ -351,7 +361,7 @@ export const foodDB = {
     'Mermelada de fresa light': {
         category: 'Endulzantes',
         emoji: '🍓',
-        price: 0.65,
+        price: 6.50,
         calories: 100,
         protein: 0.3,
         carbs: 25,
@@ -363,7 +373,7 @@ export const foodDB = {
     'Alcachofas': {
         category: 'Verduras',
         emoji: '🌿',
-        price: 0.80,
+        price: 8.00,
         calories: 47,
         protein: 3.3,
         carbs: 10.5,
@@ -373,7 +383,7 @@ export const foodDB = {
     'Cuscús integral': {
         category: 'Cereales',
         emoji: '🌾',
-        price: 0.95,
+        price: 9.50,
         calories: 112,
         protein: 4.0,
         carbs: 23,
@@ -383,7 +393,7 @@ export const foodDB = {
     'Tortitas de maíz': {
         category: 'Cereales',
         emoji: '🌽',
-        price: 0.50,
+        price: 5.00,
         calories: 387,
         protein: 8.0,
         carbs: 80,
@@ -391,11 +401,11 @@ export const foodDB = {
         intolerancias: []
     },
 
-    // BEBIDAS (categoría existente)
+    // BEBIDAS
     'Agua': {
         category: 'Bebidas',
         emoji: '💧',
-        price: 0.01,
+        price: 0.10,
         calories: 0,
         protein: 0,
         carbs: 0,
@@ -405,7 +415,7 @@ export const foodDB = {
     'Leche de avena': {
         category: 'Bebidas',
         emoji: '🌾',
-        price: 0.95,
+        price: 9.50,
         calories: 47,
         protein: 0.3,
         carbs: 9.7,
@@ -415,18 +425,19 @@ export const foodDB = {
     'Leche de almendras': {
         category: 'Bebidas',
         emoji: '🥤',
-        price: 1.10,
+        price: 11.00,
         calories: 24,
         protein: 0.5,
         carbs: 3.0,
         fats: 1.1,
         intolerancias: ['frutos secos']
     },
-    // ESPECIAS (categoría existente)
+
+    // ESPECIAS
     'Canela': {
         category: 'Especias',
         emoji: '🌿',
-        price: 0.50,
+        price: 5.00,
         calories: 247,
         protein: 4,
         carbs: 80.6,
@@ -436,7 +447,7 @@ export const foodDB = {
     'Curry': {
         category: 'Especias',
         emoji: '🌿',
-        price: 0.70,
+        price: 7.00,
         calories: 325,
         protein: 12.7,
         carbs: 58.2,
@@ -444,11 +455,11 @@ export const foodDB = {
         intolerancias: []
     },
 
-    // PLATOS PREPARADOS (categoría existente)
+    // PLATOS PREPARADOS
     'Pisto de verduras': {
         category: 'Platos preparados',
         emoji: '🍲',
-        price: 0.85,
+        price: 8.50,
         calories: 80,
         protein: 2.5,
         carbs: 10,
@@ -458,7 +469,7 @@ export const foodDB = {
     'Gazpacho': {
         category: 'Platos preparados',
         emoji: '🍲',
-        price: 1.20,
+        price: 12.00,
         calories: 55,
         protein: 1.2,
         carbs: 10,
@@ -466,11 +477,11 @@ export const foodDB = {
         intolerancias: ['gluten']
     },
 
-    // SUPLEMENTOS (categoría existente)
+    // SUPLEMENTOS
     'Proteína de suero': {
         category: 'Suplementos',
         emoji: '🥤',
-        price: 27.86, // Precio por kg
+        price: 27.86,
         calories: 383,
         protein: 70,
         carbs: 9.7,
