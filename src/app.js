@@ -151,6 +151,32 @@ const App = (() => {
                                     { food: "Copos de avena", qty: 40 },
                                     { food: "Canela", qty: 2 }
                                 ]
+                            },
+                            {
+                                name: "Tallarines a la carbonada",
+                                desc:   `1. Corta el guanciale o panceta en tiras o cubitos y fríelo a fuego medio hasta que quede dorado y crujiente. No tires la grasa que suelte, la vas a usar después.
+                                        
+                                2. Pon a hervir 100 g de tallarines en abundante agua con sal. Guarda al menos 1/4 de taza del agua de cocción antes de escurrirlos.
+                                        
+                                3. Mientras se cuece la pasta, mezcla en un bol:
+                                        - 2 yemas de huevo
+                                        - 25 g de queso rallado
+                                        - 1/4 cucharadita de pimienta negra molida
+                                        - 1 cucharada de la grasa caliente del guanciale
+                                        Mezcla todo hasta que quede una crema espesa.
+                                        
+                                        4. Cuando la pasta esté cocida y escurrida, viértela en la sartén aún caliente donde freíste el guanciale (ya sin fuego).
+                                       
+                                        5. Añade la mezcla de yema y queso sobre la pasta y mezcla rápido.
+                                        
+                                        6. Agrega poco a poco agua de cocción caliente (unas 2 o 3 cucharadas, o lo que haga falta) hasta que la salsa quede cremosa.`,
+                                ingredients: [
+                                    { food: "Tallarines", qty: 100 },
+                                    { food: "Panceta", qty: 40 },
+                                    { food: "Yema de huevo", qty: 2 },
+                                    { food: "Queso parmesano", qty: 25 },
+                                    { food: "Pimienta negra", qty: 1 } // Puedes ajustar la cantidad si lo deseas
+                                ]
                             }
                         ];
                     }

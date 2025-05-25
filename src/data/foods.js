@@ -90,6 +90,16 @@ export const foodDB = {
         fats: 1.5,
         intolerancias: ['pescado']
     },
+    'Panceta': {
+        category: 'Proteínas',
+        emoji: '🥓',
+        price: 18.00,  // Mercadona (paquete 200g = 3.60€)
+        calories: 568,
+        protein: 12,
+        carbs: 0,
+        fats: 56,
+        intolerancias: []
+    },
     'Pavo': {
         category: 'Proteínas',
         emoji: '🦃',
@@ -149,6 +159,16 @@ export const foodDB = {
         carbs: 0,
         fats: 11,
         intolerancias: ['pescado']
+    },
+    'Yema de huevo': {
+        category: 'Proteínas',
+        emoji: '🥚',
+        price: 0.50,  // 12 huevos ≈ 3€ → 0.25€/yema
+        calories: 322,
+        protein: 16,
+        carbs: 3.6,
+        fats: 27,
+        intolerancias: ['huevo']
     },
 
     // PROTEÍNAS VEGETALES
@@ -264,6 +284,16 @@ export const foodDB = {
         fats: 17,
         intolerancias: ['lactosa']
     },
+    'Queso parmesano': {
+        category: 'Lácteos',
+        emoji: '🧀',
+        price: 25.00,  // Tiendas especializadas (100g ≈ 2.20€)
+        calories: 415,
+        protein: 26,
+        carbs: 3.4,
+        fats: 34,
+        intolerancias: ['lactosa']
+    },
     'Requesón': {
         category: 'Lácteos',
         emoji: '🥣',
@@ -326,7 +356,7 @@ export const foodDB = {
     },
 
     // CEREALES
-        'Amaranto': {
+    'Amaranto': {
         category: 'Cereales',
         emoji: '🌾',
         price: 4.90,
@@ -474,6 +504,16 @@ export const foodDB = {
         protein: 15,
         carbs: 64,
         fats: 4.3,
+        intolerancias: ['gluten']
+    },
+    'Tallarines': {
+        category: 'Cereales',
+        emoji: '🍜',
+        price: 1.50,  // Hacendado 500g = 0.75€ → 1.50€/kg
+        calories: 371,
+        protein: 13,
+        carbs: 75,
+        fats: 1.5,
         intolerancias: ['gluten']
     },
     'Tortitas de maíz': {
@@ -1442,7 +1482,7 @@ export const foodDB = {
     },
     
     // ESPECIAS
-        'Ajo granulado': {
+    'Ajo granulado': {
         category: 'Especias',
         emoji: '🧄',
         price: 13.50,  // 11.44€/850g → 13.50€/kg
@@ -1560,6 +1600,26 @@ export const foodDB = {
         protein: 14,
         carbs: 54,
         fats: 13,
+        intolerancias: []
+    },
+    'Pimienta negra': {
+        category: 'Especias',
+        emoji: '⚫',
+        price: 15.00,  // Hacendado 50g = 0.75€ → 15€/kg
+        calories: 255,
+        protein: 11,
+        carbs: 64,
+        fats: 3.3,
+        intolerancias: []
+    },
+    'Sal': {
+        category: 'Especias',
+        emoji: '🧂',
+        price: 0.50,  // Hacendado 1kg = 0.50€
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
         intolerancias: []
     },
     'Semillas de amapola': {
