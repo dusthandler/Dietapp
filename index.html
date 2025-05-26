@@ -178,7 +178,8 @@
                             style="width:100%;padding:8px;border-radius:6px;border:1.5px solid #ccc;"
                             oninput="App.renderRecipesList()">
                     </div>
-                    <div id="recipes-list"></div>
+                    <div id="recipes-list"
+                        style="max-height:520px;overflow-y:auto;-ms-overflow-style:none;scrollbar-width:none;"></div>
                     <button class="btn btn-success" style="margin-top:15px;" onclick="App.openRecipeEditor()">➕
                         Crear
                         receta</button>

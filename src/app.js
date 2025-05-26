@@ -1,5 +1,6 @@
 import { foodDB } from './data/foods.js';
 import { categories } from './data/categories.js';
+import { baseRecipes } from './data/recipes.js';
 
 const App = (() => {
                 // Base de datos de alimentos
@@ -52,7 +53,8 @@ const App = (() => {
                         Snacks: [
                             { name: "Yogur griego natural", emoji: "🥛" }
                         ]
-                    }
+                    },
+                    recipes: [...baseRecipes]
                 };
 
                 // ===== INITIALIZATION =====
@@ -120,65 +122,17 @@ const App = (() => {
                             goal: 'maintain'
                         };
                         state.currentDietId = data.currentDietId || Object.keys(state.savedDiets)[0];
-                        state.recipes = data.recipes || [];
-
-                        // Carga la dieta activa correctamente
-                        if (state.currentDietId && state.savedDiets[state.currentDietId]) {
-                            state.selectedFoods = JSON.parse(JSON.stringify(state.savedDiets[state.currentDietId]));
-                            state.currentDietIndex = Object.keys(state.savedDiets).indexOf(state.currentDietId);
-                        } else {
-                            // Si no existe, crea una nueva dieta
-                            const newName = 'Nueva Dieta 1';
-                            state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                            state.currentDietId = newName;
-                            state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                            state.currentDietIndex = 0;
-                        }
-                    } else {
-                        // Si no hay dietas, crea una nueva dieta
-                        const newName = 'Nueva Dieta 1';
-                        state.savedDiets = {};
-                        state.savedDiets[newName] = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                        state.currentDietId = newName;
-                        state.selectedFoods = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };
-                        state.currentDietIndex = 0;
+                        // Mezcla recetas base y recetas guardadas, evitando duplicados por nombre
+                        const userRecipes = data.recipes || [];
+                        const baseNames = new Set(baseRecipes.map(r => r.name));
                         state.recipes = [
-                            {
-                                name: "Tortilla de Avena",
-                                desc: "Mezcla avena, claras y canela. Cocina en sartén antiadherente.",
-                                ingredients: [
-                                    { food: "Claras", qty: 150 },
-                                    { food: "Copos de avena", qty: 40 },
-                                    { food: "Canela", qty: 2 }
-                                ]
-                            },
-                            {
-                                name: "Tallarines a la carbonada",
-                                desc:   `1. Corta el guanciale o panceta en tiras o cubitos y fríelo a fuego medio hasta que quede dorado y crujiente. No tires la grasa que suelte, la vas a usar después.
-                                        
-                                2. Pon a hervir 100 g de tallarines en abundante agua con sal. Guarda al menos 1/4 de taza del agua de cocción antes de escurrirlos.
-                                        
-                                3. Mientras se cuece la pasta, mezcla en un bol:
-                                        - 2 yemas de huevo
-                                        - 25 g de queso rallado
-                                        - 1/4 cucharadita de pimienta negra molida
-                                        - 1 cucharada de la grasa caliente del guanciale
-                                        Mezcla todo hasta que quede una crema espesa.
-                                        
-                                        4. Cuando la pasta esté cocida y escurrida, viértela en la sartén aún caliente donde freíste el guanciale (ya sin fuego).
-                                       
-                                        5. Añade la mezcla de yema y queso sobre la pasta y mezcla rápido.
-                                        
-                                        6. Agrega poco a poco agua de cocción caliente (unas 2 o 3 cucharadas, o lo que haga falta) hasta que la salsa quede cremosa.`,
-                                ingredients: [
-                                    { food: "Tallarines", qty: 100 },
-                                    { food: "Panceta", qty: 40 },
-                                    { food: "Yema de huevo", qty: 2 },
-                                    { food: "Queso parmesano", qty: 25 },
-                                    { food: "Pimienta negra", qty: 1 } // Puedes ajustar la cantidad si lo deseas
-                                ]
-                            }
+                            ...baseRecipes,
+                            ...userRecipes.filter(r => !baseNames.has(r.name))
                         ];
+                        // ...otros estados...
+                    } else {
+                        // Si no hay nada guardado, usa solo las recetas base
+                        state.recipes = [...baseRecipes];
                     }
                 };
 
@@ -1065,7 +1019,7 @@ const App = (() => {
                     onclick="event.stopPropagation();App.openRecipeEditor(${i})">✏️</button>
                 <button class="btn btn-danger" style="position:absolute;top:6px;right:6px;padding:2px 8px;font-size:0.95em;z-index:2;"
                     onclick="event.stopPropagation();App.deleteRecipe(${i})">🗑️</button>
-                <div style="font-size:2em;margin-bottom:4px;">🍽️</div>
+                <div style="font-size:2em;margin-bottom:4px;">${r.emoji || "🍽️"}</div>
                 <div style="font-weight:600;margin-bottom:6px;">${r.name}</div>
                 <div style="display:flex;justify-content:center;gap:10px;font-size:1em;color:#2176ae; margin-top:auto; padding-top:10px;">
                     <span title="Calorías">🔥${Math.round(totals.calories)}</span>
