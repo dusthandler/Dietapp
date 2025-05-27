@@ -938,7 +938,16 @@ const App = (() => {
                 };
 
                 const createSelectedFoodsListHTML = () => {
-                    return state.selectedFoodsInModal.map(food => `
+    return state.selectedFoodsInModal.map(food => {
+        // Por defecto, unidad 'g' si no existe
+        const unit = food.unit || 'g';
+        // Tamaño de ración (por defecto 100 si no existe)
+        const serving = food.servingSize || food.serving || 100;
+
+        // Cantidad real en gramos según unidad
+        const qtyGramos = unit === 'serving' ? food.quantity * serving : food.quantity;
+
+        return `
         <div class="modal-selected-item ${food.isNew ? 'new-item' : ''}" data-food="${food.name}" style="padding:10px 4px 10px 4px; margin-right:2px;">
             <!-- Fila 1: Cruz, emoji, nombre, coste -->
             <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 6px;">
@@ -949,28 +958,33 @@ const App = (() => {
                     ${food.name}
                 </span>
                 <span class="macro-badge cost" style="background:none;margin-left:8px; display:flex; align-items:center;">
-                    <span>💵</span><span style="margin-left:2px;">${(food.price * food.quantity / 1000).toFixed(2)}€</span>
+                    <span>💵</span><span style="margin-left:2px;">${(food.price * qtyGramos / 1000).toFixed(2)}€</span>
                 </span>
             </div>
-            <!-- Fila 2: Macros a la izquierda, gramos a la derecha -->
+            <!-- Fila 2: Macros a la izquierda, cantidad a la derecha -->
             <div style="display: flex; align-items: center; gap: 4px;">
-                <span class="macro-badge calories"><span>🔥</span><span style="margin-left:2px;">${Math.round(food.calories * food.quantity / 100)}</span></span>
-                <span class="macro-badge protein"><span>💪</span><span style="margin-left:2px;">${Math.round(food.protein * food.quantity / 100)}</span></span>
-                <span class="macro-badge carbs"><span>🍞</span><span style="margin-left:2px;">${Math.round(food.carbs * food.quantity / 100)}</span></span>
-                <span class="macro-badge fats"><span>🥑</span><span style="margin-left:2px;">${Math.round(food.fats * food.quantity / 100)}</span></span>
+                <span class="macro-badge calories"><span>🔥</span><span style="margin-left:2px;">${Math.round(food.calories * qtyGramos / 100)}</span></span>
+                <span class="macro-badge protein"><span>💪</span><span style="margin-left:2px;">${Math.round(food.protein * qtyGramos / 100)}</span></span>
+                <span class="macro-badge carbs"><span>🍞</span><span style="margin-left:2px;">${Math.round(food.carbs * qtyGramos / 100)}</span></span>
+                <span class="macro-badge fats"><span>🥑</span><span style="margin-left:2px;">${Math.round(food.fats * qtyGramos / 100)}</span></span>
                 <span style="display:flex; align-items:center; gap:2px; margin-left:auto;">
                     <input type="number" 
                         value="${food.quantity}"
                         class="quantity-input"
                         style="width:50px;"
-                        onchange="App.updateModalQuantity('${food.name}', this.value)"
+                        onchange="App.updateModalQuantityUnit('${food.name}', this.value, this.nextElementSibling.value)"
                         min="0">
-                    <span style="font-size:0.95em;color:#888;">g</span>
+                    <select class="quantity-unit" style="font-size:0.95em;color:#888;" onchange="App.updateModalQuantityUnit('${food.name}', this.previousElementSibling.value, this.value)">
+                        <option value="g" ${unit === 'g' ? 'selected' : ''}>g</option>
+                        <option value="serving" ${unit === 'serving' ? 'selected' : ''}>ración</option>
+                    </select>
                 </span>
             </div>
+            ${unit === 'serving' ? `<div style="font-size:0.92em;color:#888;margin-top:2px;margin-left:auto;text-align:right;">1 ración = ${serving}g</div>` : ''}
         </div>
-    `).join('');
-                };
+        `;
+    }).join('');
+};
 
                 // ===== RECETAS =====
 

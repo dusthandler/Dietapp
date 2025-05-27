@@ -396,6 +396,7 @@
             border: 2px solid var(--primary);
             position: relative;
             padding-bottom: 80px;
+            min-width: 420px;
         }
 
         .category-grid {
