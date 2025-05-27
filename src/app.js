@@ -1343,29 +1343,31 @@ const App = (() => {
                 };
 
                 const updateModalQuantity = (foodName, value) => {
-                    const quantity = Math.max(0, parseInt(value) || 0);
-                    const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
+                    const quantity = Math.max(0, Number(value) || 0);
+                    const item = state.selectedFoods[meal].find(i => i.name === food);
 
-                    if (foodItem) {
-                        foodItem.quantity = quantity;
-                        // Solo refresca la columna de seleccionados, no navegues
-                        const selectedColumn = document.querySelector('.modal-column.selected-column');
-                        if (selectedColumn) {
-                            const selectedTotals = calculateTotals(state.selectedFoodsInModal);
-                            const selectedList = selectedColumn.querySelector('#modal-selected-list');
-                            if (selectedList) {
-                                const prevScroll = selectedList.scrollTop;
-                                selectedList.innerHTML = createSelectedFoodsListHTML();
-                                selectedList.scrollTop = prevScroll;
-                            }
-                            const addBtnContainer = selectedColumn.querySelector('.add-button-container');
-                            if (addBtnContainer) addBtnContainer.innerHTML = createAddButtonHTML();
-                            const totalsDiv = selectedColumn.querySelector('.selected-totals');
-                            if (totalsDiv) totalsDiv.outerHTML = createSelectedTotalsHTML(selectedTotals);
+                    if (item) {
+                        item.quantity = quantity;
+                        // ACTUALIZA LA DIETA ACTUAL EN savedDiets
+                        if (state.currentDietId) {
+                            state.savedDiets[state.currentDietId] = JSON.parse(JSON.stringify(state.selectedFoods));
                         }
+                        saveState();
+                        renderMealContent(meal);
+                        App.showMealSuggestions(meal);
+                        updateTotals();
+                        generateShoppingList();
                     }
-                    renderSelectedColumn();
                 };
+
+                function updateModalQuantityUnit(foodName, value, unit) {
+                    const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
+                    if (foodItem) {
+                        foodItem.quantity = Math.max(0, parseFloat(value) || 0);
+                        foodItem.unit = unit;
+                        renderSelectedColumn();
+                    }
+                }
 
                 const addSelectedFoods = () => {
                     const prevItems = new Set(state.selectedFoods[state.currentMeal].map(f => f.name));
@@ -2153,6 +2155,7 @@ const App = (() => {
                     hideMealSuggestions,
                     deleteSuggestion,
                     editSuggestion,
+                    updateModalQuantityUnit,
                     openFoodSelectorForSuggestion: () => {
                         // Abre el modal de alimentos y cuando el usuario elija uno, lo pone como sugerencia
                         App.showFoodModal();
