@@ -4,6 +4,7 @@ export const foodDB = {
     category: 'Proteínas',
     emoji: '🐟',
     servingSize: 56,
+    // explicación de la ración: 1 lata pequeña
     price: 9.00,
     calories: 116,
     protein: 25.5,
