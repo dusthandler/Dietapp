@@ -1318,10 +1318,12 @@ const App = (() => {
                         state.selectedFoodsInModal.splice(existingIndex, 1);
                     } else {
                         state.selectedFoodsInModal.forEach(item => item.isNew = false);
+                        const dbFood = getAllFoods()[foodName];
                         state.selectedFoodsInModal.push({
                             name: foodName,
                             quantity: 100,
-                            ...getAllFoods()[foodName],
+                            ...dbFood,
+                            servingSize: dbFood.servingSize || dbFood.serving || 100, // <-- Añade esto
                             isNew: true
                         });
                     }
@@ -1363,7 +1365,12 @@ const App = (() => {
                 function updateModalQuantityUnit(foodName, value, unit) {
                     const foodItem = state.selectedFoodsInModal.find(f => f.name === foodName);
                     if (foodItem) {
-                        foodItem.quantity = Math.max(0, parseFloat(value) || 0);
+                        // Si el usuario cambia a "ración" y la cantidad era 100, pon 1
+                        if (unit === 'serving' && (foodItem.unit !== 'serving' && (parseFloat(value) === 100 || value === ""))) {
+                            foodItem.quantity = 1;
+                        } else {
+                            foodItem.quantity = Math.max(0, parseFloat(value) || 0);
+                        }
                         foodItem.unit = unit;
                         renderSelectedColumn();
                     }
@@ -1385,10 +1392,13 @@ const App = (() => {
                             state.selectedFoods[state.currentMeal][existingIndex].quantity += modalFood.quantity;
                         } else {
                             state.selectedFoods[state.currentMeal].push({
-                                name: modalFood.name,
-                                quantity: modalFood.quantity,
-                                ...getAllFoods()[modalFood.name]
-                            });
+                            name: modalFood.name,
+                            quantity: modalFood.unit === 'serving'
+                                ? modalFood.quantity * (modalFood.servingSize || modalFood.serving || 100)
+                                : modalFood.quantity,
+                                servingSize: modalFood.servingSize,
+                            ...getAllFoods()[modalFood.name]
+                        });
                         }
                     });
 
@@ -2188,6 +2198,7 @@ const App = (() => {
                         document.getElementById('food-editor-carbs').value = f?.carbs || '';
                         document.getElementById('food-editor-fats').value = f?.fats || '';
                         document.getElementById('food-editor-price').value = f?.price || '';
+                        document.getElementById('food-editor-serving').value = f?.servingSize || '';
 
                         // Cargar intolerancias si el alimento existe
                         const intolerancias = f?.intolerancias || [];
@@ -2213,6 +2224,7 @@ const App = (() => {
                             carbs: Number(document.getElementById('food-editor-carbs').value) || 0,
                             fats: Number(document.getElementById('food-editor-fats').value) || 0,
                             price: Number(document.getElementById('food-editor-price').value) || 0,
+                            servingSize: Number(document.getElementById('food-editor-serving').value) || 100,
                             intolerancias // <--- ahora sí existe la variable
                         };
                         // Si el nombre cambió y estaba en customFoods, bórralo
@@ -2226,7 +2238,7 @@ const App = (() => {
                         App.closeFoodEditor();
                         if (state.currentCategoryInModal) {
                             App.showFoods(state.currentCategoryInModal);
-                        }
+                        };
                     },
                     deleteCustomFood: (foodName) => {
                         if (confirm('¿Eliminar este alimento?')) {
@@ -2486,4 +2498,4 @@ const App = (() => {
                     }
                 }
             });
-window.App = App;
+            window.App = App;
