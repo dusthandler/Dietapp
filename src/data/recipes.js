@@ -484,7 +484,7 @@ export const baseRecipes = [
     ingredients: [
         { food: "Dátiles", qty: 80 },
         { food: "Crema de almendras", qty: 50 },
-        { food: "Café instantáneo", qty: 5 },
+        { food: "Café", qty: 5 },
         { food: "Coco rallado", qty: 20 }
     ]
 },
@@ -506,8 +506,8 @@ export const baseRecipes = [
     desc: "1. Cortar calabacín en tiras\n2. Mezclar con pesto rojo\n3. Añadir almendras fileteadas",
     ingredients: [
         { food: "Calabacín", qty: 200 },
-        { food: "Pesto de tomate seco", qty: 30 },
-        { food: "Almendras tostadas", qty: 20 }
+        { food: "Pesto", qty: 30 },
+        { food: "Almendras", qty: 20 }
     ]
 },
 {
@@ -527,8 +527,8 @@ export const baseRecipes = [
     desc: "1. Cortar salmón en láminas finas\n2. Preparar tapenade de aceitunas\n3. Decorar con albahaca",
     ingredients: [
         { food: "Salmón fresco", qty: 120 },
-        { food: "Aceitunas negras", qty: 50 },
-        { food: "Albahaca fresca", qty: 10 }
+        { food: "Olivas", qty: 50 },
+        { food: "Albahaca", qty: 10 }
     ]
 },
 {
@@ -551,7 +551,7 @@ export const baseRecipes = [
 2. Mezclar con yogur griego
 3. Refrigerar 2 horas`,
     ingredients: [
-        { food: "Chocolate 85%", qty: 60 },
+        { food: "Chocolate", qty: 60 },
         { food: "Yogur griego 0%", qty: 150 },
         { food: "Claras", qty: 2 }
     ]
@@ -563,9 +563,9 @@ export const baseRecipes = [
 2. Asar 25 min a 180°C
 3. Hacer puré de manzana al horno`,
     ingredients: [
-        { food: "Pechuga de pavo", qty: 200 },
+        { food: "Pavo", qty: 200 },
         { food: "Manzana", qty: 150 },
-        { food: "Romero fresco", qty: 5 }
+        { food: "Romero", qty: 5 }
     ]
 }
 

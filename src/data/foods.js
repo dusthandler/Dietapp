@@ -903,6 +903,17 @@ export const foodDB = {
         fats: 0.3,
         intolerancias: []
     },
+    'Dátiles': {
+  category: 'Frutas',
+  emoji: '🌴',
+  servingSize: 30,  // 2-3 unidades
+  price: 8.00,
+  calories: 282,
+  protein: 2.5,
+  carbs: 75,
+  fats: 0.4,
+  intolerancias: []
+},
     'Fresas': {
         category: 'Frutas',
         emoji: '🍓',
@@ -1013,6 +1024,17 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Olivas': {
+  category: 'Grasas',
+  emoji: '🫒',
+  servingSize: 30,  // 10-12 unidades
+  price: 6.00,
+  calories: 145,
+  protein: 1,
+  carbs: 3,
+  fats: 15,
+  intolerancias: []
+},
     'Pera': {
         category: 'Frutas',
         emoji: '🍐',
@@ -1271,6 +1293,17 @@ export const foodDB = {
         fats: 15,
         intolerancias: []
     },
+    'Almendras': {
+  category: 'Grasas',
+  emoji: '🌰',
+  servingSize: 30,  // 1 puñado
+  price: 12.00,
+  calories: 579,
+  protein: 21,
+  carbs: 22,
+  fats: 50,
+  intolerancias: ['frutos secos']
+},
     'Anacardos tostados': {
         category: 'Grasas',
         emoji: '🥜',
@@ -1528,6 +1561,17 @@ export const foodDB = {
         fats: 2.1,
         intolerancias: []
     },
+    'Café': {
+  category: 'Bebidas',
+  emoji: '☕',
+  servingSize: 2,  // 1 cucharadita (molido)
+  price: 10.00,
+  calories: 0,
+  protein: 0.3,
+  carbs: 0,
+  fats: 0,
+  intolerancias: []
+},
     'Leche de almendras': {
         category: 'Bebidas',
         emoji: '🥤',
@@ -1673,6 +1717,17 @@ export const foodDB = {
     },
     
     // ESPECIAS
+    'Albahaca': {
+  category: 'Verduras',
+  emoji: '🌿',
+  servingSize: 5,  // 1 cucharada
+  price: 20.00,
+  calories: 22,
+  protein: 3.2,
+  carbs: 2.7,
+  fats: 0.6,
+  intolerancias: []
+},
     'Ajo granulado': {
         category: 'Especias',
         emoji: '🧄',
@@ -1860,6 +1915,17 @@ export const foodDB = {
         fats: 3.3,
         intolerancias: []
     },
+    'Romero': {
+  category: 'Especias',
+  emoji: '🌿',
+  servingSize: 1,  // 1 cucharadita
+  price: 18.00,
+  calories: 331,
+  protein: 4.9,
+  carbs: 64,
+  fats: 15,
+  intolerancias: []
+},
     'Sal': {
         category: 'Especias',
         emoji: '🧂',
@@ -2049,6 +2115,32 @@ export const foodDB = {
         fats: 4,
         intolerancias: []
     },
+
+    // SALSAS
+    'Pesto': {
+  category: 'Salsas',
+  emoji: '🌿',
+  servingSize: 15,  // 1 cucharada
+  price: 16.00,
+  calories: 460,
+  protein: 4,
+  carbs: 6,
+  fats: 47,
+  intolerancias: ['frutos secos', 'lactosa']
+},
+
+// POSTRES
+'Chocolate': {
+  category: 'Postres',
+  emoji: '🍫',
+  servingSize: 20,  // 2 onzas
+  price: 18.00,
+  calories: 546,
+  protein: 6.5,
+  carbs: 46,
+  fats: 38,
+  intolerancias: ['lactosa']
+},
 
     // SUPLEMENTOS
         'Ashwagandha KSM-66®': {
