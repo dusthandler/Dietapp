@@ -211,6 +211,8 @@ export const foodDB = {
     intolerancias: ['soja']
   },
 
+  // LÁCTEOS
+  
   'Leche condensada': {
     category: 'Lácteos',
     emoji: '🥛',
@@ -767,6 +769,17 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Champiñones': {
+  category: 'Verduras',
+  emoji: '🍄',
+  servingSize: 100,
+  price: 3.50,
+  calories: 22,
+  protein: 3.1,
+  carbs: 3.3,
+  fats: 0.3,
+  intolerancias: []
+},
     'Coliflor': {
         category: 'Verduras',
         emoji: '🥦',
@@ -1368,6 +1381,17 @@ export const foodDB = {
         fats: 32,
         intolerancias: []
     },
+    'Semillas de sésamo': {
+        category: 'Grasas',
+        emoji: '🌰',
+        servingSize: 10,
+        price: 14.00,
+        calories: 573,
+        protein: 17,
+        carbs: 23,
+        fats: 49,
+        intolerancias: ['frutos secos']
+        },
 
     // ENDULZANTES
         'Azúcar de coco': {
@@ -1526,6 +1550,17 @@ export const foodDB = {
         fats: 1.0,
         intolerancias: []
     },
+      'Leche de coco': {
+    category: 'Bebidas',
+    emoji: '🥥',
+    servingSize: 100,
+    price: 5.50,
+    calories: 200,
+    protein: 2.0,
+    carbs: 3.0,
+    fats: 21,
+    intolerancias: []
+    },
     'Néctar de melocotón': {
         category: 'Bebidas',
         emoji: '🍑',
@@ -1559,6 +1594,17 @@ export const foodDB = {
         fats: 0,
         intolerancias: []
     },
+    'Vino tinto': {
+        category: 'Bebidas',
+        emoji: '🍷',
+        servingSize: 100,
+        price: 3.00,
+        calories: 85,
+        protein: 0.1,
+        carbs: 2.6,
+        fats: 0,
+        intolerancias: ['sulfitos']
+        },
     'Zumo de manzana': {
         category: 'Bebidas',
         emoji: '🍎',
@@ -1715,6 +1761,39 @@ export const foodDB = {
         fats: 14.0,
         intolerancias: []
     },
+    'Eneldo seco': {
+        category: 'Especias',
+        emoji: '🌿',
+        servingSize: 1,
+        price: 25.00,
+        calories: 253,
+        protein: 20,
+        carbs: 55,
+        fats: 4,
+        intolerancias: []
+        },
+    'Esencia de vainilla': {
+        category: 'Especias',
+        emoji: '🧴',
+        servingSize: 5,
+        price: 80.00,
+        calories: 288,
+        protein: 0,
+        carbs: 13,
+        fats: 0,
+        intolerancias: []
+        },
+        'Jengibre fresco': {
+  category: 'Especias',
+  emoji: '🫚',
+  servingSize: 10,
+  price: 6.50,
+  calories: 80,
+  protein: 1.8,
+  carbs: 18,
+  fats: 0.8,
+  intolerancias: []
+},
     'Mezcla de pimientas': {
         category: 'Especias',
         emoji: '⚫',
@@ -1737,6 +1816,17 @@ export const foodDB = {
         fats: 36.3,
         intolerancias: []
     },
+    'Perejil fresco': {
+  category: 'Especias',
+  emoji: '🌿',
+  servingSize: 5,
+  price: 12.00,
+  calories: 36,
+  protein: 3,
+  carbs: 6,
+  fats: 0.8,
+  intolerancias: []
+},
     'Pimentón cayena': {
         category: 'Especias',
         emoji: '🌶️',
