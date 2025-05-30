@@ -12,6 +12,17 @@ export const foodDB = {
     fats: 0.8,
     intolerancias: ['pescado']
   },
+  'Bacon': {
+  category: 'Proteínas',
+  emoji: '🥓',
+  servingSize: 30,    // 2-3 lonchas finas
+  price: 12.50,      // Mercadona (200g pack = 2.50€)
+  calories: 541,
+  protein: 37,
+  carbs: 1.3,
+  fats: 42,
+  intolerancias: []
+},
   'Caballa': {
     category: 'Proteínas',
     emoji: '🐟',
@@ -67,6 +78,17 @@ export const foodDB = {
     fats: 11,
     intolerancias: ['huevo']
   },
+  'Jamón de pavo': {
+  category: 'Proteínas',
+  emoji: '🍗',
+  servingSize: 50,  // 2-3 lonchas
+  price: 9.00,
+  calories: 110,
+  protein: 20,
+  carbs: 1,
+  fats: 2.5,
+  intolerancias: []
+},
   'Jamón serrano': {
     category: 'Proteínas',
     emoji: '🍖',
@@ -224,6 +246,17 @@ export const foodDB = {
     fats: 9.0,
     intolerancias: ['lactosa']
   },
+  'Leche desnatada': {
+  category: 'Lácteos',
+  emoji: '🥛',
+  servingSize: 200,  // 1 vaso
+  price: 0.82,
+  calories: 34,
+  protein: 3.3,
+  carbs: 4.8,
+  fats: 0.5,
+  intolerancias: ['lactosa']
+},
   'Leche entera': {
     category: 'Lácteos',
     emoji: '🥛',
@@ -257,6 +290,17 @@ export const foodDB = {
     fats: 20,
     intolerancias: ['lactosa']
   },
+  'Quesitos': {
+  category: 'Lácteos',
+  emoji: '🧀',
+  servingSize: 20,  // 1 porción
+  price: 5,
+  calories: 60,
+  protein: 3.0,
+  carbs: 1.0,
+  fats: 5.0,
+  intolerancias: ['lactosa']
+},
   'Queso burgos desnatado': {
     category: 'Lácteos',
     emoji: '🧀',
@@ -312,6 +356,17 @@ export const foodDB = {
     fats: 17,
     intolerancias: ['lactosa']
   },
+  'Queso de untar': {
+  category: 'Lácteos',
+  emoji: '🧀',
+  servingSize: 30,  // 2 cucharadas
+  price: 0.13,
+  calories: 71,
+  protein: 2.1,
+  carbs: 0.9,
+  fats: 6.9,
+  intolerancias: ['lactosa']
+},
   'Queso parmesano': {
     category: 'Lácteos',
     emoji: '🧀',
@@ -345,6 +400,17 @@ export const foodDB = {
     fats: 0.2,
     intolerancias: ['lactosa']
   },
+  'Yogur de sabores': {
+  category: 'Lácteos',
+  emoji: '🍦',
+  servingSize: 125,
+  price: 0.16,
+  calories: 90,
+  protein: 3.5,
+  carbs: 12,
+  fats: 2.5,
+  intolerancias: ['lactosa']
+},
   'Yogur de soja': {
     category: 'Lácteos',
     emoji: '🥛',
@@ -402,6 +468,18 @@ export const foodDB = {
         fats: 7.0,
         intolerancias: []
     },
+    'Aros de avena': {
+  category: 'Cereales',
+  emoji: '🥣',
+  servingSize: 30,
+  price: 4.5,
+  calories: 116,
+  protein: 3.8,
+  carbs: 19.9,
+  fats: 1.7,
+  intolerancias: ['gluten']
+},
+
     'Arroz basmati': {
         category: 'Cereales',
         emoji: '🍚',
@@ -490,6 +568,29 @@ export const foodDB = {
         fats: 2.5,
         intolerancias: ['gluten']
     },
+
+'Galletas de chocolate': {
+  category: 'Cereales',
+  emoji: '🍪',
+  servingSize: 30,
+  price: 4.00,
+  calories: 489,
+  protein: 5.4,
+  carbs: 64.0,
+  fats: 22.0,
+  intolerancias: ['gluten']
+},
+    'Galletas Maria': {
+  category: 'Cereales',
+  emoji: '🍪',
+  servingSize: 30,    // 4-5 unidades
+  price: 0.85,       // Paquete 400g = 0.85€
+  calories: 450,
+  protein: 6,
+  carbs: 80,
+  fats: 12,
+  intolerancias: ['gluten']
+},
     'Granola sin azúcar': {
         category: 'Cereales',
         emoji: '🥣',
@@ -501,6 +602,17 @@ export const foodDB = {
         fats: 19,
         intolerancias: []
     },
+    'Harina de avena': {
+  category: 'Cereales',
+  emoji: '🌾',
+  servingSize: 40,    // 4 cucharadas
+  price: 2.10,       // 500g = 2.10€
+  calories: 379,
+  protein: 13,
+  carbs: 68,
+  fats: 6.3,
+  intolerancias: []
+},
     'Harina de maíz': {
         category: 'Cereales',
         emoji: '🌽',
@@ -512,6 +624,39 @@ export const foodDB = {
         fats: 3.9,
         intolerancias: []
     },
+    'Harina de trigo': {
+  category: 'Cereales',
+  emoji: '🌾',
+  servingSize: 100,   // Para 2-3 tortillas
+  price: 0.85,       // 1kg = 0.85€ (Hacendado)
+  calories: 364,
+  protein: 10,
+  carbs: 76,
+  fats: 1,
+  intolerancias: ['gluten']
+},
+'Levadura': {
+  category: 'Cereales',
+  emoji: '🍞',
+  servingSize: 7,     // 1 sobre (7g)
+  price: 0.60,       // 10 sobres = 0.60€
+  calories: 325,
+  protein: 40,
+  carbs: 41,
+  fats: 7,
+  intolerancias: ['gluten']
+},
+'Maíz': {
+  category: 'Cereales',
+  emoji: '🌽',
+  servingSize: 100,   // 1 taza de granos
+  price: 1.20,       // Malla 1kg = 1.20€
+  calories: 86,
+  protein: 3.2,
+  carbs: 19,
+  fats: 1.2,
+  intolerancias: []
+},
     'Mijo': {
         category: 'Cereales',
         emoji: '🌾',
@@ -523,6 +668,72 @@ export const foodDB = {
         fats: 4.2,
         intolerancias: []
     },
+    'Mix de cereales': {
+  category: 'Cereales',
+  emoji: '🥣',
+  servingSize: 30,
+  price: 0.20,
+  calories: 110,
+  protein: 2.5,
+  carbs: 22.0,
+  fats: 1.0,
+  intolerancias: ['gluten']
+},
+'Muesli crunchy sin azúcar': {
+  category: 'Cereales',
+  emoji: '🥣',
+  servingSize: 45,
+  price: 0.18,
+  calories: 180,
+  protein: 4.0,
+  carbs: 30.0,
+  fats: 5.0,
+  intolerancias: ['gluten']
+},
+'Pan': {
+  category: 'Cereales',
+  emoji: '🥖',
+  servingSize: 80,    // 1 baguette pequeña
+  price: 0.95,       // Barra 250g = 0.95€
+  calories: 265,
+  protein: 9,
+  carbs: 53,
+  fats: 1.2,
+  intolerancias: ['gluten']
+},
+'Pan integral': {
+  category: 'Cereales',
+  emoji: '🥖',
+  servingSize: 80,
+  price: 1.20,       // Barra 250g = 1.20€
+  calories: 240,
+  protein: 10,
+  carbs: 48,
+  fats: 1.8,
+  intolerancias: ['gluten']
+},
+'Pan de molde': {
+  category: 'Cereales',
+  emoji: '🍞',
+  servingSize: 50,    // 2 rebanadas
+  price: 1.30,       // 400g = 1.30€
+  calories: 265,
+  protein: 8,
+  carbs: 49,
+  fats: 3.5,
+  intolerancias: ['gluten']
+},
+'Pan de molde integral': {
+  category: 'Cereales',
+  emoji: '🍞',
+  servingSize: 50,
+  price: 1.50,       // 400g = 1.50€
+  calories: 240,
+  protein: 9,
+  carbs: 45,
+  fats: 2.8,
+  intolerancias: ['gluten']
+},
     'Polenta': {
         category: 'Cereales',
         emoji: '🟡',
@@ -556,6 +767,17 @@ export const foodDB = {
         fats: 4.3,
         intolerancias: ['gluten']
     },
+    'Surtido de galletas': {
+  category: 'Cereales',
+  emoji: '🍪',
+  servingSize: 30,
+  price: 4.00,
+  calories: 525,
+  protein: 4.7,
+  carbs: 59.2,
+  fats: 28.0,
+  intolerancias: ['gluten']
+},
     'Tallarines': {
         category: 'Cereales',
         emoji: '🍜',
@@ -567,6 +789,17 @@ export const foodDB = {
         fats: 1.5,
         intolerancias: ['gluten']
     },
+    'Tortilla de avena': {
+  category: 'Cereales',
+  emoji: '🌮',
+  servingSize: 60,
+  price: 5.14,
+  calories: 180,
+  protein: 6.0,
+  carbs: 30.0,
+  fats: 3.0,
+  intolerancias: ['gluten', 'huevo']
+},
     'Tortitas de maíz': {
         category: 'Cereales',
         emoji: '🌽',
@@ -578,6 +811,17 @@ export const foodDB = {
         fats: 2.5,
         intolerancias: []
     },
+    'Tortilla de trigo': {
+  category: 'Cereales',
+  emoji: '🫓',
+  servingSize: 50,    // 1 unidad mediana
+  price: 1.60,       // Pack 8 uds = 2.00€
+  calories: 146,
+  protein: 4,
+  carbs: 24,
+  fats: 3.5,
+  intolerancias: ['gluten']
+},
     'Trigo sarraceno': {
         category: 'Cereales',
         emoji: '🌾',
@@ -692,6 +936,28 @@ export const foodDB = {
     },
 
     // VERDURAS
+    'Acelgas': {
+  category: 'Verduras',
+  emoji: '🥬',
+  servingSize: 100,
+  price: 1.20,
+  calories: 19,
+  protein: 1.8,
+  carbs: 3.7,
+  fats: 0.2,
+  intolerancias: []
+},
+'Alga nori': {
+  category: 'Verduras',
+  emoji: '🌿',
+  servingSize: 5,     // 1 lámina (para sushi)
+  price: 3.20,       // 10 láminas = 1.60€
+  calories: 35,
+  protein: 6,
+  carbs: 5,
+  fats: 0.5,
+  intolerancias: ['pescado'] // Alerta para veganos estrictos
+},
     'Ajo': {
         category: 'Verduras',
         emoji: '🧄',
@@ -758,6 +1024,17 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Canónigos': {
+  category: 'Verduras',
+  emoji: '🥗',
+  servingSize: 50,
+  price: 10.00,
+  calories: 21,
+  protein: 1.8,
+  carbs: 0.7,
+  fats: 0.5,
+  intolerancias: []
+},
     'Cebolla': {
         category: 'Verduras',
         emoji: '🧅',
@@ -769,6 +1046,17 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Cebollino': {
+  category: 'Verduras',
+  emoji: '🌱',
+  servingSize: 5,     // 1 cucharada picado
+  price: 0.90,       // Manojo ≈ 0.90€
+  calories: 30,
+  protein: 3.3,
+  carbs: 4.4,
+  fats: 0.7,
+  intolerancias: []
+},
     'Champiñones': {
   category: 'Verduras',
   emoji: '🍄',
@@ -824,6 +1112,17 @@ export const foodDB = {
         fats: 0.2,
         intolerancias: []
     },
+    'Lechuga de roble': {
+  category: 'Verduras',
+  emoji: '🥬',
+  servingSize: 50,
+  price: 6.00,
+  calories: 15,
+  protein: 1.36,
+  carbs: 2.79,
+  fats: 0.15,
+  intolerancias: []
+},
     'Pepino': {
         category: 'Verduras',
         emoji: '🥒',
@@ -835,6 +1134,17 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Pepinillos': {
+  category: 'Verduras',
+  emoji: '🥒',
+  servingSize: 30,    // 3-4 rodajas
+  price: 1.80,       // Tarro 370g = 1.80€
+  calories: 12,
+  protein: 0.6,
+  carbs: 2.3,
+  fats: 0.2,
+  intolerancias: []
+},
     'Pimiento verde': {
         category: 'Verduras',
         emoji: '🫑',
@@ -868,6 +1178,28 @@ export const foodDB = {
         fats: 0.3,
         intolerancias: []
     },
+    'Rábano': {
+  category: 'Verduras',
+  emoji: '🌶️',
+  servingSize: 100,
+  price: 1.50,
+  calories: 16,
+  protein: 0.7,
+  carbs: 3.4,
+  fats: 0.1,
+  intolerancias: []
+},
+'Rúcula': {
+  category: 'Verduras',
+  emoji: '🌿',
+  servingSize: 50,
+  price: 10.00,
+  calories: 31,
+  protein: 2.6,
+  carbs: 3.7,
+  fats: 0.7,
+  intolerancias: []
+},
     'Tomate': {
         category: 'Verduras',
         emoji: '🍅',
@@ -879,6 +1211,17 @@ export const foodDB = {
         fats: 0.2,
         intolerancias: []
     },
+    'Tomate cherry': {
+  category: 'Verduras',
+  emoji: '🍅',
+  servingSize: 100,
+  price: 2.50,
+  calories: 18,
+  protein: 0.9,
+  carbs: 3.9,
+  fats: 0.2,
+  intolerancias: []
+},
     'Zanahoria': {
         category: 'Verduras',
         emoji: '🥕',
@@ -947,6 +1290,17 @@ export const foodDB = {
         fats: 0.3,
         intolerancias: []
     },
+    'Kaki': {
+  category: 'Frutas',
+  emoji: '🍊',
+  servingSize: 100,
+  price: 2.00,
+  calories: 71,
+  protein: 0.7,
+  carbs: 15.3,
+  fats: 0.2,
+  intolerancias: []
+},
     'Kiwi': {
         category: 'Frutas',
         emoji: '🥝',
@@ -1002,6 +1356,17 @@ export const foodDB = {
         fats: 0.2,
         intolerancias: []
     },
+    'Melocotón': {
+  category: 'Frutas',
+  emoji: '🍑',
+  servingSize: 100,
+  price: 2.20,
+  calories: 39,
+  protein: 0.6,
+  carbs: 9.0,
+  fats: 0.1,
+  intolerancias: []
+},
     'Melón': {
         category: 'Frutas',
         emoji: '🍈',
@@ -1024,8 +1389,30 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    'Nectarina': {
+  category: 'Frutas',
+  emoji: '🍑',
+  servingSize: 100,
+  price: 2.50,
+  calories: 44,
+  protein: 1.1,
+  carbs: 10.6,
+  fats: 0.3,
+  intolerancias: []
+},
+    'Níspero': {
+  category: 'Frutas',
+  emoji: '🍈',
+  servingSize: 100,
+  price: 2.80,
+  calories: 47,
+  protein: 0.4,
+  carbs: 12.1,
+  fats: 0.2,
+  intolerancias: []
+},
     'Olivas': {
-  category: 'Grasas',
+  category: 'Frutas',
   emoji: '🫒',
   servingSize: 30,  // 10-12 unidades
   price: 6.00,
@@ -1046,6 +1433,18 @@ export const foodDB = {
         fats: 0.1,
         intolerancias: []
     },
+    
+'Persimón': {
+  category: 'Frutas',
+  emoji: '🍊',
+  servingSize: 100,
+  price: 2.00,
+  calories: 69,
+  protein: 0.7,
+  carbs: 14.1,
+  fats: 0.0,
+  intolerancias: []
+},
     'Piña': {
         category: 'Frutas',
         emoji: '🍍',
@@ -1315,6 +1714,29 @@ export const foodDB = {
         fats: 44,
         intolerancias: ['frutos secos']
     },
+    'Avellanas': {
+  category: 'Frutos secos y semillas',
+  emoji: '🌰',
+  servingSize: 30,
+  price: 10.00,
+  calories: 628,
+  protein: 15.0,
+  carbs: 17.0,
+  fats: 61.0,
+  intolerancias: ['frutos secos']
+},
+
+    'Cacahuetes': {
+  category: 'Grasas',
+  emoji: '🥜',
+  servingSize: 30,    // 1 puñado
+  price: 3.50,       // 250g = 3.50€
+  calories: 567,
+  protein: 26,
+  carbs: 16,
+  fats: 49,
+  intolerancias: ['frutos secos']
+},
     'Crema de almendras': {
         category: 'Grasas',
         emoji: '🌰',
@@ -1392,6 +1814,29 @@ export const foodDB = {
         fats: 68,
         intolerancias: ['frutos secos']
     },
+    'Pipas de girasol': {
+  category: 'Frutos secos y semillas',
+  emoji: '🌻',
+  servingSize: 30,
+  price: 5.00,
+  calories: 602,
+  protein: 25.8,
+  carbs: 3.8,
+  fats: 50.9,
+  intolerancias: ['frutos secos']
+},
+    'Pistachos': {
+  category: 'Frutos secos y semillas',
+  emoji: '🥜',
+  servingSize: 30,
+  price: 12.00,
+  calories: 607,
+  protein: 25.0,
+  carbs: 11.5,
+  fats: 49.6,
+  intolerancias: ['frutos secos']
+},
+
     'Semillas de calabaza': {
         category: 'Grasas',
         emoji: '🎃',
@@ -1438,6 +1883,19 @@ export const foodDB = {
         fats: 0.5,
         intolerancias: []
     },
+
+
+    'Cacao puro': {
+  category: 'Endulzantes',
+  emoji: '🍫',
+  servingSize: 10,    // 1 cucharada
+  price: 4.50,       // 250g = 4.50€
+  calories: 228,
+  protein: 20,
+  carbs: 58,
+  fats: 14,
+  intolerancias: []
+},
     'Edulcorante de fruta del monje': {
         category: 'Endulzantes',
         emoji: '🍈',
@@ -1515,6 +1973,17 @@ export const foodDB = {
         fats: 0,
         intolerancias: []
     },
+        'Sirope de dátil': {
+  category: 'Endulzantes',
+  emoji: '🍯',
+  servingSize: 15,    // 1 cucharada
+  price: 6.50,       // 250ml = 6.50€
+  calories: 310,
+  protein: 1.5,
+  carbs: 75,
+  fats: 0.2,
+  intolerancias: []
+},
     'Xilitol': {
         category: 'Endulzantes',
         emoji: '🌾',
@@ -1583,6 +2052,17 @@ export const foodDB = {
         fats: 1.1,
         intolerancias: ['frutos secos']
     },
+    'Leche de avellana': {
+  category: 'Lácteos vegetales',
+  emoji: '🌰',
+  servingSize: 200,
+  price: 1.39,
+  calories: 29,
+  protein: 0.4,
+  carbs: 3.3,
+  fats: 1.6,
+  intolerancias: ['frutos secos']
+},
     'Leche de avena': {
         category: 'Bebidas',
         emoji: '🌾',
@@ -1605,6 +2085,17 @@ export const foodDB = {
     fats: 21,
     intolerancias: []
     },
+    'Leche de soja': {
+  category: 'Lácteos vegetales',
+  emoji: '🌱',
+  servingSize: 200,
+  price: 0.79,
+  calories: 33,
+  protein: 3.0,
+  carbs: 0.6,
+  fats: 1.8,
+  intolerancias: ['soja']
+},
     'Néctar de melocotón': {
         category: 'Bebidas',
         emoji: '🍑',
@@ -1718,7 +2209,7 @@ export const foodDB = {
     
     // ESPECIAS
     'Albahaca': {
-  category: 'Verduras',
+  category: 'Especias',
   emoji: '🌿',
   servingSize: 5,  // 1 cucharada
   price: 20.00,
@@ -1948,6 +2439,28 @@ export const foodDB = {
         fats: 41.6,
         intolerancias: []
     },
+    'Vinagre de manzana': {
+  category: 'Especias',
+  emoji: '🍎',
+  servingSize: 15,    // 1 cucharada
+  price: 1.20,       // 500ml = 1.20€
+  calories: 22,
+  protein: 0,
+  carbs: 0.9,
+  fats: 0,
+  intolerancias: []
+},
+'Vinagre de vino': {
+  category: 'Especias',
+  emoji: '🍷',
+  servingSize: 15,
+  price: 1.00,       // 500ml = 1.00€
+  calories: 18,
+  protein: 0,
+  carbs: 0.5,
+  fats: 0,
+  intolerancias: []
+},
 
     // PLATOS PREPARADOS
         'Ensaladilla rusa': {
@@ -2117,6 +2630,50 @@ export const foodDB = {
     },
 
     // SALSAS
+    'Ketchup': {
+  category: 'Salsas',
+  emoji: '🍅',
+  servingSize: 15,
+  price: 1.20,       // 500g = 1.20€
+  calories: 112,
+  protein: 1.2,
+  carbs: 27,
+  fats: 0.1,
+  intolerancias: []
+},
+'Ketchup light': {
+  category: 'Salsas',
+  emoji: '🍅',
+  servingSize: 15,
+  price: 1.50,       // 500g = 1.50€
+  calories: 50,
+  protein: 0.8,
+  carbs: 12,
+  fats: 0,
+  intolerancias: []
+},
+'Mayonesa': {
+  category: 'Salsas',
+  emoji: '🥄',
+  servingSize: 15,
+  price: 1.60,       // 500ml = 1.60€
+  calories: 680,
+  protein: 1.1,
+  carbs: 1.3,
+  fats: 75,
+  intolerancias: ['huevo']
+},
+'Mayonesa light': {
+  category: 'Salsas',
+  emoji: '🥄',
+  servingSize: 15,
+  price: 1.80,       // 500ml = 1.80€
+  calories: 260,
+  protein: 0.9,
+  carbs: 6.5,
+  fats: 25,
+  intolerancias: ['huevo']
+},
     'Pesto': {
   category: 'Salsas',
   emoji: '🌿',
@@ -2128,6 +2685,18 @@ export const foodDB = {
   fats: 47,
   intolerancias: ['frutos secos', 'lactosa']
 },
+'Salsa barbacoa': {
+  category: 'Salsas',
+  emoji: '🍖',
+  servingSize: 15,    // 1 cucharada
+  price: 1.80,       // 250ml = 1.80€
+  calories: 120,
+  protein: 0.5,
+  carbs: 28,
+  fats: 0,
+  intolerancias: []
+},
+
 
 // POSTRES
 'Chocolate': {
@@ -2140,6 +2709,17 @@ export const foodDB = {
   carbs: 46,
   fats: 38,
   intolerancias: ['lactosa']
+},
+'Profiteroles': {
+  category: 'Postres',
+  emoji: '🍰',
+  servingSize: 100,
+  price: 6.00,
+  calories: 285,
+  protein: 5.7,
+  carbs: 36.0,
+  fats: 12.1,
+  intolerancias: ['gluten', 'lactosa', 'huevo']
 },
 
     // SUPLEMENTOS
@@ -2209,6 +2789,17 @@ export const foodDB = {
         fats: 1,
         intolerancias: ['pescado']
     },
+    'Polvorones': {
+  category: 'Cereales',
+  emoji: '🍬',
+  servingSize: 30,
+  price: 8.00,
+  calories: 510,
+  protein: 9.3,
+  carbs: 61.0,
+  fats: 34.0,
+  intolerancias: ['gluten', 'frutos secos']
+},
     'Probióticos + Prebióticos': {
         category: 'Suplementos',
         emoji: '🦠',
