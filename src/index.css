@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-paper: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-protein: var(--c-protein);
+  --color-carbs: var(--c-carbs);
+  --color-fat: var(--c-fat);
+  --color-fiber: var(--c-fiber);
+  --color-vit: var(--c-vit);
+  --color-min: var(--c-min);
+  --color-kcal: var(--c-kcal);
+  --color-water: var(--c-water);
+
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  --shadow-card: 0 1px 2px rgb(40 30 20 / 0.04), 0 8px 24px -12px rgb(40 30 20 / 0.12);
+  --shadow-float: 0 10px 40px -10px rgb(40 30 20 / 0.25);
+  --shadow-sheet: 0 -10px 50px -10px rgb(40 30 20 / 0.3);
+}
+
+:root {
+  --bg: #FFF8F0;
+  --surface: #FFFFFF;
+  --surface-2: #FDF1E4;
+  --ink: #2A2320;
+  --ink-2: #6B5F58;
+  --ink-3: #A39A94;
+  --line: #F1E4D6;
+  --accent: #FF7A1A;
+  --accent-soft: #FFE8D6;
+  --accent-ink: #B4500A;
+  --ok: #16A34A;
+  --ok-soft: #DCFCE7;
+  --danger: #E11D48;
+  --danger-soft: #FFE4E9;
+  --warn: #D97706;
+  --warn-soft: #FEF3C7;
+  --c-kcal: #FF7A1A;
+  --c-protein: #F43F5E;
+  --c-carbs: #F59E0B;
+  --c-fat: #3B82F6;
+  --c-fiber: #10B981;
+  --c-vit: #8B5CF6;
+  --c-min: #0EA5E9;
+  --c-limit: #F87171;
+  --c-water: #38BDF8;
+  /* mosaico de categorías: mezcla del color pastel con la superficie y color del texto */
+  --tile-mix: 90%;
+  --tile-ink: #3A2E27;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #15120F;
+  --surface: #211C18;
+  --surface-2: #2C2520;
+  --ink: #F5EDE4;
+  --ink-2: #B8ABA0;
+  --ink-3: #7D726A;
+  --line: #352D27;
+  --accent: #FF8A3D;
+  --accent-soft: #3D2616;
+  --accent-ink: #FFB27A;
+  --ok: #34D399;
+  --ok-soft: #10331F;
+  --danger: #FB7185;
+  --danger-soft: #3B1520;
+  --warn: #FBBF24;
+  --warn-soft: #3A2A0B;
+  --c-kcal: #FF8A3D;
+  --c-protein: #FB7185;
+  --c-carbs: #FBBF24;
+  --c-fat: #60A5FA;
+  --c-fiber: #34D399;
+  --c-vit: #A78BFA;
+  --c-min: #38BDF8;
+  --c-limit: #F87171;
+  --c-water: #38BDF8;
+  --tile-mix: 28%;
+  --tile-ink: #F5EDE4;
+  color-scheme: dark;
+}
+
+/* Estilos base dentro de la capa "base" para que las utilidades (capa "utilities") siempre ganen */
+@layer base {
+  html, body, #root { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button { cursor: pointer; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  ::selection { background: var(--accent-soft); }
+
+  /* Scrollbars discretos en escritorio */
+  @media (pointer: fine) {
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+    *::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+  }
+}
+
+@layer components {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+  .card {
+    background-color: var(--surface);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card);
+  }
+
+  .press { transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease; }
+  /* 0.985 y no 0.97: en botones anchos el encogimiento sacaba el cursor del botón y el clic se perdía */
+  .press:active { transform: scale(0.985); }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-pop { animation: pop 420ms cubic-bezier(.2,.9,.3,1.3) both; }
+
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 12px;
+}
