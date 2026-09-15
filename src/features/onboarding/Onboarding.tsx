@@ -30,7 +30,7 @@ export default function Onboarding({ onDone }: { onDone?: () => void }) {
   const targets = useMemo(() => computeTargets({ ...p, id: 'me', userId: 'local', createdAt: 0, updatedAt: 0 }), [p])
 
   const finish = async () => {
-    await saveProfile({ ...p, onboarded: true })
+    await saveProfile({ ...p, name: p.name.trim(), onboarded: true })
     haptic([10, 40, 20])
     onDone?.()
   }
@@ -268,7 +268,7 @@ function StepResult({ p, t }: { p: Draft; t: ReturnType<typeof computeTargets> }
   ]
   return (
     <div>
-      <Title emoji="🎉" sub={`Esto es lo que tu cuerpo necesita cada día para ${GOAL_LABELS[p.goal].label.toLowerCase()}.`}>¡Listo, {p.name}!</Title>
+      <Title emoji="🎉" sub={`Esto es lo que tu cuerpo necesita cada día para ${GOAL_LABELS[p.goal].label.toLowerCase()}.`}>¡Listo, {p.name.trim()}!</Title>
       <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 18 }}
         className="card p-6 text-center mb-3 bg-linear-to-br from-accent to-[#FFB25C] text-white shadow-float">
         <div className="text-sm font-semibold opacity-90">Objetivo diario</div>

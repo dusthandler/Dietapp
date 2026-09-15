@@ -189,12 +189,6 @@ export default function Today() {
 
       <div className="lg:hidden text-[11px] text-ink-3 text-center pb-2">Valores nutricionales: USDA + CIQUAL · Objetivos: EFSA DRV</div>
 
-      {/* FAB */}
-      <motion.button whileTap={{ scale: 0.92 }} onClick={() => { setPicker({ meal: mealForHour(hourNow()) }); haptic(8) }}
-        className="md:hidden fixed right-5 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 h-14 w-14 rounded-full bg-accent text-white shadow-float flex items-center justify-center" aria-label="Añadir alimento">
-        <Plus size={28} strokeWidth={2.5} />
-      </motion.button>
-
       <FoodPicker open={!!picker} onClose={() => setPicker(null)} onPick={onPick} meal={picker?.meal}
         title={picker ? `Añadir a ${MEALS.find(m => m.id === picker.meal)?.label}` : 'Añadir'}
         onPickRecipe={r => { if (picker) { setRecipeToAdd({ recipe: r, meal: picker.meal }); setPicker(null) } }} />
