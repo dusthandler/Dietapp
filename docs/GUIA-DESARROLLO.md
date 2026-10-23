@@ -174,6 +174,20 @@ crear alimentos propios y **ajustar cualquier alimento existente a la marca que 
 
 ## 6. Generador de dietas y sustituciones
 
+> **Desde el 23-10-2026 las cantidades las decide un optimizador** (`src/lib/planSolver.ts`): mínimos
+> cuadrados con límites por ingrediente (raciones mínimas y topes por ración: ≤ 250 g de carne, ≤ 3
+> huevos, ≤ 140 g de arroz/pasta en crudo…), resuelto por descenso por coordenadas. Términos: kcal,
+> proteína, carbohidratos y grasa del día; kcal de cada comida según `mealSplit`; micros por debajo del
+> objetivo; sodio/saturadas/azúcares por encima del límite; y cercanía a la receta. El aceite y los
+> frutos secos "fijos" de una receta pueden bajar (no subir). Los platos se eligen ordenando las
+> plantillas por encaje con el reparto de macros y mejorando la semana con búsqueda local. Los antiguos
+> "refuerzos" (meter sardinas en un plato cualquiera) se sustituyeron por **acompañamientos** aparte
+> (`SIDES`: postre de fruta, yogur/skyr, ensalada, vaso de leche, almendras), que solo entran si bajan el
+> coste del día. Verificación: `node scripts/check-plans.mjs [perfil] [-v|-f]` (5 perfiles × 3 configuraciones
+> × 3 semillas; objetivo: 100 % de días con los 4 macros en ±8 %). La lista de la compra vive en
+> `src/lib/shopping.ts` (legumbres de bote por botes de 240 g escurridos, huevos cocinados → huevos).
+> Lo que sigue describe la versión anterior y queda como referencia histórica.
+
 `lib/planGenerator.ts`:
 
 1. Reparto de kcal por comida según 3/4/5 comidas.
