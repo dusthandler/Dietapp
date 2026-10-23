@@ -37,7 +37,7 @@ function absCap(f: Food): number | undefined {
     if (/merluza|lubina|dorada|bacalao|gallo|rape|lenguado|pescadilla|abadejo/.test(id)) return 320
     return 250
   }
-  if (f.cat === 'huevos') return id === 'clara-huevo' ? 300 : 240
+  if (f.cat === 'huevos') return id === 'clara-huevo' ? 300 : 180 // máx. 3 huevos por comida
   if (f.cat === 'legumbres') return /hummus/.test(id) ? 100 : 130
   if (f.cat === 'cereales') return /pan|tortilla|tortitas/.test(id) ? 140 : id === 'granola' ? 80 : 140
   if (f.cat === 'tuberculos') return 450
