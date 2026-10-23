@@ -2,37 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Share2 } from 'lucide-react'
 import { Button, Empty, cx, haptic, useToast } from '@/components/ui'
-import { catalog, rawGrams } from '@/data/foodDb'
 import { CATEGORY_LABELS, type FoodCategory } from '@/data/foods.es'
-import type { Food, Plan } from '@/data/types'
 import { usePlans } from '@/store/hooks'
-
-type Period = 'week' | 'month'
-
-interface Line { food: Food; grams: number; units?: number; unitLabel?: string }
-
-function buildList(plan: Plan, period: Period): Map<FoodCategory, Line[]> {
-  const grams = new Map<string, number>()
-  for (const d of plan.days) for (const m of d.meals) for (const it of m.items) {
-    const f = catalog.get(it.foodId)
-    if (!f) continue
-    grams.set(f.id, (grams.get(f.id) ?? 0) + rawGrams(f, it.grams, it.state))
-  }
-  const factor = period === 'month' ? 30 / 7 : 1
-  const groups = new Map<FoodCategory, Line[]>()
-  for (const [id, g] of grams) {
-    const f = catalog.get(id)!
-    if (f.cat === 'especias' && g * factor < 30) continue // sal, especias… no hace falta comprarlas cada semana
-    const total = g * factor
-    const line: Line = { food: f, grams: total }
-    if (f.unit) { line.units = Math.max(1, Math.ceil(total / f.unit.g - 0.15)); line.unitLabel = line.units === 1 ? f.unit.one : f.unit.many }
-    const arr = groups.get(f.cat) ?? []
-    arr.push(line)
-    groups.set(f.cat, arr)
-  }
-  for (const arr of groups.values()) arr.sort((a, b) => b.grams - a.grams)
-  return groups
-}
+import { buildShoppingList as buildList, type Period, type ShopLine as Line } from '@/lib/shopping'
 
 function fmtWeight(l: Line): string {
   const g = l.grams
@@ -67,7 +39,7 @@ export default function Shopping() {
     const lines: string[] = [`🛒 Lista de la compra — ${plan.name} (${period === 'week' ? 'semana' : 'mes'})`, '']
     for (const [cat, arr] of groups) {
       lines.push(`${CATEGORY_LABELS[cat].emoji} ${CATEGORY_LABELS[cat].label}`)
-      for (const l of arr) lines.push(`  • ${l.food.name}: ${fmtQty(l)}${l.units ? ` (≈ ${fmtWeight(l)})` : ''}`)
+      for (const l of arr) lines.push(`  • ${l.food.name}: ${fmtQty(l)}${l.alt ? ` (${l.alt})` : l.units ? ` (≈ ${fmtWeight(l)})` : ''}`)
       lines.push('')
     }
     const text = lines.join('\n')
@@ -121,7 +93,7 @@ export default function Shopping() {
                         <span className="text-xl">{l.food.emoji}</span>
                         <span className={cx('flex-1 min-w-0 font-semibold leading-tight', on && 'line-through text-ink-3')}>{l.food.name}</span>
                         <span className={cx('shrink-0 max-w-[42%] text-right text-sm font-bold tabular leading-tight', on ? 'text-ink-3' : 'text-ink-2')}>
-                          {fmtQty(l)}{l.units ? <span className="block text-[11px] font-semibold text-ink-3">≈ {fmtWeight(l)}</span> : null}
+                          {fmtQty(l)}{l.alt ? <span className="block text-[11px] font-semibold text-ink-3">{l.alt}</span> : l.units ? <span className="block text-[11px] font-semibold text-ink-3">≈ {fmtWeight(l)}</span> : null}
                         </span>
                       </button>
                     </li>
@@ -130,7 +102,7 @@ export default function Shopping() {
               </ul>
             </div>
           ))}
-          <p className="text-[11px] text-ink-3 text-center">Cantidades en crudo (el arroz, la pasta y las legumbres pesan más cocinados). El mes se calcula como 30 días.</p>
+          <p className="text-[11px] text-ink-3 text-center">Cantidades en crudo (el arroz y la pasta pesan más cocinados). Las legumbres de bote van en botes de 400 g (240 g escurridos). Los huevos cocidos, fritos o en tortilla se suman como huevos. El mes se calcula como 30 días.</p>
         </>
       )}
     </div>

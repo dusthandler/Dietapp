@@ -1,9 +1,10 @@
 import { catalog, hasVariants, nutrientsFor } from '@/data/foodDb'
-import { MEAL_TEMPLATES, type MealTemplate } from '@/data/mealTemplates'
+import { MEAL_TEMPLATES, TEMPLATE_BY_ID, type MealTemplate } from '@/data/mealTemplates'
 import { uid } from '@/data/db'
-import { TRACKED_MICROS, emptyNutrients, addNutrients, type Nutrients, type NutrientKey } from '@/data/nutrients'
+import { emptyNutrients, addNutrients, type Nutrients } from '@/data/nutrients'
 import type { Complexity, Food, MealId, Plan, PlanDay, PlanMeal, PortionState, Profile, RecipeIngredient, Targets, Variety } from '@/data/types'
 import { foodConflicts, sumRefs } from '@/store/hooks'
+import { roundGrams, solveAndRound, solveDay, type MealDraft } from './planSolver'
 
 export interface GenParams { complexity: Complexity; variety: Variety; mealsPerDay: 3 | 4 | 5; /** ids de alimentos que deben aparecer en la dieta */ mustHave?: string[] }
 
@@ -15,9 +16,10 @@ export function mealSplit(mealsPerDay: 3 | 4 | 5): Partial<Record<MealId, number
 }
 
 const COMPLEXITY_RANK: Record<Complexity, number> = { easy: 0, medium: 1, complex: 2 }
+const MEAL_ORDER: MealId[] = ['desayuno', 'media-manana', 'comida', 'merienda', 'cena']
 
 function seededRandom(seed: number) {
-  let s = seed % 2147483647
+  let s = Math.floor(Math.abs(seed)) % 2147483647
   if (s <= 0) s += 2147483646
   return () => (s = (s * 16807) % 2147483647) / 2147483647
 }
@@ -27,6 +29,8 @@ function shuffle<T>(arr: T[], rnd: () => number): T[] {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
   return a
 }
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
 
 export function templateAllowed(t: MealTemplate, profile: Profile): boolean {
   for (const it of t.items) {
@@ -39,69 +43,32 @@ export function templateAllowed(t: MealTemplate, profile: Profile): boolean {
 }
 
 /**
- * Instancia una plantilla escalada a unas kcal objetivo y, si se indica un objetivo de
- * proteína para esa comida, la ajusta en dos pasos:
- *  1) escala global (excepto ingredientes fijos) para cuadrar kcal;
- *  2) corrige la fuente de proteína hacia el objetivo (±35 % máx.) y compensa las kcal
- *     con la fuente de carbohidrato (o verdura/grasa si no hay), para que el día no se
- *     pase de proteína ni se quede corto de energía.
+ * Borrador de una plantilla escalada en bloque a unas kcal (punto de partida del optimizador).
+ * `base` guarda la receta a ese tamaño: el optimizador procura no alejarse mucho de ella.
  */
-export function instantiateTemplate(t: MealTemplate, meal: MealId, kcalTarget: number, proteinTarget?: number): PlanMeal {
-  return instantiateWithFlags(t, meal, kcalTarget, proteinTarget).meal
-}
-
-interface MealDraft { meal: PlanMeal; fixed: boolean[]; base: number[] }
-
-function instantiateWithFlags(t: MealTemplate, meal: MealId, kcalTarget: number, proteinTarget?: number): MealDraft {
+function draftFromTemplate(t: MealTemplate, meal: MealId, kcalTarget: number): MealDraft {
   const items: RecipeIngredient[] = t.items.map(it => ({ id: uid(), foodId: `es:${it.f}`, grams: it.g, state: it.s, portionLabel: it.label }))
-  const fixed = items.map((_, i) => !!t.items[i].fixed)
+  const fixed = t.items.map(it => !!it.fixed)
   const kcalOf = (r: RecipeIngredient) => sumRefs([r]).kcal
-  const protOf = (r: RecipeIngredient) => sumRefs([r]).protein
-  const roleOf = (r: RecipeIngredient) => catalog.get(r.foodId)?.role
-
-  // 1) escala global
-  const fixedKcal = items.filter((_, i) => fixed[i]).reduce((s, r) => s + kcalOf(r), 0)
-  const scalableKcal = items.filter((_, i) => !fixed[i]).reduce((s, r) => s + kcalOf(r), 0)
-  let factor = scalableKcal > 0 ? (kcalTarget - fixedKcal) / scalableKcal : 1
-  factor = Math.max(0.55, Math.min(1.9, factor))
-  let scaled = items.map((r, i) => fixed[i] ? r : { ...r, grams: r.grams * factor })
-
-  // 2) ajuste de proteína con compensación de kcal
-  if (proteinTarget) {
-    const protIdx = scaled.map((r, i) => (!fixed[i] && roleOf(r) === 'protein' ? i : -1)).filter(i => i >= 0)
-    const carbIdx = scaled.map((r, i) => (!fixed[i] && roleOf(r) === 'carb' ? i : -1)).filter(i => i >= 0)
-    const compIdx = carbIdx.length ? carbIdx : scaled.map((r, i) => (!fixed[i] && ['veg', 'fruit', 'fat', 'nut', 'dairy'].includes(roleOf(r) ?? '') ? i : -1)).filter(i => i >= 0)
-    if (protIdx.length) {
-      const total = sumRefs(scaled)
-      const protFromSources = protIdx.reduce((s, i) => s + protOf(scaled[i]), 0)
-      const others = total.protein - protFromSources
-      const wanted = Math.max(0, proteinTarget - others)
-      if (protFromSources > 0) {
-        const pf = Math.max(0.65, Math.min(1.35, wanted / protFromSources))
-        const before = protIdx.reduce((s, i) => s + kcalOf(scaled[i]), 0)
-        scaled = scaled.map((r, i) => protIdx.includes(i) ? { ...r, grams: r.grams * pf } : r)
-        const after = protIdx.reduce((s, i) => s + kcalOf(scaled[i]), 0)
-        const delta = before - after // kcal liberadas (o consumidas) que hay que compensar
-        const compKcal = compIdx.reduce((s, i) => s + kcalOf(scaled[i]), 0)
-        if (compIdx.length && compKcal > 0) {
-          const cf = Math.max(0.6, Math.min(1.6, (compKcal + delta) / compKcal))
-          scaled = scaled.map((r, i) => compIdx.includes(i) ? { ...r, grams: r.grams * cf } : r)
-        }
-      }
-    }
-  }
-
-  const final = scaled.map((r, i) => {
-    if (fixed[i]) return r
-    const g = roundGrams(r.grams)
-    const base = items[i].grams
-    // Si cambia mucho la cantidad, la etiqueta de medida deja de ser fiel
-    return { ...r, grams: g, portionLabel: Math.abs(g - base) / base < 0.12 ? r.portionLabel : undefined }
-  })
-  return { meal: { id: uid(), meal, title: t.name, emoji: t.emoji, items: final, templateId: t.id }, fixed, base: items.map(i => i.grams) }
+  const fixedKcal = items.reduce((s, r, i) => s + (fixed[i] ? kcalOf(r) : 0), 0)
+  const scalableKcal = items.reduce((s, r, i) => s + (fixed[i] ? 0 : kcalOf(r)), 0)
+  const factor = scalableKcal > 0 ? clamp((kcalTarget - fixedKcal) / scalableKcal, 0.6, 1.7) : 1
+  const scaled = items.map((r, i) => (fixed[i] ? r : { ...r, grams: r.grams * factor, portionLabel: Math.abs(factor - 1) < 0.08 ? r.portionLabel : undefined }))
+  return { meal: { id: uid(), meal, title: t.name, emoji: t.emoji, items: scaled, templateId: t.id }, fixed, base: scaled.map(r => r.grams) }
 }
 
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
+/** Macros de una comida a partir de su parte de las kcal del día */
+function mealTargets(targets: Targets, share: number): Targets {
+  return { ...targets, kcal: targets.kcal * share, protein: targets.protein * share, carbs: targets.carbs * share, fat: targets.fat * share, micros: {} }
+}
+
+/** Instancia una plantilla ajustada a una comida concreta (kcal y macros de su parte del día) */
+export function instantiateTemplate(t: MealTemplate, meal: MealId, kcalTarget: number, _proteinTarget?: number, targets?: Targets): PlanMeal {
+  const draft = draftFromTemplate(t, meal, kcalTarget)
+  if (targets) solveAndRound([draft], mealTargets(targets, kcalTarget / targets.kcal))
+  else draft.meal.items = draft.meal.items.map((it, i) => (draft.fixed[i] ? it : { ...it, grams: roundGrams(it.grams) }))
+  return draft.meal
+}
 
 // ───────────── Alimentos base ("lo que tengo en la nevera") ─────────────
 
@@ -122,7 +89,7 @@ export function mustHaveSchedule(mustHave: string[], variety: Variety): string[]
   const days: string[][] = Array.from({ length: 7 }, () => [])
   mustHave.forEach((id, i) => {
     if (variety === 'low') { for (const d of days) d.push(id); return }
-    const times = variety === 'medium' ? 3 : 3
+    const times = 3
     for (let k = 0; k < times; k++) days[(i * 2 + k * Math.ceil(7 / times)) % 7].push(id)
   })
   return days
@@ -186,144 +153,82 @@ function injectMustHave(meals: MealDraft[], foodIds: string[], profile: Profile)
   }
 }
 
+// ───────────── Acompañamientos ─────────────
 
 /**
- * Refuerzos de micronutrientes: pequeñas cantidades de alimentos muy densos en el
- * nutriente que falta. El generador los añade al día (como extra en un snack) cuando
- * un micronutriente se queda por debajo del 90 % del objetivo.
+ * En lugar de meter "refuerzos" dentro del plato (sardinas en un lomo con puré, salmón en un
+ * sándwich…), los micronutrientes que faltan se cubren con acompañamientos que tienen sentido
+ * por sí solos y se muestran aparte: una pieza de fruta de postre, una ensalada, un yogur, un
+ * vaso de leche o un puñado de frutos secos. Solo se añaden si mejoran el día de verdad.
  */
-interface Booster { f: string; g: number; s?: PortionState; helps: NutrientKey[]; /** comidas donde tiene sentido; por defecto snacks/desayuno */ slots?: MealId[] }
-const BOOSTERS: Booster[] = [
-  { f: 'kiwi', g: 150, helps: ['vitC', 'vitK', 'fiber'] },
-  { f: 'naranja', g: 150, helps: ['vitC', 'b9'] },
-  { f: 'fresas', g: 150, helps: ['vitC', 'manganese'] },
-  { f: 'pimiento-rojo', g: 75, helps: ['vitC', 'vitA', 'b6'], slots: ['comida', 'cena'] },
-  { f: 'almendras', g: 25, helps: ['vitE', 'magnesium', 'calcium', 'b2'] },
-  { f: 'pipas-girasol', g: 15, helps: ['vitE', 'selenium', 'magnesium', 'b1'] },
-  { f: 'avellanas', g: 25, helps: ['vitE', 'manganese', 'copper'] },
-  { f: 'zanahoria', g: 80, s: 'raw', helps: ['vitA'], slots: ['comida', 'cena', 'media-manana', 'merienda'] },
-  { f: 'boniato', g: 150, s: 'cooked', helps: ['vitA', 'potassium', 'fiber'], slots: ['comida', 'cena'] },
-  { f: 'espinacas', g: 60, s: 'raw', helps: ['vitA', 'vitK', 'b9', 'magnesium'], slots: ['comida', 'cena'] },
-  { f: 'calabaza', g: 150, s: 'cooked', helps: ['vitA', 'potassium'], slots: ['comida', 'cena'] },
-  { f: 'salmon-ahumado', g: 50, helps: ['vitD', 'omega3', 'iodine', 'b12'], slots: ['desayuno', 'cena', 'comida'] },
-  { f: 'sardinas-lata', g: 60, helps: ['vitD', 'omega3', 'calcium', 'iodine', 'b12', 'selenium'], slots: ['comida', 'cena'] },
-  { f: 'atun-lata-natural', g: 56, helps: ['vitD', 'b12', 'selenium', 'iodine', 'b3'], slots: ['comida', 'cena'] },
-  { f: 'huevo-cocido', g: 50, helps: ['vitD', 'iodine', 'choline', 'b12', 'selenium'], slots: ['desayuno', 'comida', 'cena', 'merienda'] },
-  { f: 'champinones', g: 100, s: 'raw', helps: ['vitD', 'b2', 'b3', 'b5', 'copper', 'selenium'], slots: ['comida', 'cena'] },
-  { f: 'nueces', g: 20, helps: ['omega3', 'copper', 'manganese'] },
-  { f: 'chia', g: 12, helps: ['omega3', 'fiber', 'calcium'] },
-  { f: 'sal-yodada', g: 3, helps: ['iodine'], slots: ['comida', 'cena'] },
-  { f: 'yogur-natural', g: 125, helps: ['iodine', 'calcium', 'b2', 'b12'] },
-  { f: 'queso-curado', g: 30, helps: ['calcium', 'iodine', 'b12', 'phosphorus'], slots: ['desayuno', 'merienda', 'media-manana', 'cena'] },
-  { f: 'nueces-brasil', g: 5, helps: ['selenium'] },
-  { f: 'pipas-calabaza', g: 15, helps: ['zinc', 'magnesium', 'iron', 'copper'], slots: ['desayuno', 'media-manana', 'merienda', 'comida', 'cena'] },
-  { f: 'lentejas', g: 100, s: 'cooked', helps: ['iron', 'b9', 'fiber', 'potassium', 'b1'], slots: ['comida', 'cena'] },
-  { f: 'platano', g: 120, helps: ['potassium', 'b6', 'manganese'] },
-  { f: 'aguacate', g: 75, helps: ['potassium', 'b9', 'vitE', 'fiber', 'b5'], slots: ['desayuno', 'comida', 'cena'] },
-  { f: 'avena', g: 30, helps: ['fiber', 'magnesium', 'b1', 'manganese', 'zinc'] },
-  { f: 'brocoli', g: 100, s: 'cooked', helps: ['vitC', 'vitK', 'b9'], slots: ['comida', 'cena'] },
-  { f: 'higado-pollo', g: 50, s: 'cooked', helps: ['vitA', 'b12', 'b9', 'iron', 'copper', 'b2', 'choline'], slots: ['comida', 'cena'] },
+interface Side { id: string; title: string; emoji: string; slots: MealId[]; items: { f: string; g: number; s?: PortionState; label?: string }[] }
+const SIDES: Side[] = [
+  { id: 'side-kiwi', title: 'Postre: kiwi', emoji: '🥝', slots: ['comida', 'cena', 'desayuno'], items: [{ f: 'kiwi', g: 150, label: '2 kiwis' }] },
+  { id: 'side-naranja', title: 'Postre: naranja', emoji: '🍊', slots: ['comida', 'cena', 'desayuno'], items: [{ f: 'naranja', g: 150, label: '1 naranja' }] },
+  { id: 'side-mandarinas', title: 'Postre: mandarinas', emoji: '🍊', slots: ['comida', 'cena'], items: [{ f: 'mandarina', g: 160, label: '2 mandarinas' }] },
+  { id: 'side-fresas', title: 'Postre: fresas', emoji: '🍓', slots: ['comida', 'cena'], items: [{ f: 'fresas', g: 150, label: 'Un bol' }] },
+  { id: 'side-yogur', title: 'Postre: yogur natural', emoji: '🥛', slots: ['comida', 'cena'], items: [{ f: 'yogur-natural', g: 125, label: '1 yogur' }] },
+  { id: 'side-skyr', title: 'Postre: yogur griego 0 % (skyr)', emoji: '🥛', slots: ['comida', 'cena', 'desayuno', 'merienda', 'media-manana'], items: [{ f: 'yogur-griego-0', g: 125, label: '1 yogur' }] },
+  { id: 'side-ensalada', title: 'Ensalada de tomate, lechuga y zanahoria', emoji: '🥗', slots: ['comida', 'cena'],
+    items: [{ f: 'lechuga', g: 60 }, { f: 'tomate', g: 125, label: '1 tomate' }, { f: 'zanahoria', g: 50, s: 'raw', label: '½ zanahoria' }, { f: 'aceite-oliva', g: 5, label: '1 cucharadita' }] },
+  { id: 'side-leche', title: 'Vaso de leche', emoji: '🥛', slots: ['desayuno', 'media-manana', 'merienda'], items: [{ f: 'leche-semi', g: 200, label: '1 vaso' }] },
+  { id: 'side-almendras', title: 'Puñado de almendras', emoji: '🌰', slots: ['media-manana', 'merienda', 'desayuno'], items: [{ f: 'almendras', g: 20, label: 'Un puñado' }] },
 ]
 
-function boostMicros(meals: MealDraft[], targets: Targets, profile: Profile, editable: MealDraft[] = meals) {
-  const totals = () => { let t = emptyNutrients(); for (const m of meals) t = addNutrients(t, sumRefs(m.meal.items)); return t }
-  const used = new Set<string>(meals.flatMap(m => m.meal.items.map(i => i.foodId)))
-  let addedKcal = 0
-  for (let pass = 0; pass < 4; pass++) {
-    const t = totals()
-    const deficits = TRACKED_MICROS.filter(k => (targets.micros[k] ?? 0) > 0 && t[k] < (targets.micros[k] ?? 0) * 0.9)
-    if (!deficits.length) break
-    let best: { b: Booster; food: Food; n: Nutrients; score: number } | null = null
-    const present = new Set(editable.map(m => m.meal.meal))
-    for (const b of BOOSTERS) {
-      const food = catalog.get(`es:${b.f}`)
-      if (!food || used.has(food.id)) continue
-      const allowed = b.slots ?? ['media-manana', 'merienda', 'desayuno']
-      if (!allowed.some(sl => present.has(sl))) continue
-      if (foodConflicts(food, profile).length || profile.dislikedFoodIds.includes(food.id)) continue
-      const n = sumRefs([{ foodId: food.id, grams: b.g, state: b.s }])
-      let gain = 0
-      for (const k of deficits) { const target = targets.micros[k]!; gain += Math.min(n[k], target - t[k]) / target }
-      if (gain < 0.08) continue
-      const score = gain / (1 + n.kcal / 150)
-      if (!best || score > best.score) best = { b, food, n, score }
-    }
-    if (!best || addedKcal + best.n.kcal > 320) break
-    // Se añade como extra en la primera comida permitida para ese alimento
-    const allowed = best.b.slots ?? ['media-manana', 'merienda', 'desayuno']
-    const slot = allowed.map(sl => editable.find(m => m.meal.meal === sl)).find(Boolean)
-    if (!slot) break
-    slot.meal.items.push({ id: uid(), foodId: best.food.id, grams: best.b.g, state: best.b.s })
-    slot.fixed.push(true)
-    slot.base.push(best.b.g)
-    used.add(best.food.id)
-    addedKcal += best.n.kcal
-  }
-}
+const sideAllowed = (s: Side, profile: Profile) => s.items.every(it => {
+  const f = catalog.get(`es:${it.f}`)
+  return !!f && !foodConflicts(f, profile).length && !profile.dislikedFoodIds.includes(f.id)
+})
 
+interface DayDraft { drafts: MealDraft[]; sides: (Side | null)[] }
 
-/**
- * Balance del día completo: si la suma de comidas se pasa de grasa, se reducen las
- * fuentes de grasa (aguacate, frutos secos, quesos grasos…); si sobra o falta proteína
- * se corrigen sus fuentes; y por último se ajustan los carbohidratos para cuadrar las
- * kcal del día. Los ingredientes fijos (aceite para cocinar, especias) no se tocan.
- */
-function balanceDay(meals: MealDraft[], targets: Targets) {
-  const roleOf = (r: RecipeIngredient) => catalog.get(r.foodId)?.role
-  const all = () => meals.flatMap(m => m.meal.items.map((it, i) => ({ it, fixed: m.fixed[i], m })))
-  const scaleRole = (roles: string[], f: number) => {
-    for (const m of meals) m.meal.items = m.meal.items.map((it, i) => (!m.fixed[i] && roles.includes(roleOf(it) ?? '') ? { ...it, grams: it.grams * f } : it))
-  }
-  const totals = () => { let t = emptyNutrients(); for (const m of meals) t = addNutrients(t, sumRefs(m.meal.items)); return t }
-
-  // 1) grasa: solo si se pasa claramente
-  let t = totals()
-  if (t.fat > targets.fat * 1.12) {
-    const fatItems = all().filter(x => !x.fixed && ['fat', 'nut'].includes(roleOf(x.it) ?? ''))
-    const fatFrom = fatItems.reduce((s, x) => s + sumRefs([x.it]).fat, 0)
-    if (fatFrom > 0) {
-      const excess = t.fat - targets.fat * 1.05
-      scaleRole(['fat', 'nut'], clamp(1 - excess / fatFrom, 0.45, 1))
-    }
-    t = totals()
-    // si sigue sobrando, también los lácteos, proteínas y carbohidratos más grasos
-    if (t.fat > targets.fat * 1.12) {
-      const src = all().filter(x => !x.fixed && ['dairy', 'protein', 'carb'].includes(roleOf(x.it) ?? '') && sumRefs([x.it]).fat / Math.max(1, sumRefs([x.it]).kcal) * 9 > 0.3)
-      const fatFrom = src.reduce((s, x) => s + sumRefs([x.it]).fat, 0)
-      if (fatFrom > 0) {
-        const f = clamp(1 - (t.fat - targets.fat * 1.05) / fatFrom, 0.65, 1)
-        for (const m of meals) m.meal.items = m.meal.items.map(it => (src.some(x => x.it === it) ? { ...it, grams: it.grams * f } : it))
+/** Añade hasta dos acompañamientos (uno por comida) si bajan el coste del día de forma clara */
+function addSides(day: DayDraft, targets: Targets, profile: Profile, mealKcal: number[], editable?: Set<number>) {
+  const sideItems = (s: Side): RecipeIngredient[] => s.items.map(it => ({ id: uid(), foodId: `es:${it.f}`, grams: it.g, state: it.s, portionLabel: it.label }))
+  for (let round = 0; round < 2; round++) {
+    const current = solveDay(cloneDrafts(day.drafts), targets, { mealKcal, sweeps: 60 })
+    let best: { m: number; side: Side; cost: number } | null = null
+    day.drafts.forEach((d, m) => {
+      if (day.sides[m] || (editable && !editable.has(m))) return
+      const present = new Set(d.meal.items.map(it => it.foodId))
+      for (const s of SIDES) {
+        if (!s.slots.includes(d.meal.meal) || !sideAllowed(s, profile)) continue
+        if (s.items.some(it => present.has(`es:${it.f}`))) continue
+        if (day.sides.some(x => x?.id === s.id)) continue
+        const trial = cloneDrafts(day.drafts)
+        trial[m].meal.items.push(...sideItems(s))
+        trial[m].fixed.push(...s.items.map(() => true))
+        trial[m].base.push(...s.items.map(it => it.g))
+        const cost = solveDay(trial, targets, { mealKcal, sweeps: 60 })
+        if (!best || cost < best.cost) best = { m, side: s, cost }
       }
-      t = totals()
-    }
-  }
-  // 2) proteína: corrección global suave
-  if (t.protein > targets.protein * 1.15 || t.protein < targets.protein * 0.9) {
-    const src = all().filter(x => !x.fixed && roleOf(x.it) === 'protein')
-    const from = src.reduce((s, x) => s + sumRefs([x.it]).protein, 0)
-    if (from > 0) scaleRole(['protein'], clamp((targets.protein - (t.protein - from)) / from, 0.8, 1.3))
-    t = totals()
-  }
-  // 3) kcal: cuadrar con carbohidratos (o fruta/verdura si no hay)
-  const carbs = all().filter(x => !x.fixed && roleOf(x.it) === 'carb')
-  const comp = carbs.length ? ['carb'] : ['fruit', 'veg']
-  const compKcal = all().filter(x => !x.fixed && comp.includes(roleOf(x.it) ?? '')).reduce((s, x) => s + sumRefs([x.it]).kcal, 0)
-  if (compKcal > 0) scaleRole(comp, clamp((compKcal + (targets.kcal - t.kcal)) / compKcal, 0.6, 1.8))
-
-  // redondeo final y etiquetas; ningún ingrediente baja del 50 % ni sube del doble de su tamaño original
-  for (const m of meals) {
-    m.meal.items = m.meal.items.map((it, i) => {
-      if (m.fixed[i]) return it
-      const g = roundGrams(clamp(it.grams, m.base[i] * 0.5, m.base[i] * 2))
-      return { ...it, grams: g, portionLabel: it.portionLabel && Math.abs(g - it.grams) / Math.max(1, it.grams) < 0.12 ? it.portionLabel : (g === it.grams ? it.portionLabel : undefined) }
     })
+    if (!best || (best as { cost: number }).cost > current - 0.02) break
+    const { m, side } = best as { m: number; side: Side; cost: number }
+    const d = day.drafts[m]
+    d.meal.items.push(...sideItems(side))
+    d.fixed.push(...side.items.map(() => true))
+    d.base.push(...side.items.map(it => it.g))
+    day.sides[m] = side
   }
 }
 
-function roundGrams(g: number): number {
-  if (g < 15) return Math.round(g)
-  if (g < 60) return Math.round(g / 5) * 5
-  return Math.round(g / 10) * 10
+function cloneDrafts(drafts: MealDraft[]): MealDraft[] {
+  return drafts.map(d => ({ meal: { ...d.meal, items: d.meal.items.map(it => ({ ...it })) }, fixed: [...d.fixed], base: [...d.base], hard: d.hard }))
+}
+
+/** Separa los acompañamientos (que viajan dentro del borrador mientras se optimiza) en su propio plato */
+function splitSides(day: DayDraft): PlanMeal[] {
+  const out: PlanMeal[] = []
+  day.drafts.forEach((d, m) => {
+    const side = day.sides[m]
+    if (!side) { out.push(d.meal); return }
+    const n = side.items.length
+    const items = d.meal.items
+    out.push({ ...d.meal, items: items.slice(0, items.length - n) })
+    out.push({ id: uid(), meal: d.meal.meal, title: side.title, emoji: side.emoji, items: items.slice(items.length - n), templateId: side.id })
+  })
+  return out
 }
 
 export function dayNutrients(day: PlanDay): Nutrients {
@@ -332,61 +237,124 @@ export function dayNutrients(day: PlanDay): Nutrients {
   return total
 }
 
+/** Alimento principal de proteína de un plato (para no repetir pollo en comida y cena) */
+function mainProtein(t: MealTemplate): string | undefined {
+  let best: { f: string; p: number } | undefined
+  for (const it of t.items) {
+    const p = sumRefs([{ foodId: `es:${it.f}`, grams: it.g, state: it.s }]).protein
+    if (!best || p > best.p) best = { f: it.f, p }
+  }
+  return best && best.p >= 12 ? best.f : undefined
+}
+
 /**
  * Genera un plan semanal.
  *  - complexity: usa plantillas hasta ese nivel (las fáciles siempre entran; con "elaborada" se priorizan las complejas)
- *  - variety: low = mismo plato cada día; medium = 2-3 rotando; high = todos distintos
+ *  - variety: low = mismo plato cada día; medium = 3 rotando; high = todos distintos
+ * Cómo elige: ordena los platos de cada comida por lo bien que encajan con tu reparto de macros,
+ * prueba sustituciones plato a plato y se queda con la combinación cuyos días, una vez optimizadas
+ * las cantidades, quedan más cerca de tus objetivos de kcal, proteína, carbohidratos, grasa y micros.
  */
 export function generatePlan(profile: Profile, targets: Targets, params: GenParams, seed = Date.now()): PlanDay[] {
   const rnd = seededRandom(seed)
   const split = mealSplit(params.mealsPerDay)
-  const slots = Object.keys(split) as MealId[]
+  const slots = MEAL_ORDER.filter(s => split[s])
   const maxRank = COMPLEXITY_RANK[params.complexity]
-
   const mustHave = (params.mustHave ?? []).filter(id => catalog.get(id))
   const mustSet = new Set(mustHave.map(id => id.replace(/^es:/, '')))
-  const perSlot: Record<string, MealTemplate[]> = {}
-  for (const slot of slots) {
-    let pool = MEAL_TEMPLATES.filter(t => t.meals.includes(slot) && COMPLEXITY_RANK[t.complexity] <= maxRank && templateAllowed(t, profile))
-    if (params.complexity === 'complex') {
-      // prioriza elaboradas/medias pero mantiene fáciles como relleno
-      const hard = pool.filter(t => t.complexity !== 'easy')
-      pool = [...shuffle(hard, rnd), ...shuffle(pool.filter(t => t.complexity === 'easy'), rnd)]
-    } else pool = shuffle(pool, rnd)
-    // Las plantillas que ya llevan alimentos base van primero
-    if (mustSet.size) pool.sort((a, b) => b.items.filter(i => mustSet.has(i.f)).length - a.items.filter(i => mustSet.has(i.f)).length)
-    perSlot[slot] = pool
-  }
   const schedule = mustHaveSchedule(mustHave, params.variety)
-
   const n = params.variety === 'low' ? 1 : params.variety === 'medium' ? 3 : 7
+  const mealKcal = slots.map(s => targets.kcal * (split[s] ?? 0.25))
 
+  // Reparto de macros objetivo (fracción de kcal) para ordenar los platos por encaje
+  const tP = targets.protein * 4 / targets.kcal, tC = targets.carbs * 4 / targets.kcal, tF = targets.fat * 9 / targets.kcal
+  const fitScore = (t: MealTemplate) => {
+    const nn = sumRefs(t.items.map(it => ({ foodId: `es:${it.f}`, grams: it.g, state: it.s })))
+    if (nn.kcal <= 0) return 9
+    const p = nn.protein * 4 / nn.kcal, c = nn.carbs * 4 / nn.kcal, f = nn.fat * 9 / nn.kcal
+    let s = Math.abs(p - tP) * 1.4 + Math.abs(c - tC) + Math.abs(f - tF)
+    if (params.complexity === 'complex' && t.complexity !== 'easy') s -= 0.15
+    s -= t.items.filter(i => mustSet.has(i.f)).length * 0.4
+    return s
+  }
+  const pools: MealTemplate[][] = slots.map(slot => {
+    const pool = MEAL_TEMPLATES.filter(t => t.meals.includes(slot) && COMPLEXITY_RANK[t.complexity] <= maxRank && templateAllowed(t, profile))
+    const scored = pool.map(t => ({ t, s: fitScore(t) + rnd() * 0.35 }))
+    scored.sort((a, b) => a.s - b.s)
+    return scored.map(x => x.t)
+  })
+  const choices: string[][] = pools.map(pool => pool.slice(0, Math.min(n, pool.length)).map(t => t.id))
+
+  const assemble = (d: number, ch: string[][]): (string | null)[] => {
+    const used = new Set<string>()
+    return slots.map((_, si) => {
+      const list = ch[si]
+      if (!list.length) return null
+      let id = list[d % list.length]
+      if (used.has(id)) id = list.find(x => !used.has(x)) ?? pools[si].find(t => !used.has(t.id))?.id ?? id
+      used.add(id)
+      return id
+    })
+  }
+  const buildDay = (d: number, ids: (string | null)[]): DayDraft => {
+    const drafts: MealDraft[] = []
+    ids.forEach((id, si) => { if (id) drafts.push(draftFromTemplate(TEMPLATE_BY_ID.get(id)!, slots[si], mealKcal[si])) })
+    if (schedule[d].length) injectMustHave(drafts, schedule[d], profile)
+    return { drafts, sides: drafts.map(() => null) }
+  }
+  const kcalFor = (ids: (string | null)[]) => ids.map((id, si) => (id ? mealKcal[si] : undefined)).filter((x): x is number => x !== undefined)
+  const cache = new Map<string, number>()
+  const dayScore = (d: number, ids: (string | null)[]) => {
+    const key = `${schedule[d].length ? d : ''}|${ids.join(',')}`
+    const hit = cache.get(key)
+    if (hit !== undefined) return hit
+    const day = buildDay(d, ids)
+    let cost = solveDay(day.drafts, targets, { mealKcal: kcalFor(ids), sweeps: 50 })
+    // Penaliza repetir la misma proteína principal en dos comidas del día
+    const mains = ids.map(id => (id ? mainProtein(TEMPLATE_BY_ID.get(id)!) : undefined)).filter(Boolean)
+    cost += (mains.length - new Set(mains).size) * 0.04
+    cache.set(key, cost)
+    return cost
+  }
+  const weekScore = (ch: string[][]) => { let s = 0; for (let d = 0; d < 7; d++) s += dayScore(d, assemble(d, ch)); return s }
+
+  // Búsqueda local: cambia platos de uno en uno mientras mejore la semana
+  let best = weekScore(choices)
+  for (let pass = 0; pass < 2; pass++) {
+    let improved = false
+    slots.forEach((_, si) => {
+      const cands = pools[si].slice(0, 14)
+      for (let j = 0; j < choices[si].length; j++) {
+        for (const c of cands) {
+          if (choices[si].includes(c.id)) continue
+          const trial = choices.map(x => [...x])
+          trial[si][j] = c.id
+          const s = weekScore(trial)
+          if (s < best - 1e-4) { best = s; choices[si] = trial[si]; improved = true }
+        }
+      }
+    })
+    if (!improved) break
+  }
+
+  // Días definitivos: cantidades optimizadas + acompañamientos que de verdad aporten + redondeo
   const days: PlanDay[] = []
   for (let d = 0; d < 7; d++) {
-    const meals: MealDraft[] = []
-    for (const slot of slots) {
-      const pool = perSlot[slot]
-      if (pool.length === 0) continue
-      const choices = pool.slice(0, Math.min(n, pool.length))
-      // Evita repetir el mismo plato en comida y cena del mismo día
-      let t = choices[d % choices.length]
-      const used = new Set(meals.map(m => m.meal.templateId))
-      if (used.has(t.id)) t = choices.find(c => !used.has(c.id)) ?? pool.find(c => !used.has(c.id)) ?? t
-      meals.push(instantiateWithFlags(t, slot, targets.kcal * (split[slot] ?? 0.25), targets.protein * (split[slot] ?? 0.25)))
-    }
-    if (schedule[d].length) injectMustHave(meals, schedule[d], profile)
-    boostMicros(meals, targets, profile)
-    balanceDay(meals, targets)
-    days.push({ meals: meals.map(m => m.meal) })
+    const ids = assemble(d, choices)
+    const day = buildDay(d, ids)
+    const mk = kcalFor(ids)
+    addSides(day, targets, profile, mk)
+    solveAndRound(day.drafts, targets, { mealKcal: mk })
+    days.push({ meals: splitSides(day) })
   }
   return days
 }
 
 /**
  * "Recalcular el resto del día": lo ya comido (`eaten`) se mantiene fijo y se generan de nuevo
- * las comidas de `slots` para que el día completo cuadre con los objetivos (kcal, proteína,
- * micros). Si lo comido ya se pasa, las comidas nuevas salen ligeras pero nunca desaparecen:
- * cada una conserva un mínimo razonable (un snack ~120 kcal, una comida principal ~300 kcal).
+ * las comidas de `slots` para que el día completo cuadre con los objetivos (kcal, macros, micros).
+ * Si lo comido ya se pasa, las comidas nuevas salen ligeras pero nunca desaparecen: cada ingrediente
+ * tiene un mínimo razonable.
  */
 export function regenerateRest(profile: Profile, targets: Targets, params: GenParams, eaten: PlanMeal[], slots: MealId[], seed = Date.now()): PlanMeal[] {
   const rnd = seededRandom(seed)
@@ -395,48 +363,56 @@ export function regenerateRest(profile: Profile, targets: Targets, params: GenPa
   const eatenN = eaten.reduce((t, m) => addNutrients(t, sumRefs(m.items)), emptyNutrients())
   const eatenFoods = new Set(eaten.flatMap(m => m.items.map(i => i.foodId)))
   const restKcal = Math.max(0, targets.kcal - eatenN.kcal)
-  const restProt = Math.max(0, targets.protein - eatenN.protein)
   const weights = slots.map(s => split[s] ?? (s === 'comida' || s === 'cena' || s === 'desayuno' ? 0.3 : 0.1))
   const wsum = weights.reduce((a, b) => a + b, 0) || 1
   const minKcal = (s: MealId) => (s === 'media-manana' || s === 'merienda' ? 120 : 300)
+  const kcalOfSlot = slots.map((s, i) => Math.max(minKcal(s), restKcal * weights[i] / wsum))
 
-  const fixed: MealDraft[] = eaten.map(m => ({ meal: m, fixed: m.items.map(() => true), base: m.items.map(i => i.grams) }))
+  const fixedDrafts: MealDraft[] = eaten.map(m => ({ meal: m, fixed: m.items.map(() => true), base: m.items.map(i => i.grams), hard: true }))
+  const tP = targets.protein * 4 / targets.kcal, tC = targets.carbs * 4 / targets.kcal, tF = targets.fat * 9 / targets.kcal
+
   const fresh: MealDraft[] = []
   slots.forEach((slot, i) => {
-    let pool = MEAL_TEMPLATES.filter(t => t.meals.includes(slot) && COMPLEXITY_RANK[t.complexity] <= maxRank && templateAllowed(t, profile))
+    const pool = MEAL_TEMPLATES.filter(t => t.meals.includes(slot) && COMPLEXITY_RANK[t.complexity] <= maxRank && templateAllowed(t, profile))
     if (!pool.length) return
-    // Variedad: evita platos cuyos ingredientes principales ya se han comido hoy o ya están en otra comida nueva
     const usedNow = new Set([...eatenFoods, ...fresh.flatMap(m => m.meal.items.map(x => x.foodId))])
-    const overlap = (t: MealTemplate) => t.items.filter(x => usedNow.has(`es:${x.f}`) && !x.fixed).length
-    pool = shuffle(pool, rnd).sort((a, b) => overlap(a) - overlap(b))
-    const kcal = Math.max(minKcal(slot), restKcal * weights[i] / wsum)
-    const prot = restProt * weights[i] / wsum
-    fresh.push(instantiateWithFlags(pool[0], slot, kcal, prot))
+    // Probamos varios platos y nos quedamos con el que mejor cuadra el día completo
+    const ranked = shuffle(pool, rnd)
+      .map(t => {
+        const nn = sumRefs(t.items.map(it => ({ foodId: `es:${it.f}`, grams: it.g, state: it.s })))
+        const fit = nn.kcal > 0 ? Math.abs(nn.protein * 4 / nn.kcal - tP) + Math.abs(nn.carbs * 4 / nn.kcal - tC) + Math.abs(nn.fat * 9 / nn.kcal - tF) : 9
+        const overlap = t.items.filter(x => usedNow.has(`es:${x.f}`) && !x.fixed).length
+        return { t, s: fit + overlap * 0.25 + rnd() * 0.3 }
+      })
+      .sort((a, b) => a.s - b.s)
+      .slice(0, 6)
+    let bestT = ranked[0].t, bestCost = Infinity
+    for (const { t } of ranked) {
+      const trial = [...cloneDrafts(fixedDrafts), ...cloneDrafts(fresh), draftFromTemplate(t, slot, kcalOfSlot[i])]
+      const mk = [...fixedDrafts.map(() => undefined), ...fresh.map((_, k) => kcalOfSlot[slots.indexOf(fresh[k].meal.meal)]), kcalOfSlot[i]]
+      const c = solveDay(trial, targets, { mealKcal: mk, sweeps: 50 })
+      if (c < bestCost) { bestCost = c; bestT = t }
+    }
+    fresh.push(draftFromTemplate(bestT, slot, kcalOfSlot[i]))
   })
   if (!fresh.length) return []
-  const all = [...fixed, ...fresh]
-  boostMicros(all, targets, profile, fresh)
-  balanceDay(all, targets)
-  // Ajuste final: balanceDay cuadra las kcal con los carbohidratos, pero una sola comida nueva puede
-  // no tenerlos (ensalada de legumbres, tortilla…). Si el día sigue desviado, se escalan en bloque
-  // los ingredientes libres de las comidas nuevas (entre la mitad y el doble).
-  const kcalOf = (ms: MealDraft[], onlyFree = false) => ms.reduce((t, m) => t + m.meal.items.reduce((s, it, i) => s + (onlyFree && m.fixed[i] ? 0 : sumRefs([it]).kcal), 0), 0)
-  const dayKcal = kcalOf(all)
-  const freeKcal = kcalOf(fresh, true)
-  if (freeKcal > 0 && Math.abs(dayKcal - targets.kcal) > targets.kcal * 0.03) {
-    const f = clamp((freeKcal + targets.kcal - dayKcal) / freeKcal, 0.5, 2)
-    for (const m of fresh) m.meal.items = m.meal.items.map((it, i) => (m.fixed[i] ? it : { ...it, grams: roundGrams(it.grams * f), portionLabel: undefined }))
-  }
-  return fresh.map(m => m.meal)
+  const all = [...fixedDrafts, ...fresh]
+  const mk: number[] = [...fixedDrafts.map(() => 0), ...fresh.map(f => kcalOfSlot[slots.indexOf(f.meal.meal)])]
+  const day: DayDraft = { drafts: all, sides: all.map(() => null) }
+  const editable = new Set(fresh.map((_, k) => fixedDrafts.length + k))
+  addSides(day, targets, profile, mk, editable)
+  solveAndRound(day.drafts, targets, { mealKcal: mk })
+  return splitSides(day).filter(m => !eaten.some(e => e.id === m.id))
 }
 
-/** Vuelve a elegir una plantilla distinta para una comida concreta */
+/** Vuelve a elegir una plantilla distinta para una comida concreta, ya ajustada a su parte del día */
 export function reshuffleMeal(profile: Profile, targets: Targets, params: GenParams, current: PlanMeal, excludeIds: string[] = []): PlanMeal | null {
   const split = mealSplit(params.mealsPerDay)
   const pool = MEAL_TEMPLATES.filter(t => t.meals.includes(current.meal) && COMPLEXITY_RANK[t.complexity] <= COMPLEXITY_RANK[params.complexity] && templateAllowed(t, profile) && t.id !== current.templateId && !excludeIds.includes(t.id))
   if (pool.length === 0) return null
   const t = pool[Math.floor(Math.random() * pool.length)]
-  return instantiateTemplate(t, current.meal, targets.kcal * (split[current.meal] ?? 0.25), targets.protein * (split[current.meal] ?? 0.25))
+  const share = split[current.meal] ?? 0.25
+  return instantiateTemplate(t, current.meal, targets.kcal * share, undefined, targets)
 }
 
 /**
@@ -483,21 +459,22 @@ const COMMON = new Set([
 ])
 
 /**
- * "Nivelar": reajusta las cantidades de un día ya editado para volver a acercarse a los
- * objetivos (grasa → proteína → kcal con carbohidratos) sin cambiar los alimentos.
- * Los ingredientes pequeños (< 15 g: aceite, especias, salsas) no se tocan.
+ * "Nivelar": reajusta las cantidades de un día ya editado para cuadrar kcal, proteína,
+ * carbohidratos y grasa (y mejorar micros) sin cambiar los alimentos ni el peso de cada comida
+ * en el día. Los ingredientes pequeños (< 15 g: aceite, especias, salsas) no se tocan.
  */
 export function balanceExistingDay(mealsIn: PlanMeal[], targets: Targets): PlanMeal[] {
   const drafts: MealDraft[] = mealsIn.map(m => ({
     meal: { ...m, items: m.items.map(it => ({ ...it })) },
-    fixed: m.items.map(it => it.grams < 15 || ['especias', 'salsas'].includes(catalog.get(it.foodId)?.cat ?? '')),
+    fixed: m.items.map(it => it.grams < 15 || ['especias', 'salsas'].includes(catalog.get(it.foodId)?.cat ?? '') || (m.templateId?.startsWith('side-') ?? false)),
     base: m.items.map(it => it.grams),
   }))
-  // Dos pasadas: la segunda afina lo que la primera dejó a medias (los suelos del 50 % siguen respetándose)
-  balanceDay(drafts, targets)
-  balanceDay(drafts, targets)
-  // Tras nivelar, las etiquetas de medida ya no son fieles → se recalculan al mostrar
-  return drafts.map(d => ({ ...d.meal, items: d.meal.items.map((it, i) => (d.fixed[i] ? it : { ...it, portionLabel: undefined })) }))
+  // Cada comida conserva su peso relativo en el día, escalado al objetivo
+  const kcals = drafts.map(d => sumRefs(d.meal.items).kcal)
+  const total = kcals.reduce((a, b) => a + b, 0) || 1
+  const mealKcal = kcals.map(k => (k > 0 ? targets.kcal * k / total : undefined))
+  solveAndRound(drafts, targets, { mealKcal })
+  return drafts.map(d => d.meal)
 }
 
 export function emptyPlan(name: string, params: GenParams): Omit<Plan, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {

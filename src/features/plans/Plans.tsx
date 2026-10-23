@@ -219,6 +219,10 @@ function PlanView({ plan, profile, targets, onBack }: { plan: Plan; profile: Pro
     update(ds => ds.map((dd, i) => (i === day ? { ...dd, meals: balanceExistingDay(dd.meals, targets) } : dd)))
     toast('Cantidades ajustadas a tus objetivos', { emoji: '⚖️', tone: 'ok' })
   }
+  const levelWeek = () => {
+    update(ds => ds.map(dd => (dd.meals.length ? { ...dd, meals: balanceExistingDay(dd.meals, targets) } : dd)))
+    toast('Los 7 días ajustados a tus objetivos. Pulsa Guardar.', { emoji: '⚖️', tone: 'ok' })
+  }
   const copyDayToAll = () => {
     update(ds => ds.map((dd, i) => i === day ? dd : { ...dd, meals: d.meals.map(m => ({ ...m, id: uid(), items: m.items.map(it => ({ ...it, id: uid() })) })) }))
     toast('Copiado al resto de la semana')
@@ -360,9 +364,10 @@ function PlanView({ plan, profile, targets, onBack }: { plan: Plan; profile: Pro
           <Button variant="outline" onClick={copyDayToAll} title="Copiar este día al resto de la semana">Copiar a toda la semana</Button>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" full onClick={levelDay} title="Reajusta las cantidades de este día para volver a cuadrar kcal, proteína y grasa"><Scale size={18} /> Nivelar el día</Button>
-          <Button variant="outline" full onClick={regenerate}><Sparkles size={18} /> Regenerar semana</Button>
+          <Button variant="outline" full onClick={levelDay} title="Reajusta las cantidades de este día para cuadrar kcal, proteína, carbohidratos y grasa"><Scale size={18} /> Nivelar el día</Button>
+          <Button variant="outline" full onClick={levelWeek} title="Reajusta las cantidades de los 7 días sin cambiar los platos"><Scale size={18} /> Nivelar la semana</Button>
         </div>
+        <Button variant="outline" full onClick={regenerate}><Sparkles size={18} /> Regenerar semana (platos nuevos)</Button>
       </div>
 
         {dirty && (
